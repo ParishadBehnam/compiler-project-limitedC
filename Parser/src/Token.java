@@ -6,6 +6,10 @@ public class Token {
     public String type;
     public String name;
 
+    public Token() {
+        type = null;
+        name = null;
+    }
     public Token(String type, String name) {
         this.type = type;
         this.name = name;
