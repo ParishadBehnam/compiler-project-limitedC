@@ -12,6 +12,7 @@ public class Scanner {
     public static Stack<Integer> scopeStack;
 
     private static boolean inDeclaration;
+    private static boolean isError;
     private static int pointer;
     private static String input;
     private static int maxScope;
@@ -23,6 +24,7 @@ public class Scanner {
         maxScope = 0;
         pointer = -1;
         inDeclaration = false;
+        isError = false;
         input = getInput(scanner);
         singles = new ArrayList<Character>(Arrays.asList(',', ';', '*', '<', '(', ')', '[', ']', '{', '}'));
         symbolTable = new HashMap<>();
@@ -32,7 +34,7 @@ public class Scanner {
     private String getInput(java.util.Scanner scanner) {
         String s = "";
         if (scanner.hasNext()) {
-            s += scanner.next();
+            s += scanner.next()+" ";
         }
         return s;
     }
@@ -51,16 +53,16 @@ public class Scanner {
 
         Scanner myScanner = new Scanner();
 
-        for (int i = 0; i < 11; i++) {
+        for (int i = 0; i < 9; i++) {
             Scanner.getToken();
-            System.out.println(token.type+" "+token.name);
+            System.out.println("type: "+token.type+" name: "+token.name);
         }
     }
 
     public static Token getToken() {
-
+        token = new Token();
         match(0, "");
-        if (token.type.equals("ID")) {
+        if (token.type != null && token.type.equals("ID")) {
             Index index1 = new Index(token.name, maxScope);
             Index index2 = new Index(token.name, 0);
             Target target = new Target("", 0, 0, maxScope);
@@ -80,19 +82,21 @@ public class Scanner {
         char ch = ' ';
         pointer++;
         if ((state == 7 || state == 8) && pointer >= input.length()) {
-            input = scanner.next();
+            input = scanner.next()+" ";
             pointer = 0;
-            finished = true;
+            ch = input.charAt(pointer);
         } else if (pointer == input.length() - 1) {
             ch = input.charAt(pointer);
             finished = true;
         } else if (pointer >= input.length()) {
             finished = true;
-            input = scanner.next();
-            pointer = -1;
+            input = scanner.next()+" ";
+            ch = input.charAt(0);
+            pointer = 0;
         } else
             ch = input.charAt(pointer);
 
+//        System.out.println(input+"-"+ch+"p:"+pointer+"!");
         if (state == 0) {
             if (ch == ' ') {
                 match(state, tokenstr);
@@ -120,18 +124,29 @@ public class Scanner {
                 token = new Token(findType(tokenstr), tokenstr);
                 return;
             } else if (finished) {
-                token = new Token(findType(tokenstr), tokenstr + ch);
+                if (ch == ' '){
+                    token = new Token(findType(tokenstr), tokenstr);
+                    return;
+                }
+                token = new Token(findType(tokenstr+ch), tokenstr + ch);
+                return;
             }
         } else if (state == 2) {
             if (Character.isDigit(ch)) {
                 match(3, tokenstr + ch);
-            } else if (ch == '(' || Character.isLetter(ch)) {
+            } else if (ch == '-' || ch == '+' || ch == '/' || singles.contains(ch) || Character.isLetter(ch)) {
                 pointer--;
                 token = new Token(tokenstr, "");
                 return;
             } else if (finished) {
+                if (ch == ' ') {
+                    token = new Token(tokenstr, "");
+                    return;
+                }
                 token = new Token("NUM", tokenstr + ch);
                 return;
+            } else {
+                isError = true;
             }
         } else if (state == 3) {
             if (Character.isDigit(ch)) {
@@ -141,14 +156,20 @@ public class Scanner {
                 token = new Token("NUM", tokenstr);
                 return;
             } else if (finished) {
+                if (ch == ' ') {
+                    token = new Token("NUM", tokenstr);
+                    return;
+                }
                 token = new Token("NUM", tokenstr + ch);
                 return;
+            } else {
+                isError = true;
             }
         } else if (state == 4) {
             if (ch == '=') {
                 token = new Token("==", "");
                 return;
-            } else if (ch == '(' || Character.isLetterOrDigit(ch)) {
+            } else if (Character.isLetterOrDigit(ch) || ch == '/' || singles.contains(ch)) {
                 pointer--;
                 token = new Token("=", "");
                 return;
@@ -164,8 +185,11 @@ public class Scanner {
         } else if (state == 6) {
             if (ch == '*') {
                 match(7, "");
-            } else if (Character.isLetterOrDigit(ch) || ch == '(') {
+            } else if (Character.isLetterOrDigit(ch) || ch == '/' || singles.contains(ch)) {
                 pointer--;
+                token = new Token("/", "");
+                return;
+            } else if (finished) {
                 token = new Token("/", "");
                 return;
             }
@@ -181,8 +205,14 @@ public class Scanner {
             } else {
                 match(7, "");
             }
-        } else {
-            //TODO PANIC ERROR HANDLING!
+        }
+        if (isError) {
+            //TODO
+            isError = false;
+            System.out.println("ERROR");
+            input = scanner.next()+" ";
+            pointer = -1;
+            match(0, "");
         }
     }
 
