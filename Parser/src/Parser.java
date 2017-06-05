@@ -12,7 +12,7 @@ public class Parser {
                     1,4,4,4,1,1,1,4,1,1,1,3,1,2,2,4,1,0,3,1));
     ArrayList<String> grammarLHS = new ArrayList<>(
             Arrays.asList("Program", "DeclarationList", "DeclarationList", "Declaration", "Declaration",
-                    "VarDeclaration", "VarDeclaration", "TypeSpecifier", "FunDeclaration", "FunReturnType",
+                    "VarDeclaration", "VarDeclaration", "TypeSpecifier", "FunDeclaration", "FunReturnType", "FunReturnType",
                     "Params", "Params", "ParamList", "ParamList", "Param", "Param", "CompoundStmt", "LocalDeclarations",
                     "LocalDeclarations", "StatementList", "StatementList", "Statement", "Statement", "Statement", "Statement",
                     "Statement", "ExpressionStmt", "ExpressionStmt", "SelectionStmt", "SelectionStmt", "IterationStmt",
@@ -20,7 +20,7 @@ public class Parser {
                     "RelTerm", "RelTerm", "Expression", "Expression", "AddOp", "AddOp", "Term", "Term", "MulOp", "MulOp", "Factor",
                     "Factor", "Factor", "Factor", "Call", "Args", "Args", "ArgList", "ArgList", "X1", "X2", "X3", "X4", "X5", "X6",
                     "X7", "X8", "X9", "X10", "X11", "X12", "X13", "X14", "X15", "X16", "X17", "X18", "X19", "X20", "X21", "X22", "X23"));
-    Stack parsStack = new Stack();
+    Stack<String> parsStack = new Stack();
     ParseTable parseTable = new ParseTable();
 
     public Parser() {
@@ -28,33 +28,64 @@ public class Parser {
             grammarLength.add(0);
         }
         parsStack.push("$");
-        parsStack.push(1);
+        parsStack.push("0");
     }
 
     public void start() {
         Token t = Scanner.getToken();
         while (t != null) {
-            String res = parseTable.actionTable.get((Integer)parsStack.peek()).get(t.type);
-            if(res.charAt(0) == 's') {
-                parsStack.push(t);
+            printStack();
+            System.out.println("token" + t.type);
+            String res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
+            System.out.println("res" + res);
+            String[] splited = res.split(" ");
+            if(splited.length == 1 && res.charAt(0) == 's') {
+                parsStack.push(t.type);
                 int state = Integer.parseInt(res.substring(1));
-                parsStack.push(state);
+                parsStack.push(Integer.toString(state));
                 t = Scanner.getToken();
-            }else if(res.charAt(0) == 'r') {
+            }else if(splited.length == 1 && res.charAt(0) == 'r') {
                 int idx = Integer.parseInt(res.substring(1));
                 int len = 2 * grammarLength.get(idx - 1);
 
                 for(int i =0 ; i< len; i++)
                     parsStack.pop();
 
-                int gotoIdx = (Integer)(parsStack.peek());
+
+
+                int gotoIdx = Integer.parseInt(parsStack.peek());
                 parsStack.push(grammarLHS.get(idx - 1));
-                parsStack.push(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1)));
+                parsStack.push(Integer.toString(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1))));
+            }else if(splited.length == 2) {
+
+                int idx = Integer.parseInt(splited[0].substring(1));
+                int len = 2 * grammarLength.get(idx - 1);
+
+                for(int i =0 ; i< len; i++)
+                    parsStack.pop();
+
+                int gotoIdx = Integer.parseInt(parsStack.peek());
+                parsStack.push(grammarLHS.get(idx - 1));
+                parsStack.push(Integer.toString(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1))));
+
+                //TODO
+
+                /*parsStack.push(t.type);
+                int state = Integer.parseInt(splited[1].substring(1));
+                parsStack.push(Integer.toString(state));
+                t = Scanner.getToken();*/
 
             }
-
         }
+    }
 
+    public void printStack() {
+        Stack<String> copiedStack = (Stack<String>)parsStack.clone();
+        for(int i =0; i < parsStack.size(); i++) {
+            System.out.print(copiedStack.pop() + " ");
+        }
+        System.out.println("");
+        System.out.println("=====");
     }
 
 }
@@ -405,7 +436,7 @@ class ParseTable {
 
         row13g.put("FunReturnType", 121);
 
-        row14g.put("ID", 9);
+        row14a.put("ID", "s9");
 
         row15g.put("X21", 18);
 
@@ -482,7 +513,7 @@ class ParseTable {
         row37g.put("LocalDeclarations", 38);
 
         row38g.put("StatementList", 40);
-        row38g.put("VarDeclarations", 41);
+        row38g.put("VarDeclaration", 41);
         row38g.put("TypeSpecifier", 14);
         row38a.put("int", "s24");
         row38a.put(";", "r22");
@@ -749,7 +780,7 @@ class ParseTable {
         row66a.put("while", "r64");
         row66a.put("return", "r64");
 
-        row67g.put("NUM", 70);
+        row67a.put("NUM", "s70");
 
         row68a.put("(", "s86");
 
@@ -844,6 +875,7 @@ class ParseTable {
         row76a.put("NUM", "r65");
 
         row77a.put(",", "r45");
+        row77a.put("NUM", "r45"); //TODO
         row77a.put(")", "r45");
         row77a.put("+", "r45");
         row77a.put("*", "r45");
