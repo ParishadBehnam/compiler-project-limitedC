@@ -2,10 +2,63 @@
  * Created by afra on 6/5/17.
  */
 
+
 import java.util.*;
 
 public class Parser {
+    ArrayList<Integer> grammarLength = new ArrayList<Integer>
+            (Arrays.asList(4,2,1,1,1,4,7,1,9,1,1,1,1,4,2,2,4,4,
+                    2,0,2,0,1,1,1,1,1,5,1,7,10,8,3,4,2,6,1,1,4,
+                    1,4,4,4,1,1,1,4,1,1,1,3,1,2,2,4,1,0,3,1));
+    ArrayList<String> grammarLHS = new ArrayList<>(
+            Arrays.asList("Program", "DeclarationList", "DeclarationList", "Declaration", "Declaration",
+                    "VarDeclaration", "VarDeclaration", "TypeSpecifier", "FunDeclaration", "FunReturnType",
+                    "Params", "Params", "ParamList", "ParamList", "Param", "Param", "CompoundStmt", "LocalDeclarations",
+                    "LocalDeclarations", "StatementList", "StatementList", "Statement", "Statement", "Statement", "Statement",
+                    "Statement", "ExpressionStmt", "ExpressionStmt", "SelectionStmt", "SelectionStmt", "IterationStmt",
+                    "ReturnStmt", "ReturnStmt", "Var", "Var", "GenExpression", "GenExpression", "RelExpression", "RelExpression",
+                    "RelTerm", "RelTerm", "Expression", "Expression", "AddOp", "AddOp", "Term", "Term", "MulOp", "MulOp", "Factor",
+                    "Factor", "Factor", "Factor", "Call", "Args", "Args", "ArgList", "ArgList", "X1", "X2", "X3", "X4", "X5", "X6",
+                    "X7", "X8", "X9", "X10", "X11", "X12", "X13", "X14", "X15", "X16", "X17", "X18", "X19", "X20", "X21", "X22", "X23"));
+    Stack parsStack = new Stack();
+    ParseTable parseTable = new ParseTable();
+
+    public Parser() {
+        for(int i =0; i < 22; i++) {
+            grammarLength.add(0);
+        }
+        parsStack.push("$");
+        parsStack.push(1);
+    }
+
+    public void start() {
+        Token t = Scanner.getToken();
+        while (t != null) {
+            String res = parseTable.actionTable.get((Integer)parsStack.peek()).get(t.type);
+            if(res.charAt(0) == 's') {
+                parsStack.push(t);
+                int state = Integer.parseInt(res.substring(1));
+                parsStack.push(state);
+                t = Scanner.getToken();
+            }else if(res.charAt(0) == 'r') {
+                int idx = Integer.parseInt(res.substring(1));
+                int len = 2 * grammarLength.get(idx - 1);
+
+                for(int i =0 ; i< len; i++)
+                    parsStack.pop();
+
+                int gotoIdx = (Integer)(parsStack.peek());
+                parsStack.push(grammarLHS.get(idx - 1));
+                parsStack.push(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1)));
+
+            }
+
+        }
+
+    }
+
 }
+
 
 class ParseTable {
     ArrayList<HashMap<String, String>> actionTable;
