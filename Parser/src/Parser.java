@@ -1,11 +1,14 @@
 /**
  * Created by afra on 6/5/17.
  */
+
 import java.util.*;
+
 public class Parser {
 }
+
 class ParseTable {
-    ArrayList<HashMap <String, String>> actionTable;
+    ArrayList<HashMap<String, String>> actionTable;
     ArrayList<HashMap<String, Integer>> gotoTable;
 
     public ParseTable() {
@@ -197,9 +200,9 @@ class ParseTable {
         row21a.put(")", "r12");
 
         row22a.put(")", "r75");
-        row22g.put("X16",29);
+        row22g.put("X16", 29);
 
-        row23a.put(")","r13");
+        row23a.put(")", "r13");
 
         row24a.put("ID", "r8");
 
@@ -296,6 +299,7 @@ class ParseTable {
         row42a.put("if", "r18");
         row42a.put("while", "r18");
         row42a.put("return", "r18");
+        row42a.put("}", "r18");
 
         row43a.put(";", "r23");
         row43a.put("ID", "r23");
@@ -303,6 +307,7 @@ class ParseTable {
         row43a.put("if", "r23");
         row43a.put("while", "r23");
         row43a.put("return", "r23");
+        row43a.put("}", "r23");
 
         row44a.put(";", "r25");
         row44a.put("ID", "r25");
@@ -310,6 +315,7 @@ class ParseTable {
         row44a.put("if", "r25");
         row44a.put("while", "r25");
         row44a.put("return", "r25");
+        row44a.put("}", "r25");
 
         row45a.put(";", "r27");
         row45a.put("ID", "r27");
@@ -317,6 +323,7 @@ class ParseTable {
         row45a.put("if", "r27");
         row45a.put("while", "r27");
         row45a.put("return", "r27");
+        row45a.put("}", "r27");
 
         row46a.put(";", "r21");
         row46a.put("ID", "r21");
@@ -324,6 +331,7 @@ class ParseTable {
         row46a.put("if", "r21");
         row46a.put("while", "r21");
         row46a.put("return", "r21");
+        row46a.put("}", "r21");
 
         row47a.put(";", "r24");
         row47a.put("ID", "r24");
@@ -331,6 +339,7 @@ class ParseTable {
         row47a.put("if", "r24");
         row47a.put("while", "r24");
         row47a.put("return", "r24");
+        row47a.put("}", "r24");
 
         row48a.put(";", "r26");
         row48a.put("ID", "r26");
@@ -338,6 +347,7 @@ class ParseTable {
         row48a.put("if", "r26");
         row48a.put("while", "r26");
         row48a.put("return", "r26");
+        row48a.put("}", "r26");
 
         row49a.put(";", "r29");
         row49a.put("ID", "r29");
@@ -345,6 +355,7 @@ class ParseTable {
         row49a.put("if", "r29");
         row49a.put("while", "r29");
         row49a.put("return", "r29");
+        row49a.put("}", "r29");
 
         row50a.put("=", "s55");
 
@@ -364,8 +375,774 @@ class ParseTable {
         row53g.put("Var", 65);
         row53g.put("Call", 66);
         row53g.put("X6", 67);
-        row53g.put("X7", 51);
-        row53g.put("GenExpression", 61);
+        row53g.put("X2", 51);
+        row53g.put("GenExpression", 59);
+
+        row54g.put("X14", 124);
+        row54a.put("(", "r73");
+
+        row55g.put("Expression", 71);
+        row55g.put("Term", 63);
+        row55g.put("Factor", 64);
+        row55g.put("Var", 65);
+        row55g.put("Call", 66);
+        row55g.put("X6", 67);
+        row55g.put("X2", 51);
+        row55a.put("ID", "r61 s68");
+        row55a.put("NUM", "r65");
+
+        row56a.put("[", "s57");
+        row56a.put("=", "r35");
+        row56a.put("*", "r35");
+        row56a.put("/", "r35");
+        row56a.put(",", "r35");
+        row56a.put(")", "r35");
+        row56a.put("+", "r35");
+        row56a.put("-", "r35");
+        row56a.put("<", "r35");
+        row56a.put("&&", "r35");
+        row56a.put(";", "r35");
+        row56a.put("==", "r35");
+        row56a.put("]", "r35");
+        row56a.put("ID", "r35");
+        row56a.put("{", "r35");
+        row56a.put("if", "r35");
+        row56a.put("while", "r35");
+        row56a.put("return", "r35");
+
+        row57g.put("Expression", 87);
+        row57g.put("Term", 63);
+        row57g.put("Factor", 64);
+        row57g.put("Var", 65);
+        row57g.put("Call", 66);
+        row57g.put("X6", 67);
+        row57g.put("X2", 51);
+        row57a.put("(", "s75");
+        row57a.put("ID", "r61 s68");
+        row57a.put("NUM", "r65");
+
+        row58g.put("X17", 72);
+        row58a.put("while", "r76");
+        row58a.put("ID", "r76");
+        row58a.put(";", "r76");
+        row58a.put("{", "r76");
+        row58a.put("if", "r76");
+        row58a.put("return", "r76");
+        row58a.put("}", "r76");
+
+        row59a.put(";", "s73");
+
+        row60a.put("&&", "s82");
+        row60a.put(";", "r37");
+        row60a.put(")", "r37");
+
+        row61g.put("AddOp", 79);
+        row61a.put("+", 77);
+        row61a.put("-", 78);
+        row61a.put("==", 80);
+        row61a.put("<", 81);
+        row61a.put(";", "r38");
+        row61a.put(";", "r38");
+
+        row62a.put("&&", "r40");
+        row62a.put(";", "r40");
+        row62a.put(")", "r40");
+
+        row63g.put("MulOp", 83);
+        row63a.put("*", "s84");
+        row63a.put("/", "s85");
+        row63a.put(",", "r44");
+        row63a.put(")", "r44");
+        row63a.put("+", "r44");
+        row63a.put("-", "r44");
+        row63a.put("<", "r44");
+        row63a.put("&&", "r44");
+        row63a.put(";", "r44");
+        row63a.put("==", "r44");
+        row63a.put("]", "r44");
+        row63a.put("ID", "r44");
+        row63a.put("{", "r44");
+        row63a.put("if", "r44");
+        row63a.put("while", "r44");
+        row63a.put("return", "r44");
+
+
+        row64a.put(",", "r48");
+        row64a.put(")", "r48");
+        row64a.put("+", "r48");
+        row64a.put("*", "r48");
+        row64a.put("/", "r48");
+        row64a.put("-", "r48");
+        row64a.put("<", "r48");
+        row64a.put("&&", "r48");
+        row64a.put(";", "r48");
+        row64a.put("==", "r48");
+        row64a.put("]", "r48");
+        row64a.put("ID", "r48");
+        row64a.put("{", "r48");
+        row64a.put("if", "r48");
+        row64a.put("while", "r48");
+        row64a.put("return", "r48");
+
+        row65a.put(",", "r52");
+        row65a.put(")", "r52");
+        row65a.put("+", "r52");
+        row65a.put("*", "r52");
+        row65a.put("/", "r52");
+        row65a.put("-", "r52");
+        row65a.put("<", "r52");
+        row65a.put("&&", "r52");
+        row65a.put(";", "r52");
+        row65a.put("==", "r52");
+        row65a.put("]", "r52");
+        row65a.put("ID", "r52");
+        row65a.put("{", "r52");
+        row65a.put("if", "r52");
+        row65a.put("while", "r52");
+        row65a.put("return", "r52");
+
+        row66g.put("X5", 69);
+        row66a.put(",", "r64");
+        row66a.put(")", "r64");
+        row66a.put("+", "r64");
+        row66a.put("*", "r64");
+        row66a.put("/", "r64");
+        row66a.put("-", "r64");
+        row66a.put("<", "r64");
+        row66a.put("&&", "r64");
+        row66a.put(";", "r64");
+        row66a.put("==", "r64");
+        row66a.put("]", "r64");
+        row66a.put("ID", "r64");
+        row66a.put("{", "r64");
+        row66a.put("if", "r64");
+        row66a.put("while", "r64");
+        row66a.put("return", "r64");
+
+        row67g.put("NUM", 70);
+
+        row68a.put("(", "s86");
+
+        row69a.put(",", "r53");
+        row69a.put(")", "r53");
+        row69a.put("+", "r53");
+        row69a.put("*", "r53");
+        row69a.put("/", "r53");
+        row69a.put("-", "r53");
+        row69a.put("<", "r53");
+        row69a.put("&&", "r53");
+        row69a.put(";", "r53");
+        row69a.put("==", "r53");
+        row69a.put("]", "r53");
+        row69a.put("ID", "r53");
+        row69a.put("{", "r53");
+        row69a.put("if", "r53");
+        row69a.put("while", "r53");
+        row69a.put("return", "r53");
+
+        row70a.put(",", "r54");
+        row70a.put(")", "r54");
+        row70a.put("+", "r54");
+        row70a.put("*", "r54");
+        row70a.put("/", "r54");
+        row70a.put("-", "r54");
+        row70a.put("<", "r54");
+        row70a.put("&&", "r54");
+        row70a.put(";", "r54");
+        row70a.put("==", "r54");
+        row70a.put("]", "r54");
+        row70a.put("ID", "r54");
+        row70a.put("{", "r54");
+        row70a.put("if", "r54");
+        row70a.put("while", "r54");
+        row70a.put("return", "r54");
+
+        row71g.put("X1", 113);
+        row71g.put("AddOp", 79);
+        row71a.put("+", 77);
+        row71a.put("-", 78);
+        row71a.put(";", "r60");
+
+        row72a.put(";", "r33");
+        row72a.put("ID", "r33");
+        row72a.put("{", "r33");
+        row72a.put("if", "r33");
+        row72a.put("while", "r33");
+        row72a.put("return", "r33");
+        row72a.put("}", "r33");
+
+        row73g.put("X17", 74);
+        row73a.put(";", "r76");
+        row73a.put("ID", "r76");
+        row73a.put("{", "r76");
+        row73a.put("if", "r76");
+        row73a.put("while", "r76");
+        row73a.put("return", "r76");
+        row73a.put("}", "r76");
+
+        row74a.put(";", "r34");
+        row74a.put("ID", "r34");
+        row74a.put("{", "r34");
+        row74a.put("if", "r34");
+        row74a.put("while", "r34");
+        row74a.put("return", "r34");
+        row74a.put("}", "r34");
+
+        row75g.put("Expression", 90);
+        row75g.put("Term", 63);
+        row75g.put("Factor", 64);
+        row75a.put("(", 75);
+        row75g.put("Var", 65);
+        row75g.put("Call", 66);
+        row75g.put("X6", 67);
+        row75g.put("X2", 51);
+        row75a.put("ID", "r61 s68");
+        row75a.put("NUM", "r65");
+
+        row76g.put("GenExpression", 92);
+        row76g.put("RelExpression", 60);
+        row76g.put("RelTerm", 62);
+        row76g.put("Expression", 61);
+        row76g.put("Term", 63);
+        row76g.put("Factor", 64);
+        row76a.put("(", 75);
+        row76g.put("Var", 65);
+        row76g.put("Call", 66);
+        row76g.put("X6", 67);
+        row76g.put("X2", 51);
+        row76a.put("ID", "r61 s68");
+        row76a.put("NUM", "r65");
+
+        row77a.put(",", "r45");
+        row77a.put(")", "r45");
+        row77a.put("+", "r45");
+        row77a.put("*", "r45");
+        row77a.put("/", "r45");
+        row77a.put("-", "r45");
+        row77a.put("<", "r45");
+        row77a.put("&&", "r45");
+        row77a.put(";", "r45");
+        row77a.put("==", "r45");
+        row77a.put("]", "r45");
+        row77a.put("ID", "r45");
+        row77a.put("{", "r45");
+        row77a.put("if", "r45");
+        row77a.put("while", "r45");
+        row77a.put("return", "r45");
+
+        row78a.put(",", "r46");
+        row78a.put(")", "r46");
+        row78a.put("+", "r46");
+        row78a.put("*", "r46");
+        row78a.put("/", "r46");
+        row78a.put("-", "r46");
+        row78a.put("<", "r46");
+        row78a.put("&&", "r46");
+        row78a.put(";", "r46");
+        row78a.put("==", "r46");
+        row78a.put("]", "r46");
+        row78a.put("ID", "r46");
+        row78a.put("{", "r46");
+        row78a.put("if", "r46");
+        row78a.put("while", "r46");
+        row78a.put("return", "r46");
+
+        row79g.put("Term", 95);
+        row79g.put("Factor", 64);
+        row79a.put("(", 75);
+        row79g.put("Var", 65);
+        row79g.put("Call", 66);
+        row79g.put("X6", 67);
+        row79g.put("X2", 51);
+        row79a.put("ID", "r61 s68");
+        row79a.put("NUM", "r65");
+
+        row80g.put("Term", 63);
+        row80g.put("Expression", 94);
+        row80g.put("Factor", 64);
+        row80a.put("(", 75);
+        row80g.put("Var", 65);
+        row80g.put("Call", 66);
+        row80g.put("X6", 67);
+        row80g.put("X2", 51);
+        row80a.put("ID", "r61 s68");
+        row80a.put("NUM", "r65");
+
+        row81g.put("Term", 63);
+        row81g.put("Expression", 93);
+        row81g.put("Factor", 64);
+        row81a.put("(", 75);
+        row81g.put("Var", 65);
+        row81g.put("Call", 66);
+        row81g.put("X6", 67);
+        row81g.put("X2", 51);
+        row81a.put("ID", "r61 s68");
+        row81a.put("NUM", "r65");
+
+        row82g.put("Term", 63);
+        row82g.put("Expression", 98);
+        row82g.put("RelTerm", 97);
+        row82g.put("Factor", 64);
+        row82a.put("(", 75);
+        row82g.put("Var", 65);
+        row82g.put("Call", 66);
+        row82g.put("X6", 67);
+        row82g.put("X2", 51);
+        row82a.put("ID", "r61 s68");
+        row82a.put("NUM", "r65");
+
+
+        row83g.put("Factor", 99);
+        row83a.put("(", 75);
+        row83g.put("Var", 65);
+        row83g.put("Call", 66);
+        row83g.put("X6", 67);
+        row83g.put("X2", 51);
+        row83a.put("ID", "r61 s68");
+        row83a.put("NUM", "r65");
+
+        row84a.put(",", "r49");
+        row84a.put(")", "r49");
+        row84a.put("+", "r49");
+        row84a.put("*", "r49");
+        row84a.put("/", "r49");
+        row84a.put("-", "r49");
+        row84a.put("<", "r49");
+        row84a.put("&&", "r49");
+        row84a.put(";", "r49");
+        row84a.put("==", "r49");
+        row84a.put("]", "r49");
+        row84a.put("ID", "r49");
+        row84a.put("{", "r49");
+        row84a.put("if", "r49");
+        row84a.put("while", "r49");
+        row84a.put("return", "r49");
+
+        row85a.put(",", "r50");
+        row85a.put(")", "r50");
+        row85a.put("+", "r50");
+        row85a.put("*", "r50");
+        row85a.put("/", "r50");
+        row85a.put("-", "r50");
+        row85a.put("<", "r50");
+        row85a.put("&&", "r50");
+        row85a.put(";", "r50");
+        row85a.put("==", "r50");
+        row85a.put("]", "r50");
+        row85a.put("ID", "r50");
+        row85a.put("{", "r50");
+        row85a.put("if", "r50");
+        row85a.put("while", "r50");
+        row85a.put("return", "r50");
+
+        row86g.put("Term", 63);
+        row86g.put("Args", 101);
+        row86g.put("ArgList", 103);
+        row86g.put("Expression", 104);
+        row86g.put("Factor", 64);
+        row86a.put("(", 75);
+        row86g.put("Var", 65);
+        row86g.put("Call", 66);
+        row86g.put("X6", 67);
+        row86g.put("X2", 51);
+        row86a.put("ID", "r61 s68");
+        row86a.put("NUM", "r65");
+        row86a.put(")", "r57");
+
+        row87g.put("AddOp", 79);
+        row87a.put("+", "s77");
+        row87a.put("-", "s78");
+
+        row88a.put(",", "r62");
+        row88a.put("=", "r62");
+        row88a.put(")", "r62");
+        row88a.put("+", "r62");
+        row88a.put("*", "r62");
+        row88a.put("/", "r62");
+        row88a.put("-", "r62");
+        row88a.put("<", "r62");
+        row88a.put("&&", "r62");
+        row88a.put(";", "r62");
+        row88a.put("==", "r62");
+        row88a.put("]", "r62");
+        row88a.put("ID", "r62");
+        row88a.put("{", "r62");
+        row88a.put("if", "r62");
+        row88a.put("while", "r62");
+        row88a.put("return", "r62");
+        row88g.put("X3", 89);
+
+        row89a.put(",", "r36");
+        row89a.put("=", "r36");
+        row89a.put(")", "r36");
+        row89a.put("+", "r36");
+        row89a.put("*", "r36");
+        row89a.put("/", "r36");
+        row89a.put("-", "r36");
+        row89a.put("<", "r36");
+        row89a.put("&&", "r36");
+        row89a.put(";", "r36");
+        row89a.put("==", "r36");
+        row89a.put("]", "r36");
+        row89a.put("ID", "r36");
+        row89a.put("{", "r36");
+        row89a.put("if", "r36");
+        row89a.put("while", "r36");
+        row89a.put("return", "r36");
+
+        row90g.put("AddOp", 79);
+        row90a.put("+", "s77");
+        row90a.put("-", "s78");
+        row90a.put(")", "s91");
+
+        row91a.put(",", "r51");
+        row91a.put(")", "r51");
+        row91a.put("+", "r51");
+        row91a.put("*", "r51");
+        row91a.put("/", "r51");
+        row91a.put("-", "r51");
+        row91a.put("<", "r51");
+        row91a.put("&&", "r51");
+        row91a.put(";", "r51");
+        row91a.put("==", "r51");
+        row91a.put("]", "r51");
+        row91a.put("ID", "r51");
+        row91a.put("{", "r51");
+        row91a.put("if", "r51");
+        row91a.put("while", "r51");
+        row91a.put("return", "r51");
+
+        row92a.put(")", "s108");
+
+        row93g.put("AddOp", 79);
+        row93g.put("X12", 105);
+        row93a.put("+", "s77");
+        row93a.put("&&", "r71");
+        row93a.put(";", "r71");
+        row93a.put(")", "r71");
+        row93a.put("-", "s78");
+
+        row94g.put("AddOp", 79);
+        row94g.put("X11", 106);
+        row94a.put("+", "s77");
+        row94a.put("&&", "r70");
+        row94a.put(";", "r70");
+        row94a.put(")", "r70");
+        row94a.put("-", "s78");
+
+        row95a.put(",", "r63");
+        row95a.put(")", "r63");
+        row95a.put("+", "r63");
+        row95a.put("-", "r63");
+        row95a.put("<", "r63");
+        row95a.put("&&", "r63");
+        row95a.put(";", "r63");
+        row95a.put("==", "r63");
+        row95a.put("]", "r63");
+        row95a.put("ID", "r63");
+        row95a.put("{", "r63");
+        row95a.put("if", "r63");
+        row95a.put("while", "r63");
+        row95a.put("*", "s84");
+        row95a.put("/", "s85");
+        row95a.put("return", "r63");
+        row95g.put("X4", 107);
+        row95g.put("MulOp", 83);
+
+        row96g.put("X13", 97);
+        row96a.put("&&", "r72");
+        row96a.put(";", "r72");
+        row96a.put(")", "r72");
+
+        row97a.put("&&", "r39");
+        row97a.put(";", "r39");
+        row97a.put(")", "r39");
+
+        row98g.put("AddOp", 79);
+        row98a.put("+", "s77");
+        row98a.put("-", "s78");
+        row98a.put("==", "s80");
+        row98a.put("<", "s81");
+
+        row99g.put("X4", 100);
+        row99a.put(",", "r63");
+        row99a.put(")", "r63");
+        row99a.put("+", "r63");
+        row99a.put("-", "r63");
+        row99a.put("<", "r63");
+        row99a.put("&&", "r63");
+        row99a.put(";", "r63");
+        row99a.put("==", "r63");
+        row99a.put("]", "r63");
+        row99a.put("ID", "r63");
+        row99a.put("{", "r63");
+        row99a.put("if", "r63");
+        row99a.put("while", "r63");
+        row99a.put("*", "s84");
+        row99a.put("/", "s85");
+        row99a.put("return", "r63");
+
+        row100a.put(",", "r47");
+        row100a.put(")", "r47");
+        row100a.put("+", "r47");
+        row100a.put("-", "r47");
+        row100a.put("<", "r47");
+        row100a.put("&&", "r47");
+        row100a.put(";", "r47");
+        row100a.put("==", "r47");
+        row100a.put("]", "r47");
+        row100a.put("ID", "r47");
+        row100a.put("{", "r47");
+        row100a.put("if", "r47");
+        row100a.put("while", "r47");
+        row100a.put("*", "s47");
+        row100a.put("/", "s47");
+        row100a.put("return", "r47");
+
+        row101a.put(")", "s102");
+
+        row102a.put(",", "r55");
+        row102a.put(")", "r55");
+        row102a.put("+", "r55");
+        row102a.put("-", "r55");
+        row102a.put("<", "r55");
+        row102a.put("&&", "r55");
+        row102a.put(";", "r55");
+        row102a.put("==", "r55");
+        row102a.put("]", "r55");
+        row102a.put("ID", "r55");
+        row102a.put("{", "r55");
+        row102a.put("if", "r55");
+        row102a.put("while", "r55");
+        row102a.put("*", "s55");
+        row102a.put("/", "s55");
+        row102a.put("return", "r55");
+
+        row103a.put(",", "s118");
+        row103a.put(")", "s56");
+
+        row104g.put("AddOp", 79);
+        row104a.put("+", "s77");
+        row104a.put("-", "s78");
+        row104a.put(",", "r59");
+        row104a.put(")", "r59");
+
+        row105a.put("&&", "r42");
+        row105a.put(";", "r42");
+        row105a.put(")", "r42");
+
+        row106a.put("&&", "r41");
+        row106a.put(";", "r41");
+        row106a.put(")", "r41");
+
+        row107a.put(",", "r43");
+        row107a.put(")", "r43");
+        row107a.put("+", "r43");
+        row107a.put("-", "r43");
+        row107a.put("<", "r43");
+        row107a.put("&&", "r43");
+        row107a.put(";", "r43");
+        row107a.put("==", "r43");
+        row107a.put("]", "r43");
+        row107a.put("ID", "r43");
+        row107a.put("{", "r43");
+        row107a.put("if", "r43");
+        row107a.put("while", "r43");
+        row107a.put("*", "s43");
+        row107a.put("/", "s43");
+        row107a.put("return", "r43");
+
+        row108a.put("int", "r66");
+        row108a.put("if", "r66");
+        row108a.put("void", "r66");
+        row108a.put(";", "r66");
+        row108a.put("while", "r66");
+        row108a.put("return", "r66");
+        row108a.put("ID", "r66");
+        row108a.put("{", "r66");
+        row108g.put("X7", 109);
+
+        row109g.put("ExpressionStmt", 43);
+        row109g.put("SelectionStmt", 44);
+        row109g.put("ReturnStmt", 45);
+        row109g.put("X2", 51);
+        row109g.put("Var", 50);
+        row109g.put("IterationStmt", 48);
+        row109g.put("CompoundStmt", 47);
+        row109g.put("Statement", 110);
+        row109a.put("if", "s52");
+        row109a.put("while", "s54");
+        row109a.put("return", "s53");
+        row109a.put(";", "s49");
+        row109a.put("{", "s37");
+        row109a.put("ID", "r61");
+
+        row110a.put(";", "r67");
+        row110a.put("ID", "r67");
+        row110a.put("{", "r67");
+        row110a.put("}", "r67");
+        row110a.put("if", "r67");
+        row110a.put("while", "r67");
+        row110a.put("return", "r67");
+        row110a.put("else", "r68");
+        row110g.put("X9", 112);
+        row110g.put("X8", 111);
+
+        row111a.put(";", "r30");
+        row111a.put("ID", "r30");
+        row111a.put("{", "r30");
+        row111a.put("if", "r30");
+        row111a.put("while", "r30");
+        row111a.put("return", "r30");
+        row111a.put("}", "r30");
+
+        row112g.put("else", "s115");
+
+        row113a.put(";", "s114");
+
+        row114a.put(";", "r28");
+        row114a.put("ID", "r28");
+        row114a.put("{", "r28");
+        row114a.put("if", "r28");
+        row114a.put("while", "r28");
+        row114a.put("return", "r28");
+        row114a.put("}", "r28");
+
+        row115g.put("ExpressionStmt", 43);
+        row115g.put("SelectionStmt", 44);
+        row115g.put("ReturnStmt", 45);
+        row115g.put("X2", 51);
+        row115g.put("Var", 50);
+        row115g.put("IterationStmt", 48);
+        row115g.put("CompoundStmt", 47);
+        row115g.put("Statement", 116);
+        row115a.put("if", "s52");
+        row115a.put("while", "s54");
+        row115a.put("return", "s53");
+        row115a.put(";", "s49");
+        row115a.put("{", "s37");
+        row115a.put("ID", "r61");
+
+        row116g.put("X10", 117);
+        row116a.put(";", "r69");
+        row116a.put("ID", "r69");
+        row116a.put("{", "r69");
+        row116a.put("if", "r69");
+        row116a.put("while", "r69");
+        row116a.put("return", "r69");
+        row116a.put("}", "r69");
+
+        row117a.put(";", "r31");
+        row117a.put("ID", "r31");
+        row117a.put("{", "r31");
+        row117a.put("if", "r31");
+        row117a.put("while", "r31");
+        row117a.put("return", "r31");
+
+        row118g.put("Term", 63);
+        row118g.put("Expression", 119);
+        row118g.put("Factor", 64);
+        row118a.put("(", 75);
+        row118g.put("Var", 65);
+        row118g.put("Call", 66);
+        row118g.put("X6", 67);
+        row118g.put("X2", 51);
+        row118a.put("ID", "r61 s68");
+        row118a.put("NUM", "r65");
+
+        row119g.put("AddOp", 79);
+        row119a.put("+", "s77");
+        row119a.put("-", "s78");
+        row119a.put(",", "r58");
+        row119a.put(")", "r58");
+
+        row120a.put(";", "s122");
+
+        row121g.put("X22", 10);
+        row121a.put("ID", "r81");
+
+        row122g.put("EOF", "r6");
+        row122g.put("int", "r6");
+        row122g.put("void", "r6");
+        row122g.put("if", "r6");
+        row122g.put("while", "r6");
+        row122g.put("return", "r6");
+        row122g.put("ID", "r6");
+        row122g.put("}", "r6");
+
+        row123a.put("EOF", "r9");
+        row123a.put("int", "r9");
+        row123a.put("void", "r9");
+
+        row124a.put("(", "s125");
+
+        row125a.put("(", "s75");
+        row125a.put("ID", "r61 s68");
+        row125a.put("NUM", "r65");
+        row125g.put("RelExpression", 60);
+        row125g.put("Expression", 61);
+        row125g.put("RelTerm", 62);
+        row125g.put("Term", 63);
+        row125g.put("Factor", 64);
+        row125g.put("Var", 65);
+        row125g.put("Call", 66);
+        row125g.put("X6", 67);
+        row125g.put("X2", 51);
+        row125g.put("GenExpression", 126);
+
+        row126a.put(")", "s127");
+
+        row127g.put("X7", 128);
+        row127a.put("int", "r66");
+        row127a.put("if", "r66");
+        row127a.put("void", "r66");
+        row127a.put(";", "r66");
+        row127a.put("while", "r66");
+        row127a.put("return", "r66");
+        row127a.put("ID", "r66");
+        row127a.put("{", "r66");
+
+        row128g.put("ExpressionStmt", 43);
+        row128g.put("SelectionStmt", 44);
+        row128g.put("ReturnStmt", 45);
+        row128g.put("X2", 51);
+        row128g.put("Var", 50);
+        row128g.put("IterationStmt", 48);
+        row128g.put("CompoundStmt", 47);
+        row128g.put("Statement", 129);
+        row128a.put("if", "s52");
+        row128a.put("while", "s54");
+        row128a.put("return", "s53");
+        row128a.put(";", "s49");
+        row128a.put("{", "s37");
+        row128a.put("ID", "r61");
+
+        row129g.put("X15", 130);
+        row129a.put(";", "r74");
+        row129a.put("ID", "r74");
+        row129a.put("{", "r74");
+        row129a.put("if", "r74");
+        row129a.put("while", "r74");
+        row129a.put("return", "r74");
+        row129a.put("}", "r74");
+
+        row130a.put(";", "r32");
+        row130a.put("ID", "r32");
+        row130a.put("{", "r32");
+        row130a.put("if", "r32");
+        row130a.put("while", "r32");
+        row130a.put("return", "r32");
+        row130a.put("}", "r32");
+
+
+
+
+
+
+
+
+
+
 
         actionTable.add(new HashMap<String, String>());
     }
