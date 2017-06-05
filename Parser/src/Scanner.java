@@ -24,7 +24,7 @@ public class Scanner {
         pointer = -1;
         inDeclaration = false;
         input = getInput(scanner);
-        singles = new ArrayList<Character>(Arrays.asList('*', '<', '(', ')', '[', ']', '{', '}'));
+        singles = new ArrayList<Character>(Arrays.asList(',', ';', '*', '<', '(', ')', '[', ']', '{', '}'));
         symbolTable = new HashMap<>();
         scopeStack = new Stack<>();
     }
@@ -50,17 +50,16 @@ public class Scanner {
     public static void main(String[] args) {
 
         Scanner myScanner = new Scanner();
-        System.out.println("input: " + input);
-        Scanner.getToken();
-        System.out.println(token.type+" "+token.name);
 
+        for (int i = 0; i < 11; i++) {
+            Scanner.getToken();
+            System.out.println(token.type+" "+token.name);
+        }
     }
 
     public static Token getToken() {
 
-        System.out.println("calling match");
         match(0, "");
-        System.out.println("returnin match");
         if (token.type.equals("ID")) {
             Index index1 = new Index(token.name, maxScope);
             Index index2 = new Index(token.name, 0);
@@ -68,10 +67,10 @@ public class Scanner {
             if (!symbolTable.containsKey(index1)) {
                 if (inDeclaration) {
                     symbolTable.put(index1, target);
-                    inDeclaration = false;
                 } else if (maxScope == 0 || !symbolTable.containsKey(index2))
                     symbolTable.put(index1, target);
             }
+            inDeclaration = false;
         }
         return token;
     }
@@ -87,18 +86,17 @@ public class Scanner {
         } else if (pointer == input.length() - 1) {
             ch = input.charAt(pointer);
             finished = true;
+        } else if (pointer >= input.length()) {
+            finished = true;
+            input = scanner.next();
+            pointer = -1;
         } else
             ch = input.charAt(pointer);
-        System.out.println("input " + input + " pointer: " + pointer + " ch " + ch);
-        System.out.println("state " + state + " tokenstr " + tokenstr + " finished " + finished);
-        System.out.println("length " + input.length() + " pointer " + pointer);
-        System.out.println("*****");
 
         if (state == 0) {
             if (ch == ' ') {
                 match(state, tokenstr);
             } else if (Character.isLetter(ch)) {
-                System.out.println("here");
                 match(1, tokenstr + ch);
             } else if (Character.isDigit(ch)) {
                 match(3, tokenstr + ch);
@@ -117,44 +115,44 @@ public class Scanner {
         } else if (state == 1) {
             if (Character.isLetterOrDigit(ch)) {
                 match(state, tokenstr + ch);
-            } else if (finished) {
-                token = new Token(findType(tokenstr), tokenstr + ch);
             } else if (ch == '=' || ch == '+' | ch == '-' || ch == '/' || singles.contains(ch)) {
                 pointer--;
                 token = new Token(findType(tokenstr), tokenstr);
                 return;
+            } else if (finished) {
+                token = new Token(findType(tokenstr), tokenstr + ch);
             }
         } else if (state == 2) {
             if (Character.isDigit(ch)) {
                 match(3, tokenstr + ch);
-            } else if (finished) {
-                token = new Token("NUM", tokenstr + ch);
-                return;
             } else if (ch == '(' || Character.isLetter(ch)) {
                 pointer--;
                 token = new Token(tokenstr, "");
+                return;
+            } else if (finished) {
+                token = new Token("NUM", tokenstr + ch);
                 return;
             }
         } else if (state == 3) {
             if (Character.isDigit(ch)) {
                 match(state, tokenstr + ch);
-            } else if (finished) {
-                token = new Token("NUM", tokenstr + ch);
-                return;
             } else if (ch == '=' || ch == '+' | ch == '-' || ch == '/' || singles.contains(ch)) {
                 pointer--;
                 token = new Token("NUM", tokenstr);
+                return;
+            } else if (finished) {
+                token = new Token("NUM", tokenstr + ch);
                 return;
             }
         } else if (state == 4) {
             if (ch == '=') {
                 token = new Token("==", "");
                 return;
-            } else if (finished) {
-                token = new Token("=", "");
-                return;
             } else if (ch == '(' || Character.isLetterOrDigit(ch)) {
                 pointer--;
+                token = new Token("=", "");
+                return;
+            } else if (finished) {
                 token = new Token("=", "");
                 return;
             }
