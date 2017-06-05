@@ -14,7 +14,7 @@ class ParseTable {
 
         HashMap<String, String> row0 = new HashMap<>();
 
-        actionTable.add(new HashMap<>());
+        actionTable.add(new HashMap<String, String>());
     }
 
 }
