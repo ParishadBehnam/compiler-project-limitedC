@@ -352,6 +352,21 @@ class ParseTable {
 
         row52a.put("(", "s76");
 
+        row53a.put("(", "s75");
+        row53a.put("ID", "r61 s68");
+        row53a.put(";", "s58");
+        row53a.put("NUM", "r65");
+        row53g.put("RelExpression", 60);
+        row53g.put("Expression", 61);
+        row53g.put("RelTerm", 62);
+        row53g.put("Term", 63);
+        row53g.put("Factor", 64);
+        row53g.put("Var", 65);
+        row53g.put("Call", 66);
+        row53g.put("X6", 67);
+        row53g.put("X7", 51);
+        row53g.put("GenExpression", 61);
+
         actionTable.add(new HashMap<String, String>());
     }
 
