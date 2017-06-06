@@ -36,7 +36,8 @@ public class Scanner {
         URL url = getClass().getResource("file.txt");
         try {
 //            scanner = new java.util.Scanner(new File(url.getPath()));
-            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/Final Project/compiler-limitedC/Parser/src/file.txt"));
+//            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/Final Project/compiler-limitedC/Parser/src/file.txt"));
+            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -64,7 +65,7 @@ public class Scanner {
 
         Scanner myScanner = new Scanner();
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             Scanner.getToken();
             System.out.println("type: "+token.type+" name: "+token.name);
         }
@@ -89,6 +90,7 @@ public class Scanner {
     }
 
     private static void match(int state, String tokenstr) {
+        String errorMessage = "";
         boolean finished = false;
         char ch = ' ';
         pointer++;
@@ -148,6 +150,7 @@ public class Scanner {
                 token = new Token(findType(tokenstr+ch), tokenstr + ch);
                 return;
             } else {
+                errorMessage = "your ID ("+tokenstr+ch+") includes invalid characters.";
                 isError = true;
             }
         } else if (state == 2) {
@@ -165,6 +168,7 @@ public class Scanner {
                 token = new Token("NUM", tokenstr + ch);
                 return;
             } else {
+                errorMessage = "invalid character ("+ch+") is found";
                 isError = true;
             }
         } else if (state == 3) {
@@ -182,6 +186,7 @@ public class Scanner {
                 token = new Token("NUM", tokenstr + ch);
                 return;
             } else {
+                errorMessage = "invalid number ("+tokenstr+ch+") is found";
                 isError = true;
             }
         } else if (state == 4) {
@@ -228,9 +233,7 @@ public class Scanner {
         if (isError) {
             //TODO
             isError = false;
-            System.out.println("ERROR");
-            input = getInput(scanner);
-            pointer = -1;
+            System.out.println("ERROR: "+errorMessage);
             match(0, "");
         }
     }
