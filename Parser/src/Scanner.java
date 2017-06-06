@@ -130,6 +130,8 @@ public class Scanner {
                 }
                 token = new Token(findType(tokenstr+ch), tokenstr + ch);
                 return;
+            } else {
+                isError = true;
             }
         } else if (state == 2) {
             if (Character.isDigit(ch)) {
