@@ -41,21 +41,20 @@ public class Parser {
 
     public void start() {
         Token t = Scanner.getToken();
-        while (t != null) {
+        while (true) {
             printStack();
             System.out.println("token" + t.type);
             String res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
+            if(res.equals("accept")) return;
             System.out.println("res" + res);
-            String[] splited = res.split(" ");
-            if (splited.length == 1 && res.charAt(0) == 's') {
+            if (res.charAt(0) == 's') {
                 parsStack.push(t.type);
                 int state = Integer.parseInt(res.substring(1));
                 parsStack.push(Integer.toString(state));
-                Token tmp = t;
-                System.out.println(t.type + "----");
+                Token tmp = new Token(t.type, t.name);
                 t = Scanner.getToken();
-                if (!tmp.type.equals("$") && t == null) t = new Token("$", "");
-            } else if (splited.length == 1 && res.charAt(0) == 'r') {
+                if(t.type.equals("$") && tmp.type.equals("$")) return;
+            } else if (res.charAt(0) == 'r') {
                 int idx = Integer.parseInt(res.substring(1));
                 int len = 2 * grammarLength.get(idx - 1);
 
@@ -67,28 +66,7 @@ public class Parser {
                 parsStack.push(grammarLHS.get(idx - 1));
                 System.out.println(grammarLHS.get(idx - 1) + " " + gotoIdx);
                 parsStack.push(Integer.toString(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1))));
-            } /*else if (splited.length == 2) {
-
-                int idx = Integer.parseInt(splited[0].substring(1));
-                int len = 2 * grammarLength.get(idx - 1);
-                System.out.println(len);
-
-                for (int i = 0; i < len; i++)
-                    parsStack.pop();
-
-
-                int gotoIdx = Integer.parseInt(parsStack.peek());
-                parsStack.push(grammarLHS.get(idx - 1));
-                parsStack.push(Integer.toString(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1))));
-
-                //TODO
-
-                *//*parsStack.push(t.type);
-                int state = Integer.parseInt(splited[1].substring(1));
-                parsStack.push(Integer.toString(state));
-                t = Scanner.getToken();*//*
-
-            }*/
+            }
         }
     }
 
@@ -400,7 +378,7 @@ class ParseTable {
         row2g.put("VarDeclaration", 5);
         row2g.put("FunDeclaration", 7);
         row2g.put("TypeSpecifier", 14);
-        row2g.put("X18", 13);
+        row2a.put("int", "s6");
 
         row3a.put("EOF", "s11");
         row3a.put("int", "r77 s24");
@@ -919,6 +897,7 @@ class ParseTable {
         row77a.put("return", "r45");
 
         row78a.put(",", "r46");
+        row78a.put("NUM", "r46");
         row78a.put(")", "r46");
         row78a.put("+", "r46");
         row78a.put("*", "r46");
