@@ -1,2 +1,29 @@
-int a;int b; int c[112]; void f(int a, int[] c) {int[13] d;
-if(c == 12) b = 12; else b = 13; while(1) c = 12;}int main(void){int a;int b; a =b - 3;} EOF
+int a;
+int b;
+int c;
+int res[220];
+int fibonacci(int index) {
+int a1;
+int a2;
+int counter;
+a1 = 1;
+a2 = 1;
+counter = 0;
+while(counter<index) {
+b = a1 + a2;
+a1 = a2;
+a2 = b;
+if(a == 2)
+b = 123;
+if(a1<444)
+b = -4444;
+else
+b = 3333;
+}
+return a12;
+}
+int main(void) {
+int hii;
+return fibonacci(12);
+}
+EOF
