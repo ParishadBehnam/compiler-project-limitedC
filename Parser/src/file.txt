@@ -1,2 +1,2 @@
-int (c&&d)a = b;
-sdf -23434 dsf&&==saf
+int (234&&d)a = b;
+sdf -23434 dsf&&=saf

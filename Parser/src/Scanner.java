@@ -29,7 +29,7 @@ public class Scanner {
         pointer = -1;
         inDeclaration = false;
         isError = false;
-        singles = new ArrayList<Character>(Arrays.asList(',', ';', '*', '<', '(', ')', '[', ']', '{', '}'));
+        singles = new ArrayList<Character>(Arrays.asList(',', ';', '*', '<', '(', ')', '[', ']', '{', '}', '=', '&', '/'));
         symbolTable = new HashMap<>();
         scopeStack = new Stack<>();
 
@@ -136,7 +136,7 @@ public class Scanner {
         } else if (state == 1) {
             if (Character.isLetterOrDigit(ch)) {
                 match(state, tokenstr + ch);
-            } else if (ch == '=' || ch == '&' || ch == '+' | ch == '-' || ch == '/' || singles.contains(ch)) {
+            } else if (ch == '+' | ch == '-' || singles.contains(ch)) {
                 pointer--;
                 token = new Token(findType(tokenstr), tokenstr);
                 return;
@@ -153,7 +153,7 @@ public class Scanner {
         } else if (state == 2) {
             if (Character.isDigit(ch)) {
                 match(3, tokenstr + ch);
-            } else if (ch == '-' || ch == '+' || ch == '/' || singles.contains(ch) || Character.isLetter(ch)) {
+            } else if (ch == '-' || ch == '+' || singles.contains(ch) || Character.isLetter(ch)) {
                 pointer--;
                 token = new Token(tokenstr, "");
                 return;
@@ -170,7 +170,7 @@ public class Scanner {
         } else if (state == 3) {
             if (Character.isDigit(ch)) {
                 match(state, tokenstr + ch);
-            } else if (ch == '=' || ch == '+' | ch == '-' || ch == '/' || singles.contains(ch)) {
+            } else if (ch == '+' | ch == '-' || singles.contains(ch)) {
                 pointer--;
                 token = new Token("NUM", tokenstr);
                 return;
@@ -188,7 +188,7 @@ public class Scanner {
             if (ch == '=') {
                 token = new Token("==", "");
                 return;
-            } else if (Character.isLetterOrDigit(ch) || ch == '/' || singles.contains(ch)) {
+            } else if (Character.isLetterOrDigit(ch) || singles.contains(ch)) {
                 pointer--;
                 token = new Token("=", "");
                 return;
@@ -204,7 +204,7 @@ public class Scanner {
         } else if (state == 6) {
             if (ch == '*') {
                 match(7, "");
-            } else if (Character.isLetterOrDigit(ch) || ch == '/' || singles.contains(ch)) {
+            } else if (Character.isLetterOrDigit(ch) || singles.contains(ch)) {
                 pointer--;
                 token = new Token("/", "");
                 return;
