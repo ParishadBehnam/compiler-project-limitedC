@@ -1,0 +1,2 @@
+int (c&&d)a = b;
+sdf -23434 dsf&&==saf

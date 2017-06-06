@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,7 +19,8 @@ public class Scanner {
     private static int pointer;
     private static String input;
     private static int maxScope;
-    private static java.util.Scanner scanner = new java.util.Scanner(System.in);
+    private static BufferedReader br;
+        private static java.util.Scanner scanner;
     private static ArrayList<Character> singles;
     private static Token token;
 
@@ -25,17 +29,24 @@ public class Scanner {
         pointer = -1;
         inDeclaration = false;
         isError = false;
-        input = getInput(scanner);
         singles = new ArrayList<Character>(Arrays.asList(',', ';', '*', '<', '(', ')', '[', ']', '{', '}'));
         symbolTable = new HashMap<>();
         scopeStack = new Stack<>();
+
+        URL url = getClass().getResource("file.txt");
+        try {
+//            scanner = new java.util.Scanner(new File(url.getPath()));
+            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        input = getInput(scanner);
+
     }
 
-    private String getInput(java.util.Scanner scanner) {
-        String s = "";
-        if (scanner.hasNext()) {
-            s += scanner.next()+" ";
-        }
+    private static String getInput(java.util.Scanner scanner) {
+        String s = scanner.next() + " ";
+//        System.out.println(s);
         return s;
     }
 
@@ -53,7 +64,7 @@ public class Scanner {
 
         Scanner myScanner = new Scanner();
 
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 20; i++) {
             Scanner.getToken();
             System.out.println("type: "+token.type+" name: "+token.name);
         }
@@ -81,8 +92,16 @@ public class Scanner {
         boolean finished = false;
         char ch = ' ';
         pointer++;
+
+        if (pointer >= input.length() && !scanner.hasNext()) {
+            token = new Token("$", "");
+            input = "";
+            pointer = 0;
+            return;
+        }
+
         if ((state == 7 || state == 8) && pointer >= input.length()) {
-            input = scanner.next()+" ";
+            input = getInput(scanner);
             pointer = 0;
             ch = input.charAt(pointer);
         } else if (pointer == input.length() - 1) {
@@ -90,13 +109,11 @@ public class Scanner {
             finished = true;
         } else if (pointer >= input.length()) {
             finished = true;
-            input = scanner.next()+" ";
+            input = getInput(scanner);
             ch = input.charAt(0);
             pointer = 0;
         } else
             ch = input.charAt(pointer);
-
-//        System.out.println(input+"-"+ch+"p:"+pointer+"!");
         if (state == 0) {
             if (ch == ' ') {
                 match(state, tokenstr);
@@ -119,7 +136,7 @@ public class Scanner {
         } else if (state == 1) {
             if (Character.isLetterOrDigit(ch)) {
                 match(state, tokenstr + ch);
-            } else if (ch == '=' || ch == '+' | ch == '-' || ch == '/' || singles.contains(ch)) {
+            } else if (ch == '=' || ch == '&' || ch == '+' | ch == '-' || ch == '/' || singles.contains(ch)) {
                 pointer--;
                 token = new Token(findType(tokenstr), tokenstr);
                 return;
@@ -212,7 +229,7 @@ public class Scanner {
             //TODO
             isError = false;
             System.out.println("ERROR");
-            input = scanner.next()+" ";
+            input = getInput(scanner);
             pointer = -1;
             match(0, "");
         }
