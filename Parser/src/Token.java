@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /**
  * Created by parishad behnam on 6/5/2017.
  */
@@ -63,5 +65,15 @@ class Target{
         this.address = address;
         this.dimension = dimension;
         this.scope = scope;
+    }
+}
+
+class ActivationRecord {
+    ArrayList<Target> params;
+    int jumpLine;
+    long returnAddress;
+
+    public ActivationRecord() {
+        params = new ArrayList<>();
     }
 }

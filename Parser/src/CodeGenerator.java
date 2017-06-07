@@ -2,14 +2,17 @@
  * Created by afra on 6/7/17.
  */
 
-import jdk.nashorn.internal.parser.*;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Stack;
 
 public class CodeGenerator {
 
     static ArrayList<String> PB = new ArrayList<>();
+    HashMap<String, ActivationRecord> records = new HashMap<>();
     Stack<String> SS = new Stack<>();
+    ActivationRecord lastRecord = null;
+    ActivationRecord currentRecord = null;
     long lastMainMemory = 100;
     long lastTmpMemory = 500;
 
@@ -34,7 +37,7 @@ public class CodeGenerator {
                 operation(tokens);
                 break;
             case "X5":
-                caller(tokens);
+//                caller(tokens);
                 break;
             case "X6":
                 pidNum(tokens);
@@ -87,22 +90,17 @@ public class CodeGenerator {
             case "X22":
                 funcSetup(tokens);
                 break;
-            case "X23":
-                funcEnd(tokens);
-                break;
             case "X24":
-                callFunc(tokens);
+                caller(tokens);
                 break;
             case "Op":
                 op(tokens);
                 break;
             default:
+                funcEnd(tokens);
                 break;
         }
 
-    }
-
-    private void callFunc(Token[] tokens) {
     }
 
     private void op(Token[] tokens) {
@@ -121,6 +119,9 @@ public class CodeGenerator {
         target.address = PB.size();
         target.type = "function";
         target.scope = Scanner.scopeStack.peek();
+
+        lastRecord = new ActivationRecord();
+        records.put(tokens[1].name, lastRecord);
 
         Scanner.incScope();
     }
@@ -167,9 +168,22 @@ public class CodeGenerator {
     }
 
     private void paramAssign(Token[] tokens) {
-       /* String param = SS.pop();
-        String arg = "";
+
+//       String param = SS.pop();
+//        String arg = "";
         if (tokens[1].type.equals("]")) {
+            int currentScope = Scanner.scopeStack.peek();
+            Index idx = new Index(tokens[3].name, currentScope);
+            Target target = Scanner.symbolTable.get(idx);
+            target.address = lastMainMemory;
+            target.scope = currentScope;
+            target.dimension = 1;
+            target.type = "array";
+
+            lastRecord.params.add(target);
+
+            lastMainMemory += 4;
+       /*
             int currentScope = Scanner.scopeStack.peek();
             Index idx = new Index(tokens[3].name, currentScope);
             Target target = Scanner.symbolTable.get(idx);
@@ -178,8 +192,20 @@ public class CodeGenerator {
             target.dimension = 0;
             target.type = "array";
             lastMainMemory += 4;
-
+*/
         } else {
+        int currentScope = Scanner.scopeStack.peek();
+        Index idx = new Index(tokens[1].name, currentScope);
+        Target target = Scanner.symbolTable.get(idx);
+        target.address = lastMainMemory;
+        target.scope = currentScope;
+        target.dimension = 0;
+        target.type = "int";
+
+        lastRecord.params.add(target);
+
+        lastMainMemory += 4;
+       /*
             int currentScope = Scanner.scopeStack.peek();
             Index idx = new Index(tokens[1].name, currentScope);
             Target target = Scanner.symbolTable.get(idx);
@@ -192,7 +218,8 @@ public class CodeGenerator {
             arg = tokens[1].name;
 
             PB.add("(ASSIGN, " + param + ", " + arg + ")");
-        }*/
+        */
+        }
 
 
 //        PB.add("(ASSIGN")
@@ -274,7 +301,7 @@ public class CodeGenerator {
     }
 
     private void caller(Token[] tokens) {
-
+        currentRecord = records.get(tokens[1].name);
     }
 
     private void operation(Token[] tokens) {

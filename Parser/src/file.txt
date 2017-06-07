@@ -1,7 +1,3 @@
-int a;
-int d^b;
-int c;
-int 23234sres[220];
 int fibonacci(int index) {
 int a1;
 int a2;
@@ -10,6 +6,7 @@ a1 = 1;
 a2 = 1;
 counter = 0;
 while(counter<index) {
+int b;
 b = a1 + a2;
 a1 = a2;
 a2 = b;
@@ -26,6 +23,7 @@ return a12;
 int a;
 int main(void) {
 int hii;
+hiii = 3;
 return fibonacci(12);
 }
 EOF
