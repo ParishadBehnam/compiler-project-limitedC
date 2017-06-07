@@ -15,12 +15,13 @@ public class Scanner {
     public static Stack<Integer> scopeStack;
 
     private static boolean inDeclaration;
+    private static int isSingle;
     private static boolean isError;
     private static int pointer;
     private static String input;
     private static int maxScope;
     private static BufferedReader br;
-        private static java.util.Scanner scanner;
+    private static java.util.Scanner scanner;
     private static ArrayList<Character> singles;
     private static Token token;
 
@@ -28,16 +29,18 @@ public class Scanner {
         maxScope = 0;
         pointer = -1;
         inDeclaration = false;
+        isSingle = 1;
         isError = false;
-        singles = new ArrayList<Character>(Arrays.asList(',', ';', '*', '<', '(', ')', '[', ']', '{', '}', '=', '&', '/'));
+        singles = new ArrayList<Character>(Arrays.asList(',', ';', '*', '<', '(', ')', '[', ']', '{', '}', '=', '&', '/', '+', '-'));
         symbolTable = new HashMap<>();
         scopeStack = new Stack<>();
+        scopeStack.push(0);
 
         URL url = getClass().getResource("file.txt");
         try {
 //            scanner = new java.util.Scanner(new File(url.getPath()));
-//            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/Final Project/compiler-limitedC/Parser/src/file.txt"));
-            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
+            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/Final Project/compiler-limitedC/Parser/src/file.txt"));
+//            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -81,6 +84,7 @@ public class Scanner {
             if (!symbolTable.containsKey(index1)) {
                 if (inDeclaration) {
                     symbolTable.put(index1, target);
+                    symbolTable.put(index1, target);
                 } else if (maxScope == 0 || !symbolTable.containsKey(index2))
                     symbolTable.put(index1, target);
             }
@@ -104,6 +108,7 @@ public class Scanner {
 
         if ((state == 7 || state == 8) && pointer >= input.length()) {
             input = getInput(scanner);
+            isSingle = 1;
             pointer = 0;
             ch = input.charAt(pointer);
         } else if (pointer == input.length() - 1) {
@@ -112,26 +117,36 @@ public class Scanner {
         } else if (pointer >= input.length()) {
             finished = true;
             input = getInput(scanner);
+            isSingle = 1;
             ch = input.charAt(0);
             pointer = 0;
         } else
             ch = input.charAt(pointer);
+
         if (state == 0) {
             if (ch == ' ') {
                 match(state, tokenstr);
+                isSingle = 0;
             } else if (Character.isLetter(ch)) {
                 match(1, tokenstr + ch);
+                isSingle = 0;
             } else if (Character.isDigit(ch)) {
                 match(3, tokenstr + ch);
+                isSingle = 0;
             } else if (ch == '+' || ch == '-') {
+                isSingle ++;
                 match(2, tokenstr + ch);
             } else if (ch == '=') {
+                isSingle ++;
                 match(4, tokenstr + ch);
             } else if (ch == '&') {
+                isSingle ++;
                 match(5, tokenstr + ch);
             } else if (ch == '/') {
+                isSingle ++;
                 match(6, tokenstr + ch);
             } else if (singles.contains(ch)) {
+                isSingle ++;
                 token = new Token(tokenstr + ch, "");
                 return;
             }
@@ -154,10 +169,14 @@ public class Scanner {
                 isError = true;
             }
         } else if (state == 2) {
-            if (Character.isDigit(ch)) {
-                match(3, tokenstr + ch);
-            } else if (ch == '-' || ch == '+' || singles.contains(ch) || Character.isLetter(ch)) {
+            if (ch == '-' || ch == '+' || singles.contains(ch) || Character.isLetter(ch)) {
                 pointer--;
+                token = new Token(tokenstr, "");
+                return;
+            } else if (Character.isDigit(ch) && isSingle >= 2) {
+                match(3, tokenstr + ch);
+            } else if (Character.isDigit(ch) && isSingle == 1) {
+                pointer --;
                 token = new Token(tokenstr, "");
                 return;
             } else if (finished) {

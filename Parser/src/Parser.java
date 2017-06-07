@@ -30,6 +30,8 @@ public class Parser {
                     "X22", "X23", "R3", "R2"));
     Stack<String> parsStack = new Stack();
     ParseTable parseTable = new ParseTable();
+    Token[] codeGenTokens = new Token[4];
+    CodeGenerator cg = new CodeGenerator();
 
     public Parser() {
         for (int i = 0; i < 23; i++) {
@@ -43,18 +45,30 @@ public class Parser {
 
     public void start() {
         Token t = Scanner.getToken();
+        codeGenTokens[0] = t;
         while (true) {
             printStack();
             System.out.println("token" + t.type);
             String res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
-            if (res.equals("accept")) return;
+            if (res.equals("accept")) {
+                CodeGenerator.print();
+                return;
+            }
             System.out.println("res" + res);
             if (res.charAt(0) == 's') {
                 parsStack.push(t.type);
                 int state = Integer.parseInt(res.substring(1));
                 parsStack.push(Integer.toString(state));
                 Token tmp = new Token(t.type, t.name);
+
+                if (codeGenTokens[2] != null)
+                    codeGenTokens[3] = new Token(codeGenTokens[2]);
+                if (codeGenTokens[1] != null)
+                    codeGenTokens[2] = new Token(codeGenTokens[1]);
+                codeGenTokens[1] = new Token(t);
                 t = Scanner.getToken();
+                codeGenTokens[0] = new Token(t);
+
                 if (t.type.equals("$") && tmp.type.equals("$")) return;
             } else if (res.charAt(0) == 'r') {
                 int idx = Integer.parseInt(res.substring(1));
@@ -66,6 +80,11 @@ public class Parser {
 
                 int gotoIdx = Integer.parseInt(parsStack.peek());
                 parsStack.push(grammarLHS.get(idx - 1));
+
+                if (idx >= 60 && idx < 83) cg.generateCode(grammarLHS.get(idx - 1), codeGenTokens);
+                if (grammarLHS.get(idx - 1).equals("AddOp") || grammarLHS.get(idx - 1).equals("MulOp"))
+                    cg.generateCode("Op", codeGenTokens);
+
                 System.out.println(grammarLHS.get(idx - 1) + " " + gotoIdx);
                 parsStack.push(Integer.toString(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1))));
             }
@@ -238,8 +257,6 @@ class ParseTable {
         HashMap<String, String> row143a = new HashMap<>();
 
 
-
-
         HashMap<String, Integer> row0g = new HashMap<>();
         HashMap<String, Integer> row1g = new HashMap<>();
         HashMap<String, Integer> row2g = new HashMap<>();
@@ -400,15 +417,12 @@ class ParseTable {
 
         row1a.put("$", "accept");
 
-        row2a.put("int", "s24");
-        row2a.put("int", "r77");
-        row2a.put("void", "r77");
+
 
         row2g.put("DeclarationList", 3);
         row2g.put("Declaration", 4);
         row2g.put("VarDeclaration", 5);
         row2g.put("FunDeclaration", 7);
-        row2g.put("FunReturnType", 121);
         row2a.put("int", "s13");
         row2a.put("void", "s8");
 
@@ -419,7 +433,6 @@ class ParseTable {
         row3g.put("Declaration", 12);
         row3g.put("VarDeclaration", 5);
         row3g.put("FunDeclaration", 7);
-        row3g.put("FunReturnType", 121);
 
         row4a.put("EOF", "r3");
         row4a.put("int", "r3");
@@ -429,7 +442,6 @@ class ParseTable {
         row5a.put("int", "r4");
         row5a.put("void", "r4");
 
-        row6a.put("ID", "r8");
 
         row7a.put("EOF", "r5");
         row7a.put("int", "r5");
@@ -438,18 +450,15 @@ class ParseTable {
         row8a.put("ID", "s134");
         row8g.put("R2", 143);
 
-        row9a.put("[", "s15");
-        row9a.put(";", "r79");
 
         row9g.put("X20", 136);
         row9g.put("R3", 135);
         row9a.put("[", "s138");
         row9a.put(";", "r79");
 
-        row10a.put("ID", "s17");
+//        row10a.put("ID", "s17");
 
         row11g.put("X19", 16);
-
         row11a.put("$", "r78");
 
         row12a.put("EOF", "r2");
@@ -464,19 +473,17 @@ class ParseTable {
         row14g.put("R1", 132);
         row14a.put("ID", "s9");
 
-        row15g.put("X21", 18);
-
+        /*row15g.put("X21", 18);
         row15a.put("NUM", "r80");
-
+*/
         row16a.put("$", "r1");
 
         row17a.put("(", "s19");
 
-        row18a.put("NUM", "s26");
+//        row18a.put("NUM", "s26");
 
         row19a.put("void", "s23");
         row19a.put("int", "s24");
-
         row19g.put("Params", 20);
         row19g.put("Param", 22);
         row19g.put("ParamList", 21);
@@ -497,11 +504,11 @@ class ParseTable {
 
         row25a.put("ID", "s33");
 
-        row26a.put("]", "s27");
+//        row26a.put("]", "s27");
 
-        row27a.put(";", "s28");
+//        row27a.put(";", "s28");
 
-        row28a.put("EOF", "r7");
+        /*row28a.put("EOF", "r7");
         row28a.put("int", "r7");
         row28a.put("void", "r7");
         row28a.put("if", "r7");
@@ -509,6 +516,8 @@ class ParseTable {
         row28a.put("return", "r7");
         row28a.put("ID", "r7");
         row28a.put("}", "r7");
+        row28a.put(";", "r7");
+        row28a.put("{", "r7");*/
 
         row29a.put(")", "r15");
         row29a.put(",", "r15");
@@ -518,9 +527,11 @@ class ParseTable {
         row30g.put("TypeSpecifier", 25);
 
         row31a.put(")", "r75");
+        row31a.put(",", "r75");
         row31g.put("X16", 32);
 
         row32a.put(")", "r14");
+        row32a.put(",", "r14");
 
         row33a.put(")", "r16");
         row33a.put(",", "r16");
@@ -529,12 +540,14 @@ class ParseTable {
         row34a.put("]", "s35");
 
         row35a.put(")", "r17");
+        row35a.put(",", "r17");
 
         row36a.put("{", "s37");
         row36g.put("CompoundStmt", 39);
 
         row37a.put("int", "r20");
         row37a.put("}", "r20");
+        row37a.put("{", "r20");
         row37a.put(";", "r20");
         row37a.put("if", "r20");
         row37a.put("while", "r20");
@@ -573,6 +586,12 @@ class ParseTable {
         row40g.put("ReturnStmt", 45);
         row40g.put("Var", 50);
         row40a.put("ID", "s68");
+        row40a.put("}", "s42");
+        row40a.put(";", "s49");
+        row40a.put("{", "s37");
+        row40a.put("if", "s52");
+        row40a.put("while", "s54");
+        row40a.put("return", "s53");
 
         row41a.put("int", "r19");
         row41a.put("}", "r19");
@@ -580,7 +599,7 @@ class ParseTable {
         row41a.put("while", "r19");
         row41a.put("return", "r19");
         row41a.put("ID", "r19");
-        row41a.put("}", "r19");
+        row41a.put("{", "r19");
         row41a.put(";", "r19");
 
         row42a.put(";", "r18");
@@ -610,6 +629,7 @@ class ParseTable {
         row44a.put("if", "r25");
         row44a.put("while", "r25");
         row44a.put("return", "r25");
+        row44a.put("else", "r25");
         row44a.put("}", "r25");
 
         row45a.put(";", "r27");
@@ -642,6 +662,7 @@ class ParseTable {
         row48a.put("{", "r26");
         row48a.put("if", "r26");
         row48a.put("while", "r26");
+        row48a.put("else", "r26");
         row48a.put("return", "r26");
         row48a.put("}", "r26");
 
@@ -650,6 +671,7 @@ class ParseTable {
         row49a.put("{", "r29");
         row49a.put("if", "r29");
         row49a.put("while", "r29");
+        row49a.put("else", "r29");
         row49a.put("return", "r29");
         row49a.put("}", "r29");
 
@@ -684,8 +706,8 @@ class ParseTable {
         row55g.put("X6", 67);
         row55a.put("ID", "s68");
         row55a.put("NUM", "r65");
+        row55a.put("(", "s75");
 
-        row56a.put("[", "s57");
         row56a.put("=", "r35");
         row56a.put("*", "r35");
         row56a.put("/", "r35");
@@ -698,11 +720,8 @@ class ParseTable {
         row56a.put(";", "r35");
         row56a.put("==", "r35");
         row56a.put("]", "r35");
-        row56a.put("ID", "r35");
-        row56a.put("{", "r35");
-        row56a.put("if", "r35");
-        row56a.put("while", "r35");
-        row56a.put("return", "r35");
+        row56a.put("[", "s57");
+
 
         row57g.put("Expression", 87);
         row57g.put("Term", 63);
@@ -721,6 +740,7 @@ class ParseTable {
         row58a.put("{", "r76");
         row58a.put("if", "r76");
         row58a.put("return", "r76");
+        row58a.put("else", "r76");
         row58a.put("}", "r76");
 
         row59a.put(";", "s73");
@@ -735,15 +755,12 @@ class ParseTable {
         row61a.put("==", "s80");
         row61a.put("<", "s81");
         row61a.put(";", "r38");
-        row61a.put(";", "r38");
 
         row62a.put("&&", "r40");
         row62a.put(";", "r40");
         row62a.put(")", "r40");
 
         row63g.put("MulOp", 83);
-        row63a.put("*", "s84");
-        row63a.put("/", "s85");
         row63a.put(",", "r44");
         row63a.put(")", "r44");
         row63a.put("+", "r44");
@@ -753,11 +770,8 @@ class ParseTable {
         row63a.put(";", "r44");
         row63a.put("==", "r44");
         row63a.put("]", "r44");
-        row63a.put("ID", "r44");
-        row63a.put("{", "r44");
-        row63a.put("if", "r44");
-        row63a.put("while", "r44");
-        row63a.put("return", "r44");
+        row63a.put("*", "s84");
+        row63a.put("/", "s85");
 
 
         row64a.put(",", "r48");
@@ -771,11 +785,7 @@ class ParseTable {
         row64a.put(";", "r48");
         row64a.put("==", "r48");
         row64a.put("]", "r48");
-        row64a.put("ID", "r48");
-        row64a.put("{", "r48");
-        row64a.put("if", "r48");
-        row64a.put("while", "r48");
-        row64a.put("return", "r48");
+
 
         row65a.put(",", "r52");
         row65a.put(")", "r52");
@@ -788,11 +798,7 @@ class ParseTable {
         row65a.put(";", "r52");
         row65a.put("==", "r52");
         row65a.put("]", "r52");
-        row65a.put("ID", "r52");
-        row65a.put("{", "r52");
-        row65a.put("if", "r52");
-        row65a.put("while", "r52");
-        row65a.put("return", "r52");
+
 
         row66g.put("X5", 69);
         row66a.put(",", "r64");
@@ -806,18 +812,12 @@ class ParseTable {
         row66a.put(";", "r64");
         row66a.put("==", "r64");
         row66a.put("]", "r64");
-        row66a.put("ID", "r64");
-        row66a.put("{", "r64");
-        row66a.put("if", "r64");
-        row66a.put("while", "r64");
-        row66a.put("return", "r64");
+
 
         row67a.put("NUM", "s70");
 
-        row68a.put("(", "s86");
         row68a.put(",", "r61");
         row68a.put("=", "r61");
-        row68a.put("[", "r61");
         row68a.put(")", "r61");
         row68a.put("+", "r61");
         row68a.put("*", "r61");
@@ -828,11 +828,7 @@ class ParseTable {
         row68a.put(";", "r61");
         row68a.put("==", "r61");
         row68a.put("]", "r61");
-        row68a.put("ID", "r61");
-        row68a.put("{", "r61");
-        row68a.put("if", "r61");
-        row68a.put("while", "r61");
-        row68a.put("return", "r61");
+        row68a.put("(", "s86");
         row68g.put("X2", 56);
 
 
@@ -845,13 +841,8 @@ class ParseTable {
         row69a.put("<", "r53");
         row69a.put("&&", "r53");
         row69a.put(";", "r53");
-        row69a.put("==", "r53");
         row69a.put("]", "r53");
-        row69a.put("ID", "r53");
-        row69a.put("{", "r53");
-        row69a.put("if", "r53");
-        row69a.put("while", "r53");
-        row69a.put("return", "r53");
+        row69a.put("==", "r53");
 
         row70a.put(",", "r54");
         row70a.put(")", "r54");
@@ -864,11 +855,7 @@ class ParseTable {
         row70a.put(";", "r54");
         row70a.put("==", "r54");
         row70a.put("]", "r54");
-        row70a.put("ID", "r54");
-        row70a.put("{", "r54");
-        row70a.put("if", "r54");
-        row70a.put("while", "r54");
-        row70a.put("return", "r54");
+
 
         row71g.put("X1", 113);
         row71g.put("AddOp", 79);
@@ -882,6 +869,7 @@ class ParseTable {
         row72a.put("if", "r33");
         row72a.put("while", "r33");
         row72a.put("return", "r33");
+        row72a.put("else", "r33");
         row72a.put("}", "r33");
 
         row73g.put("X17", 74);
@@ -891,6 +879,7 @@ class ParseTable {
         row73a.put("if", "r76");
         row73a.put("while", "r76");
         row73a.put("return", "r76");
+        row73a.put("else", "r76");
         row73a.put("}", "r76");
 
         row74a.put(";", "r34");
@@ -899,6 +888,7 @@ class ParseTable {
         row74a.put("if", "r34");
         row74a.put("while", "r34");
         row74a.put("return", "r34");
+        row74a.put("else", "r34");
         row74a.put("}", "r34");
 
         row75g.put("Expression", 90);
@@ -924,41 +914,15 @@ class ParseTable {
         row76a.put("ID", "s68");
         row76a.put("NUM", "r65");
 
-        row77a.put(",", "r45");
-        row77a.put("NUM", "r45"); //TODO
-        row77a.put(")", "r45");
-        row77a.put("+", "r45");
-        row77a.put("*", "r45");
-        row77a.put("/", "r45");
-        row77a.put("-", "r45");
-        row77a.put("<", "r45");
-        row77a.put("&&", "r45");
-        row77a.put(";", "r45");
-        row77a.put("==", "r45");
-        row77a.put("]", "r45");
+        row77a.put("NUM", "r45");
         row77a.put("ID", "r45");
-        row77a.put("{", "r45");
-        row77a.put("if", "r45");
-        row77a.put("while", "r45");
-        row77a.put("return", "r45");
+        row77a.put("(", "r45");
 
-        row78a.put(",", "r46");
+
         row78a.put("NUM", "r46");
-        row78a.put(")", "r46");
-        row78a.put("+", "r46");
-        row78a.put("*", "r46");
-        row78a.put("/", "r46");
-        row78a.put("-", "r46");
-        row78a.put("<", "r46");
-        row78a.put("&&", "r46");
-        row78a.put(";", "r46");
-        row78a.put("==", "r46");
-        row78a.put("]", "r46");
         row78a.put("ID", "r46");
-        row78a.put("{", "r46");
-        row78a.put("if", "r46");
-        row78a.put("while", "r46");
-        row78a.put("return", "r46");
+        row78a.put("(", "r46");
+
 
         row79g.put("Term", 95);
         row79g.put("Factor", 64);
@@ -1009,39 +973,16 @@ class ParseTable {
         row83a.put("ID", "s68");
         row83a.put("NUM", "r65");
 
-        row84a.put(",", "r49");
-        row84a.put(")", "r49");
-        row84a.put("+", "r49");
-        row84a.put("*", "r49");
-        row84a.put("/", "r49");
-        row84a.put("-", "r49");
-        row84a.put("<", "r49");
-        row84a.put("&&", "r49");
-        row84a.put(";", "r49");
-        row84a.put("==", "r49");
-        row84a.put("]", "r49");
-        row84a.put("ID", "r49");
-        row84a.put("{", "r49");
-        row84a.put("if", "r49");
-        row84a.put("while", "r49");
-        row84a.put("return", "r49");
 
-        row85a.put(",", "r50");
-        row85a.put(")", "r50");
-        row85a.put("+", "r50");
-        row85a.put("*", "r50");
-        row85a.put("/", "r50");
-        row85a.put("-", "r50");
-        row85a.put("<", "r50");
-        row85a.put("&&", "r50");
-        row85a.put(";", "r50");
-        row85a.put("==", "r50");
-        row85a.put("]", "r50");
+        row84a.put("ID", "r49");
+        row84a.put("NUM", "r49");
+        row84a.put("(", "r49");
+
+
         row85a.put("ID", "r50");
-        row85a.put("{", "r50");
-        row85a.put("if", "r50");
-        row85a.put("while", "r50");
-        row85a.put("return", "r50");
+        row85a.put("NUM", "r50");
+        row85a.put("(", "r50");
+
 
         row86g.put("Term", 63);
         row86g.put("Args", 101);
@@ -1059,6 +1000,7 @@ class ParseTable {
         row87g.put("AddOp", 79);
         row87a.put("+", "s77");
         row87a.put("-", "s78");
+        row87a.put("]", "s88");
 
         row88a.put(",", "r62");
         row88a.put("=", "r62");
@@ -1072,11 +1014,6 @@ class ParseTable {
         row88a.put(";", "r62");
         row88a.put("==", "r62");
         row88a.put("]", "r62");
-        row88a.put("ID", "r62");
-        row88a.put("{", "r62");
-        row88a.put("if", "r62");
-        row88a.put("while", "r62");
-        row88a.put("return", "r62");
         row88g.put("X3", 89);
 
         row89a.put(",", "r36");
@@ -1091,11 +1028,6 @@ class ParseTable {
         row89a.put(";", "r36");
         row89a.put("==", "r36");
         row89a.put("]", "r36");
-        row89a.put("ID", "r36");
-        row89a.put("{", "r36");
-        row89a.put("if", "r36");
-        row89a.put("while", "r36");
-        row89a.put("return", "r36");
 
         row90g.put("AddOp", 79);
         row90a.put("+", "s77");
@@ -1113,11 +1045,7 @@ class ParseTable {
         row91a.put(";", "r51");
         row91a.put("==", "r51");
         row91a.put("]", "r51");
-        row91a.put("ID", "r51");
-        row91a.put("{", "r51");
-        row91a.put("if", "r51");
-        row91a.put("while", "r51");
-        row91a.put("return", "r51");
+
 
         row92a.put(")", "s108");
 
@@ -1146,13 +1074,8 @@ class ParseTable {
         row95a.put(";", "r63");
         row95a.put("==", "r63");
         row95a.put("]", "r63");
-        row95a.put("ID", "r63");
-        row95a.put("{", "r63");
-        row95a.put("if", "r63");
-        row95a.put("while", "r63");
         row95a.put("*", "s84");
         row95a.put("/", "s85");
-        row95a.put("return", "r63");
         row95g.put("X4", 107);
         row95g.put("MulOp", 83);
 
@@ -1181,13 +1104,8 @@ class ParseTable {
         row99a.put(";", "r63");
         row99a.put("==", "r63");
         row99a.put("]", "r63");
-        row99a.put("ID", "r63");
-        row99a.put("{", "r63");
-        row99a.put("if", "r63");
-        row99a.put("while", "r63");
         row99a.put("*", "s84");
         row99a.put("/", "s85");
-        row99a.put("return", "r63");
 
         row100a.put(",", "r47");
         row100a.put(")", "r47");
@@ -1198,13 +1116,8 @@ class ParseTable {
         row100a.put(";", "r47");
         row100a.put("==", "r47");
         row100a.put("]", "r47");
-        row100a.put("ID", "r47");
-        row100a.put("{", "r47");
-        row100a.put("if", "r47");
-        row100a.put("while", "r47");
         row100a.put("*", "s47");
         row100a.put("/", "s47");
-        row100a.put("return", "r47");
 
         row101a.put(")", "s102");
 
@@ -1217,13 +1130,8 @@ class ParseTable {
         row102a.put(";", "r55");
         row102a.put("==", "r55");
         row102a.put("]", "r55");
-        row102a.put("ID", "r55");
-        row102a.put("{", "r55");
-        row102a.put("if", "r55");
-        row102a.put("while", "r55");
         row102a.put("*", "s55");
         row102a.put("/", "s55");
-        row102a.put("return", "r55");
 
         row103a.put(",", "s118");
         row103a.put(")", "r56");
@@ -1251,13 +1159,7 @@ class ParseTable {
         row107a.put(";", "r43");
         row107a.put("==", "r43");
         row107a.put("]", "r43");
-        row107a.put("ID", "r43");
-        row107a.put("{", "r43");
-        row107a.put("if", "r43");
-        row107a.put("while", "r43");
-        row107a.put("*", "s43");
-        row107a.put("/", "s43");
-        row107a.put("return", "r43");
+
 
         row108a.put("int", "r66");
         row108a.put("if", "r66");
@@ -1300,6 +1202,7 @@ class ParseTable {
         row111a.put("if", "r30");
         row111a.put("while", "r30");
         row111a.put("return", "r30");
+        row111a.put("else", "r30");
         row111a.put("}", "r30");
 
         row112a.put("else", "s115");
@@ -1336,6 +1239,7 @@ class ParseTable {
         row116a.put("if", "r69");
         row116a.put("while", "r69");
         row116a.put("return", "r69");
+        row116a.put("else", "r69");
         row116a.put("}", "r69");
 
         row117a.put(";", "r31");
@@ -1345,6 +1249,7 @@ class ParseTable {
         row117a.put("if", "r31");
         row117a.put("while", "r31");
         row117a.put("return", "r31");
+        row117a.put("else", "r31");
 
         row118g.put("Term", 63);
         row118g.put("Expression", 119);
@@ -1364,8 +1269,8 @@ class ParseTable {
 
         row120a.put(";", "s122");
 
-        row121g.put("X22", 10);
-        row121a.put("ID", "r81");
+       /* row121g.put("X22", 10);
+        row121a.put("ID", "r81");*/
 
         row122a.put("EOF", "r6");
         row122a.put("int", "r6");
@@ -1374,7 +1279,9 @@ class ParseTable {
         row122a.put("while", "r6");
         row122a.put("return", "r6");
         row122a.put("ID", "r6");
+        row122a.put(";", "r6");
         row122a.put("}", "r6");
+        row122a.put("{", "r6");
 
         row123a.put("EOF", "r84");
         row123a.put("int", "r84");
@@ -1428,6 +1335,7 @@ class ParseTable {
         row129a.put("if", "r74");
         row129a.put("while", "r74");
         row129a.put("return", "r74");
+        row129a.put("else", "r74");
         row129a.put("}", "r74");
 
         row130a.put(";", "r32");
@@ -1436,6 +1344,7 @@ class ParseTable {
         row130a.put("if", "r32");
         row130a.put("while", "r32");
         row130a.put("return", "r32");
+        row130a.put("else", "r32");
         row130a.put("}", "r32");
 
         row131g.put("R3", 135);
@@ -1510,9 +1419,6 @@ class ParseTable {
         row143a.put("int", "r9");
         row143a.put("void", "r9");
         row143a.put("EOF", "r9");
-
-
-
 
 
         actionTable.add(row0a);

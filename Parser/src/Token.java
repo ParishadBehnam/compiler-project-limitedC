@@ -15,6 +15,11 @@ public class Token {
         this.name = name;
     }
 
+    public Token(Token t) {
+        this.type = t.type;
+        this.name = t.name;
+    }
+
 }
 
 class Index {
@@ -49,11 +54,11 @@ class Index {
 class Target{
 
     public String type;
-    public int address;
+    public long address;
     public int dimension;
     public int scope;
 
-    public Target(String type, int address, int dimension, int scope) {
+    public Target(String type, long address, int dimension, int scope) {
         this.type = type;
         this.address = address;
         this.dimension = dimension;

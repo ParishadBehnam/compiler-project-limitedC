@@ -1,7 +1,7 @@
 int a;
-int b;
+int d^b;
 int c;
-int res[220];
+int 23234sres[220];
 int fibonacci(int index) {
 int a1;
 int a2;
@@ -13,15 +13,17 @@ while(counter<index) {
 b = a1 + a2;
 a1 = a2;
 a2 = b;
-if(a == 2)
-b = 123;
-if(a1<444)
-b = -4444;
-else
-b = 3333;
+if(a == 2) {
+    b = 123;
+    if(a1<444)
+    b = -4444;
+    else
+    b = 3333;
+    }
 }
 return a12;
 }
+int a;
 int main(void) {
 int hii;
 return fibonacci(12);
