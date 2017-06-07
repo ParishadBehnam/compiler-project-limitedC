@@ -9,7 +9,7 @@ public class Parser {
     ArrayList<Integer> grammarLength = new ArrayList<Integer>
             (Arrays.asList(4, 2, 1, 1, 1, 2, 2, 1, 2, 2, 5, 1, 1, 4, 2, 2, 4, 4,
                     2, 0, 2, 0, 1, 1, 1, 1, 1, 5, 1, 7, 10, 8, 3, 4, 2, 6, 1, 1, 4,
-                    1, 4, 4, 4, 1, 1, 1, 4, 1, 1, 1, 3, 1, 2, 2, 4, 1, 0, 3, 1));
+                    1, 4, 4, 4, 1, 1, 1, 4, 1, 1, 1, 3, 1, 2, 2, 5, 1, 0, 3, 1));
     ArrayList<String> grammarLHS = new ArrayList<>(
             Arrays.asList("Program", "DeclarationList", "DeclarationList", "Declaration", "Declaration",
                     "VarDeclaration", "FunDeclaration", "TypeSpecifier", "FunDeclaration", "R1",
@@ -27,14 +27,14 @@ public class Parser {
                     "X7", "X8", "X9", "X10", "X11",
                     "X12", "X13", "X14", "X15", "X16",
                     "X17", "X18", "X19", "X20", "X21",
-                    "X22", "X23", "R3", "R2"));
+                    "X22", "X23", "X24", "R3", "R2"));
     Stack<String> parsStack = new Stack();
     ParseTable parseTable = new ParseTable();
     Token[] codeGenTokens = new Token[4];
     CodeGenerator cg = new CodeGenerator();
 
     public Parser() {
-        for (int i = 0; i < 23; i++) {
+        for (int i = 0; i < 24; i++) {
             grammarLength.add(0);
         }
         grammarLength.add(2);
@@ -81,7 +81,7 @@ public class Parser {
                 int gotoIdx = Integer.parseInt(parsStack.peek());
                 parsStack.push(grammarLHS.get(idx - 1));
 
-                if (idx >= 60 && idx < 83) cg.generateCode(grammarLHS.get(idx - 1), codeGenTokens);
+                if (idx >= 60 && idx < 84) cg.generateCode(grammarLHS.get(idx - 1), codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("AddOp") || grammarLHS.get(idx - 1).equals("MulOp"))
                     cg.generateCode("Op", codeGenTokens);
 
@@ -456,7 +456,7 @@ class ParseTable {
         row9a.put("[", "s138");
         row9a.put(";", "r79");
 
-//        row10a.put("ID", "s17");
+        row10a.put("(", "s86");
 
         row11g.put("X19", 16);
         row11a.put("$", "r78");
@@ -828,8 +828,9 @@ class ParseTable {
         row68a.put(";", "r61");
         row68a.put("==", "r61");
         row68a.put("]", "r61");
-        row68a.put("(", "s86");
+        row68a.put("(", "r83");
         row68g.put("X2", 56);
+        row68g.put("X24", 10);
 
 
         row69a.put(",", "r53");
@@ -1283,9 +1284,9 @@ class ParseTable {
         row122a.put("}", "r6");
         row122a.put("{", "r6");
 
-        row123a.put("EOF", "r84");
-        row123a.put("int", "r84");
-        row123a.put("void", "r84");
+        row123a.put("EOF", "r85");
+        row123a.put("int", "r85");
+        row123a.put("void", "r85");
 
         row124a.put("(", "s125");
 
@@ -1385,16 +1386,16 @@ class ParseTable {
 
         row136a.put(";", "s137");
 
-        row137a.put("int", "r83");
-        row137a.put("void", "r83");
-        row137a.put("EOF", "r83");
-        row137a.put("ID", "r83");
-        row137a.put(";", "r83");
-        row137a.put("{", "r83");
-        row137a.put("}", "r83");
-        row137a.put("if", "r83");
-        row137a.put("while", "r83");
-        row137a.put("return", "r83");
+        row137a.put("int", "r84");
+        row137a.put("void", "r84");
+        row137a.put("EOF", "r84");
+        row137a.put("ID", "r84");
+        row137a.put(";", "r84");
+        row137a.put("{", "r84");
+        row137a.put("}", "r84");
+        row137a.put("if", "r84");
+        row137a.put("while", "r84");
+        row137a.put("return", "r84");
 
         row138g.put("X21", 139);
         row138a.put("NUM", "r80");

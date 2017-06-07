@@ -87,14 +87,22 @@ public class CodeGenerator {
             case "X22":
                 funcSetup(tokens);
                 break;
+            case "X23":
+                funcEnd(tokens);
+                break;
+            case "X24":
+                callFunc(tokens);
+                break;
             case "Op":
                 op(tokens);
                 break;
             default:
-                funcEnd(tokens);
                 break;
         }
 
+    }
+
+    private void callFunc(Token[] tokens) {
     }
 
     private void op(Token[] tokens) {
