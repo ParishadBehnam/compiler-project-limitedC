@@ -93,6 +93,12 @@ public class CodeGenerator {
             case "X24":
                 caller(tokens);
                 break;
+            case "ArgList":
+                args(tokens);
+                break;
+            case "popArg":
+                gc(tokens);
+                break;
             case "Op":
                 op(tokens);
                 break;
@@ -100,7 +106,13 @@ public class CodeGenerator {
                 funcEnd(tokens);
                 break;
         }
+    }
 
+    private void args(Token[] tokens) {
+        String exp = SS.pop();
+        int index = Integer.parseInt(SS.pop());
+        PB.add("(ASSIGN, " + exp + ", " + currentRecord.params.get(index).address + ")");
+        SS.push(Integer.toString(index + 1));
     }
 
     private void op(Token[] tokens) {
@@ -138,7 +150,6 @@ public class CodeGenerator {
 
         System.out.println(tokens[2].name + " " + target.address + " " + lastMainMemory + "***&*&*");
 
-
     }
 
     private void varMemory(Token[] tokens) {
@@ -156,7 +167,7 @@ public class CodeGenerator {
     }
 
     private void gc(Token[] tokens) {
-
+        SS.pop();
     }
 
     private void jpMain(Token[] tokens) {
@@ -302,6 +313,7 @@ public class CodeGenerator {
 
     private void caller(Token[] tokens) {
         currentRecord = records.get(tokens[1].name);
+        SS.push("0");
     }
 
     private void operation(Token[] tokens) {

@@ -84,6 +84,10 @@ public class Parser {
                 if (idx >= 60 && idx < 84) cg.generateCode(grammarLHS.get(idx - 1), codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("AddOp") || grammarLHS.get(idx - 1).equals("MulOp"))
                     cg.generateCode("Op", codeGenTokens);
+                if (grammarLHS.get(idx - 1).equals("ArgList") && grammarLength.get(idx - 1) == 1)
+                    cg.generateCode("ArgList", codeGenTokens);
+                if (grammarLHS.get(idx - 1).equals("Call"))
+                    cg.generateCode("popArg", codeGenTokens);
 
                 System.out.println(grammarLHS.get(idx - 1) + " " + gotoIdx);
                 parsStack.push(Integer.toString(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1))));

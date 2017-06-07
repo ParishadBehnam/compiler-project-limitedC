@@ -1,7 +1,10 @@
+int a;
+
 int fibonacci(int index) {
 int a1;
 int a2;
 int counter;
+index = a1 + a2;
 a1 = 1;
 a2 = 1;
 counter = 0;
@@ -20,10 +23,11 @@ if(a == 2) {
 }
 return a12;
 }
-int a;
+
 int main(void) {
 int hii;
-hiii = 3;
+hii = 3;
 return fibonacci(12);
+return fibonacci(5*a);
 }
 EOF
