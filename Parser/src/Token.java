@@ -71,6 +71,7 @@ class Target{
 class ActivationRecord {
     ArrayList<Target> params;
     int jumpLine;
+    int firstLine;
     long returnAddress;
 
     public ActivationRecord() {

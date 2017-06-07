@@ -96,8 +96,8 @@ public class CodeGenerator {
             case "ArgList":
                 args(tokens);
                 break;
-            case "popArg":
-                gc(tokens);
+            case "jmpToFunc":
+                jpFunc(tokens);
                 break;
             case "Op":
                 op(tokens);
@@ -106,6 +106,12 @@ public class CodeGenerator {
                 funcEnd(tokens);
                 break;
         }
+    }
+
+    private void jpFunc(Token[] tokens) {
+        SS.pop();
+        PB.add("(JP, " + currentRecord.firstLine + ")");
+        currentRecord.jumpLine = PB.size();
     }
 
     private void args(Token[] tokens) {
@@ -133,6 +139,7 @@ public class CodeGenerator {
         target.scope = Scanner.scopeStack.peek();
 
         lastRecord = new ActivationRecord();
+        lastRecord.firstLine = PB.size();
         records.put(tokens[1].name, lastRecord);
 
         Scanner.incScope();

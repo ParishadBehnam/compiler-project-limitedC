@@ -87,7 +87,7 @@ public class Parser {
                 if (grammarLHS.get(idx - 1).equals("ArgList") && grammarLength.get(idx - 1) == 1)
                     cg.generateCode("ArgList", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("Call"))
-                    cg.generateCode("popArg", codeGenTokens);
+                    cg.generateCode("jmpToFunc", codeGenTokens);
 
                 System.out.println(grammarLHS.get(idx - 1) + " " + gotoIdx);
                 parsStack.push(Integer.toString(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1))));
