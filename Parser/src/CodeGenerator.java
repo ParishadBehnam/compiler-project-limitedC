@@ -163,8 +163,9 @@ public class CodeGenerator {
         target.address = lastMainMemory;
         target.scope = currentScope;
         target.dimension = 1;
-        target.type = "array";
-        lastMainMemory += Integer.parseInt(tokens[0].name) * 4;
+        target.type = "pointer";
+        PB.add("(ASSIGN, #" + (lastMainMemory + 4) + ", " + lastMainMemory + ")");
+        lastMainMemory += (Integer.parseInt(tokens[0].name) + 1) * 4;
 
         System.out.println(tokens[2].name + " " + target.address + " " + lastMainMemory + "***&*&*");
 
@@ -181,7 +182,6 @@ public class CodeGenerator {
         lastMainMemory += 4;
 
         System.out.println(tokens[1].name + " " + target.address + " " + target.scope + "&*&*");
-
     }
 
     private void gc(Token[] tokens) {
@@ -201,9 +201,6 @@ public class CodeGenerator {
     }
 
     private void paramAssign(Token[] tokens) {
-
-//       String param = SS.pop();
-//        String arg = "";
         if (tokens[1].type.equals("]")) {
             int currentScope = Scanner.scopeStack.peek();
             Index idx = new Index(tokens[3].name, currentScope);
@@ -211,34 +208,11 @@ public class CodeGenerator {
             target.address = lastMainMemory;
             target.scope = currentScope;
             target.dimension = 1;
-            target.type = "array";
+            target.type = "pointer";
 
             lastRecord.params.add(target);
-
             lastMainMemory += 4;
-       /*
-            int currentScope = Scanner.scopeStack.peek();
-            Index idx = new Index(tokens[3].name, currentScope);
-            Target target = Scanner.symbolTable.get(idx);
-            target.address = Integer.parseInt(param);
-            target.scope = currentScope;
-            target.dimension = 0;
-            target.type = "array";
-            lastMainMemory += 4;
-*/
         } else {
-        int currentScope = Scanner.scopeStack.peek();
-        Index idx = new Index(tokens[1].name, currentScope);
-        Target target = Scanner.symbolTable.get(idx);
-        target.address = lastMainMemory;
-        target.scope = currentScope;
-        target.dimension = 0;
-        target.type = "int";
-
-        lastRecord.params.add(target);
-
-        lastMainMemory += 4;
-       /*
             int currentScope = Scanner.scopeStack.peek();
             Index idx = new Index(tokens[1].name, currentScope);
             Target target = Scanner.symbolTable.get(idx);
@@ -246,18 +220,10 @@ public class CodeGenerator {
             target.scope = currentScope;
             target.dimension = 0;
             target.type = "int";
+
+            lastRecord.params.add(target);
             lastMainMemory += 4;
-
-            arg = tokens[1].name;
-
-            PB.add("(ASSIGN, " + param + ", " + arg + ")");
-        */
         }
-
-
-//        PB.add("(ASSIGN")
-
-
     }
 
     private void loop(Token[] tokens) {
@@ -368,12 +334,12 @@ public class CodeGenerator {
     private void arrayPid(Token[] tokens) {
         String exp = SS.pop();
         String arr = SS.pop();
-        String res = "";
-        if (exp.charAt(0) == '#')
-            exp = exp.substring(1);
-        res = Integer.toString(Integer.parseInt(arr) + 4 * Integer.parseInt(exp));
-        SS.push(res);
-        System.out.println(res + "____");
+
+        PB.add("(MULT, #4, " + exp + ", " + lastTmpMemory + ")");
+        PB.add("(ADD, " + lastTmpMemory + ", " + arr + ", " + (lastTmpMemory + 4) + ")");
+        lastTmpMemory += 4;
+        SS.push(Long.toString(lastTmpMemory));
+        lastTmpMemory += 4;
     }
 
     private void pid(Token[] tokens) {

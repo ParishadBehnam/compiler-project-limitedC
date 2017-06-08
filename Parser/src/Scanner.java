@@ -39,8 +39,8 @@ public class Scanner {
         URL url = getClass().getResource("file.txt");
         try {
 //            scanner = new java.util.Scanner(new File(url.getPath()));
-            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/Final Project/compiler-limitedC/Parser/src/file.txt"));
-//            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
+//            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/Final Project/compiler-limitedC/Parser/src/file.txt"));
+            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -77,7 +77,7 @@ public class Scanner {
         token = new Token();
         match(0, "");
         if (token.type != null && token.type.equals("ID")) {
-            Index index1 = new Index(token.name, maxScope);
+            Index index1 = new Index(token.name, scopeStack.peek());
             Index index2 = new Index(token.name, 0);
             Target target = new Target("", 0, 0, maxScope);
             if (!symbolTable.containsKey(index1)) {
