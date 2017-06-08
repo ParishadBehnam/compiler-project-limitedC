@@ -110,8 +110,10 @@ public class CodeGenerator {
 
     private void jpFunc(Token[] tokens) {
         SS.pop();
+        int s = PB.size() + 2;
+        PB.add("(ASSIGN, " + s + ", " + currentRecord.returnLineAddress + ")");
         PB.add("(JP, " + currentRecord.firstLine + ")");
-        currentRecord.jumpLine = PB.size();
+        SS.push(Long.toString(currentRecord.returnValueAddress));
     }
 
     private void args(Token[] tokens) {
@@ -119,7 +121,7 @@ public class CodeGenerator {
         int index = Integer.parseInt(SS.pop());
         PB.add("(ASSIGN, " + exp + ", " + currentRecord.params.get(index).address + ")");
         SS.push(Integer.toString(index + 1));
-        System.out.println("args");
+        System.out.println(index + " args");
     }
 
     private void op(Token[] tokens) {
@@ -141,6 +143,11 @@ public class CodeGenerator {
 
         lastRecord = new ActivationRecord();
         lastRecord.firstLine = PB.size();
+        lastRecord.returnLineAddress = lastTmpMemory;
+        lastTmpMemory += 4;
+        lastRecord.returnValueAddress = lastTmpMemory;
+        lastTmpMemory += 4;
+
         records.put(tokens[1].name, lastRecord);
 
         Scanner.incScope();

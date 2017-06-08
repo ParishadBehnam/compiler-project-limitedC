@@ -70,9 +70,9 @@ class Target{
 
 class ActivationRecord {
     ArrayList<Target> params;
-    int jumpLine;
     int firstLine;
-    long returnAddress;
+    long returnLineAddress;
+    long returnValueAddress;
 
     public ActivationRecord() {
         params = new ArrayList<>();
