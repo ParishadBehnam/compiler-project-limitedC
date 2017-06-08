@@ -39,8 +39,8 @@ public class Scanner {
         URL url = getClass().getResource("file.txt");
         try {
 //            scanner = new java.util.Scanner(new File(url.getPath()));
-//            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/Final Project/compiler-limitedC/Parser/src/file.txt"));
-            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
+            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/[قختثزف/compiler-limitedC/Parser/src/file.txt"));
+//            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
         } catch (Exception e) {
             e.printStackTrace();
         }

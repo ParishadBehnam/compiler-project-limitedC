@@ -23,7 +23,6 @@ public class CodeGenerator {
     }
 
     public void generateCode(String type, Token[] tokens) {
-        System.out.println(Scanner.scopeStack.peek() + "scooope");
         switch (type) {
             case "X1":
                 assign(tokens);
@@ -132,7 +131,7 @@ public class CodeGenerator {
     private void funcEnd(Token[] tokens) {
         PB.add("(JP, @" + lastRecord.returnLineAddress + ")");
         Scanner.decScope();
-        System.out.println(Scanner.scopeStack.peek() + "scooope");
+//        System.out.println(Scanner.scopeStack.peek() + "scooope");
     }
 
     private void funcSetup(Token[] tokens) {
@@ -301,6 +300,7 @@ public class CodeGenerator {
     }
 
     private void caller(Token[] tokens) {
+
         currentRecord = records.get(tokens[1].name);
         SS.push("0");
     }
