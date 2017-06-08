@@ -195,9 +195,7 @@ public class CodeGenerator {
         if(!tokens[2].type.equals("return")) {
             String returnVal = SS.pop();
             PB.add("(ASSIGN, " + returnVal + ", " + lastRecord.returnValueAddress + ")");
-//            lastRecord.returnValueAddress = Long.parseLong(returnVal);
         }
-
     }
 
     private void paramAssign(Token[] tokens) {

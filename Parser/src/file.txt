@@ -2,7 +2,7 @@ int a;
 int f(int a, int b[]) {
 a = 5;
 b[1] = 10;
-return;
+return a;
 }
 
 int fibonacci(int index) {
