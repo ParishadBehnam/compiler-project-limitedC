@@ -1,7 +1,8 @@
 int a;
 
-void f(int a, int b) {
+void f(int a, int b[]) {
 a = 5;
+b[1] = 10;
 }
 
 int fibonacci(int index) {
@@ -32,12 +33,12 @@ void f1(int x) {
 x = x + 1;
 }
 
-
 int main(void) {
-int hii;
-hii = 3;
-/*return fibonacci(12);*/
-/*return f(5*a, a);*/
-return f(10, 5);
+int hii[3];
+int c;
+hii[0] = 0;
+hii[1] = 0;
+c = 1;
+return f(10, hii);
 }
 EOF
