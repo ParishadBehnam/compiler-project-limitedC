@@ -130,7 +130,7 @@ public class CodeGenerator {
     }
 
     private void funcEnd(Token[] tokens) {
-        PB.add("(JP " + lastRecord.returnLineAddress + ")");
+        PB.add("(JP, @" + lastRecord.returnLineAddress + ")");
         Scanner.decScope();
         System.out.println(Scanner.scopeStack.peek() + "scooope");
     }
@@ -195,7 +195,8 @@ public class CodeGenerator {
     private void callee(Token[] tokens) {
         if(!tokens[2].type.equals("return")) {
             String returnVal = SS.pop();
-            lastRecord.returnValueAddress = Long.parseLong(returnVal);
+            PB.add("(ASSIGN, " + returnVal + ", " + lastRecord.returnValueAddress + ")");
+//            lastRecord.returnValueAddress = Long.parseLong(returnVal);
         }
 
     }
