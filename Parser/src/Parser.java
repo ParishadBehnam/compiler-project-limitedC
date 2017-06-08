@@ -84,7 +84,7 @@ public class Parser {
                 if (idx >= 60 && idx < 84) cg.generateCode(grammarLHS.get(idx - 1), codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("AddOp") || grammarLHS.get(idx - 1).equals("MulOp"))
                     cg.generateCode("Op", codeGenTokens);
-                if (grammarLHS.get(idx - 1).equals("ArgList") && grammarLength.get(idx - 1) == 1)
+                if (grammarLHS.get(idx - 1).equals("ArgList"))
                     cg.generateCode("ArgList", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("Call"))
                     cg.generateCode("jmpToFunc", codeGenTokens);

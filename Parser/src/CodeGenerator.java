@@ -119,6 +119,7 @@ public class CodeGenerator {
         int index = Integer.parseInt(SS.pop());
         PB.add("(ASSIGN, " + exp + ", " + currentRecord.params.get(index).address + ")");
         SS.push(Integer.toString(index + 1));
+        System.out.println("args");
     }
 
     private void op(Token[] tokens) {
