@@ -832,6 +832,7 @@ class ParseTable {
         row68a.put(";", "r61");
         row68a.put("==", "r61");
         row68a.put("]", "r61");
+        row68a.put("[", "r61");
         row68a.put("(", "r83");
         row68g.put("X2", 56);
         row68g.put("X24", 10);
