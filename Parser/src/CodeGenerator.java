@@ -93,6 +93,9 @@ public class CodeGenerator {
             case "X24":
                 caller(tokens);
                 break;
+            case "X25": //output
+                output(tokens);
+                break;
             case "ArgList":
                 args(tokens);
                 break;
@@ -106,6 +109,11 @@ public class CodeGenerator {
                 funcEnd(tokens);
                 break;
         }
+    }
+
+    private void output(Token[] tokens) {
+        String exp = SS.pop();
+        PB.add("(PRINT, " + exp + ")");
     }
 
     private void jpFunc(Token[] tokens) {
@@ -125,7 +133,7 @@ public class CodeGenerator {
         int index = Integer.parseInt(SS.pop());
         PB.add("(ASSIGN, " + exp + ", " + currentRecord.params.get(index).address + ")");
         SS.push(Integer.toString(index + 1));
-        System.out.println(index + " args");
+//        System.out.println(index + " args");
     }
 
     private void op(Token[] tokens) {
@@ -170,7 +178,7 @@ public class CodeGenerator {
         PB.add("(ASSIGN, #" + (lastMainMemory + 4) + ", " + lastMainMemory + ")");
         lastMainMemory += (Integer.parseInt(tokens[0].name) + 1) * 4;
 
-        System.out.println(tokens[2].name + " " + target.address + " " + lastMainMemory + "***&*&*");
+//        System.out.println(tokens[2].name + " " + target.address + " " + lastMainMemory + "***&*&*");
 
     }
 
@@ -184,7 +192,7 @@ public class CodeGenerator {
         target.type = "int";
         lastMainMemory += 4;
 
-        System.out.println(tokens[1].name + " " + target.address + " " + target.scope + "&*&*");
+//        System.out.println(tokens[1].name + " " + target.address + " " + target.scope + "&*&*");
     }
 
     private void gc(Token[] tokens) {
@@ -247,7 +255,7 @@ public class CodeGenerator {
         PB.add("(AND, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
         SS.push(Long.toString(lastTmpMemory));
         lastTmpMemory += 4;
-        System.out.println(PB.get(PB.size() - 1) + "____");
+//        System.out.println(PB.get(PB.size() - 1) + "____");
     }
 
     private void lt(Token[] tokens) {
@@ -257,7 +265,7 @@ public class CodeGenerator {
         PB.add("(LT, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
         SS.push(Long.toString(lastTmpMemory));
         lastTmpMemory += 4;
-        System.out.println(PB.get(PB.size() - 1) + "____");
+//        System.out.println(PB.get(PB.size() - 1) + "____");
     }
 
     private void eq(Token[] tokens) {
@@ -267,13 +275,13 @@ public class CodeGenerator {
         PB.add("(EQ, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
         SS.push(Long.toString(lastTmpMemory));
         lastTmpMemory += 4;
-        System.out.println(PB.get(PB.size() - 1) + "____");
+//        System.out.println(PB.get(PB.size() - 1) + "____");
     }
 
     private void jp(Token[] tokens) {
         int i = Integer.parseInt(SS.pop());
         PB.set(i, "(JP, " + PB.size() + ")");
-        System.out.println(PB.get(i) + "^^^^");
+//        System.out.println(PB.get(i) + "^^^^");
     }
 
     private void jpfSave(Token[] tokens) {
@@ -282,14 +290,14 @@ public class CodeGenerator {
         PB.add("");
         PB.set(i, "(JPF, " + exp + ", " + PB.size() + ")");
         SS.push(Integer.toString(PB.size() - 1));
-        System.out.println(PB.get(i) + "^^^^");
+//        System.out.println(PB.get(i) + "^^^^");
     }
 
     private void jpf(Token[] tokens) {
         int i = Integer.parseInt(SS.pop());
         String exp = SS.pop();
         PB.set(i, "(JPF, " + exp + ", " + PB.size() + ")");
-        System.out.println(PB.get(i) + "^^^^");
+//        System.out.println(PB.get(i) + "^^^^");
     }
 
     private void save(Token[] tokens) {
@@ -327,7 +335,7 @@ public class CodeGenerator {
                 break;
         }
 
-        System.out.println(op + PB.get(PB.size() - 1) + "____");
+//        System.out.println(op + PB.get(PB.size() - 1) + "____");
 
         SS.push(Long.toString(lastTmpMemory));
         lastTmpMemory += 4;
@@ -354,8 +362,8 @@ public class CodeGenerator {
     private void assign(Token[] tokens) {
         String exp = SS.pop();
         String var = SS.pop();
-        System.out.println("(ASSIGN, " + exp + ", " + var + "____");
-        System.out.println("size " + PB.size());
+//        System.out.println("(ASSIGN, " + exp + ", " + var + "____");
+//        System.out.println("size " + PB.size());
         PB.add("(ASSIGN, " + exp + ", " + var + ")");
     }
 

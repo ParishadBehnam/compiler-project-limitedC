@@ -1,6 +1,5 @@
 import java.io.BufferedReader;
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,9 +35,7 @@ public class Scanner {
         scopeStack = new Stack<>();
         scopeStack.push(0);
 
-        URL url = getClass().getResource("file.txt");
         try {
-//            scanner = new java.util.Scanner(new File(url.getPath()));
 //            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/[قختثزف/compiler-limitedC/Parser/src/file.txt"));
             scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
         } catch (Exception e) {
@@ -66,7 +63,6 @@ public class Scanner {
     public static void main(String[] args) {
 
         Scanner myScanner = new Scanner();
-
         for (int i = 0; i < 40; i++) {
             Scanner.getToken();
             System.out.println("type: "+token.type+" name: "+token.name);
@@ -249,7 +245,6 @@ public class Scanner {
             }
         }
         if (isError) {
-            //TODO
             isError = false;
             System.out.println("ERROR: "+errorMessage);
             match(0, "");
@@ -261,6 +256,8 @@ public class Scanner {
             return "if";
         if (str.equals("else"))
             return "else";
+        if (str.equals("output"))
+            return "output";
         if (str.equals("void"))
             return "void";
         if (str.equals("int")) {

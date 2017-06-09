@@ -77,10 +77,8 @@ public class Parser {
                 for (int i = 0; i < len; i++)
                     parsStack.pop();
 
-
                 int gotoIdx = Integer.parseInt(parsStack.peek());
                 parsStack.push(grammarLHS.get(idx - 1));
-
 
                 if (idx >= 60 && idx < 84) cg.generateCode(grammarLHS.get(idx - 1), codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("AddOp") || grammarLHS.get(idx - 1).equals("MulOp"))
