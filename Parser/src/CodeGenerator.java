@@ -110,10 +110,14 @@ public class CodeGenerator {
 
     private void jpFunc(Token[] tokens) {
         SS.pop();
-        int s = PB.size() + 2;
+        int s = PB.size() + 3;
         PB.add("(ASSIGN, " + s + ", " + currentRecord.returnLineAddress + ")");
+        PB.add("(ASSIGN, #" + lastTmpMemory + ", " + currentRecord.returnValuePointer + ")");
         PB.add("(JP, " + currentRecord.firstLine + ")");
+        currentRecord.returnValueAddress = lastTmpMemory;
         SS.push(Long.toString(currentRecord.returnValueAddress));
+        lastTmpMemory += 4;
+//        SS.push(Long.toString(currentRecord.returnValueAddress));
     }
 
     private void args(Token[] tokens) {
@@ -147,7 +151,7 @@ public class CodeGenerator {
         lastRecord.firstLine = PB.size();
         lastRecord.returnLineAddress = lastTmpMemory;
         lastTmpMemory += 4;
-        lastRecord.returnValueAddress = lastTmpMemory;
+        lastRecord.returnValuePointer = lastTmpMemory;
         lastTmpMemory += 4;
 
         records.put(tokens[1].name, lastRecord);
@@ -194,7 +198,7 @@ public class CodeGenerator {
     private void callee(Token[] tokens) {
         if(!tokens[2].type.equals("return")) {
             String returnVal = SS.pop();
-            PB.add("(ASSIGN, " + returnVal + ", " + lastRecord.returnValueAddress + ")");
+            PB.add("(ASSIGN, " + returnVal + ", @" + lastRecord.returnValuePointer + ")");
         }
     }
 
@@ -337,7 +341,7 @@ public class CodeGenerator {
         PB.add("(MULT, #4, " + exp + ", " + lastTmpMemory + ")");
         PB.add("(ADD, " + lastTmpMemory + ", " + arr + ", " + (lastTmpMemory + 4) + ")");
         lastTmpMemory += 4;
-        SS.push(Long.toString(lastTmpMemory));
+        SS.push("@"+Long.toString(lastTmpMemory));
         lastTmpMemory += 4;
     }
 

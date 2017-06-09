@@ -72,6 +72,7 @@ class ActivationRecord {
     ArrayList<Target> params;
     int firstLine;
     long returnLineAddress;
+    long returnValuePointer;
     long returnValueAddress;
 
     public ActivationRecord() {

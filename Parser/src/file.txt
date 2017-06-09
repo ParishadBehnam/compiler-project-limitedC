@@ -4,41 +4,19 @@ a = 5;
 b[1] = 10;
 return a;
 }
-
-int fibonacci(int index) {
-int a1;
-int a2;
-int counter;
-index = a1 + a2;
-a1 = 1;
-a2 = 1;
-counter = 0;
-while(counter<index) {
-int b;
-b = a1 + a2;
-a1 = a2;
-a2 = b;
-if(a == 2) {
-    b = 123;
-    if(a1<444)
-    b = -4444;
-    else
-    b = 3333;
-    }
-}
-return a12;
-}
-
-void f1(int x) {
+void f1(int x, int y) {
 x = x + 1;
+return x;
 }
 
 int main(void) {
 int hii[3];
-int c;
+int c; /*
 hii[0] = 0;
-hii[1] = 0;
+hii[1] = 0;*/
 c = 1;
-c = 1 + f(10, hii);
+/*c = 1 + f(10, hii);*/
+if(f1(f1(2,3), 5) < 0)
+c = 10;
 }
 EOF
