@@ -13,7 +13,7 @@ public class CodeGenerator {
     Stack<String> SS = new Stack<>();
     ActivationRecord lastRecord = null;
     ActivationRecord currentRecord = null;
-    long lastMainMemory = 100;
+    long lastMainMemory = 0;
     long lastTmpMemory = 500;
 
     public static void print() {
@@ -143,6 +143,7 @@ public class CodeGenerator {
     private void funcEnd(Token[] tokens) {
         PB.add("(JP, @" + lastRecord.returnLineAddress + ")");
         Scanner.decScope();
+//        System.out.println("sizeeee: " + Scanner.symbolTable.size());
 //        System.out.println(Scanner.scopeStack.peek() + "scooope");
     }
 
@@ -165,14 +166,15 @@ public class CodeGenerator {
         records.put(tokens[1].name, lastRecord);
 
         Scanner.incScope();
+//        System.out.println("sizeeee: " + Scanner.symbolTable.size());
     }
 
     private void arrayMemory(Token[] tokens) {
-        int currentScope = Scanner.scopeStack.peek();
-        Index idx = new Index(tokens[2].name, currentScope);
-        Target target = Scanner.symbolTable.get(idx);
+//        int currentScope = Scanner.scopeStack.peek();
+        Index idx = new Index(tokens[2].name);
+        Target target = Scanner.lookup(idx);
         target.address = lastMainMemory;
-        target.scope = currentScope;
+        target.scope = Scanner.symbolTable.size();
         target.dimension = 1;
         target.type = "pointer";
         PB.add("(ASSIGN, #" + (lastMainMemory + 4) + ", " + lastMainMemory + ")");
@@ -183,15 +185,15 @@ public class CodeGenerator {
     }
 
     private void varMemory(Token[] tokens) {
-        int currentScope = Scanner.scopeStack.peek();
-        Index idx = new Index(tokens[1].name, currentScope);
-        Target target = Scanner.symbolTable.get(idx);
+//        int currentScope = Scanner.scopeStack.peek();
+        Index idx = new Index(tokens[1].name);
+        Target target = Scanner.lookup(idx);
         target.address = lastMainMemory;
-        target.scope = currentScope;
+        target.scope = Scanner.symbolTable.size();
         target.dimension = 0;
         target.type = "int";
         lastMainMemory += 4;
-
+//        System.out.println("sizeeee: " + Scanner.symbolTable.size());
 //        System.out.println(tokens[1].name + " " + target.address + " " + target.scope + "&*&*");
     }
 
@@ -212,22 +214,22 @@ public class CodeGenerator {
 
     private void paramAssign(Token[] tokens) {
         if (tokens[1].type.equals("]")) {
-            int currentScope = Scanner.scopeStack.peek();
-            Index idx = new Index(tokens[3].name, currentScope);
-            Target target = Scanner.symbolTable.get(idx);
+//            int currentScope = Scanner.scopeStack.peek();
+            Index idx = new Index(tokens[3].name);
+            Target target = Scanner.lookup(idx);
             target.address = lastMainMemory;
-            target.scope = currentScope;
+            target.scope = Scanner.symbolTable.size();
             target.dimension = 1;
             target.type = "pointer";
 
             lastRecord.params.add(target);
             lastMainMemory += 4;
         } else {
-            int currentScope = Scanner.scopeStack.peek();
-            Index idx = new Index(tokens[1].name, currentScope);
-            Target target = Scanner.symbolTable.get(idx);
+//            int currentScope = Scanner.scopeStack.peek();
+            Index idx = new Index(tokens[1].name);
+            Target target = Scanner.lookup(idx);
             target.address = lastMainMemory;
-            target.scope = currentScope;
+            target.scope = Scanner.symbolTable.size();
             target.dimension = 0;
             target.type = "int";
 
@@ -368,12 +370,8 @@ public class CodeGenerator {
     }
 
     private Target getTarget(Token t) {
-        int currentScope = Scanner.scopeStack.peek();
-        Index idx1 = new Index(t.name, currentScope);
-        Index idx2 = new Index(t.name, 0);
-        if (!Scanner.symbolTable.containsKey(idx1))
-            return Scanner.symbolTable.get(idx2);
-        return Scanner.symbolTable.get(idx1);
+        Index idx = new Index(t.name);
+        return Scanner.lookup(idx);
     }
 
 }

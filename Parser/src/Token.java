@@ -27,11 +27,11 @@ public class Token {
 class Index {
 
     public String name;
-    public int scope;
+//    public int scope;
 
-    public Index(String name, int scope) {
+    public Index(String name) {
         this.name = name;
-        this.scope = scope;
+//        this.scope = scope;
     }
 
     @Override
@@ -41,15 +41,15 @@ class Index {
 
         Index index = (Index) o;
 
-        if (scope != index.scope) return false;
+//        if (scope != index.scope) return false;
         return name.equals(index.name);
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + scope;
-        return result;
+        return name.hashCode();
+//        result = 31 * result + scope;
+//        return result;
     }
 }
 

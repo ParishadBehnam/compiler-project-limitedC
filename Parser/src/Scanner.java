@@ -1,4 +1,3 @@
-import java.io.BufferedReader;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,7 +9,7 @@ import java.util.Stack;
  */
 public class Scanner {
 
-    public static HashMap<Index, Target> symbolTable;
+    public static ArrayList<HashMap<Index, Target>> symbolTable;
     public static Stack<Integer> scopeStack;
 
     private static boolean inDeclaration;
@@ -19,7 +18,6 @@ public class Scanner {
     private static int pointer;
     private static String input;
     private static int maxScope;
-    private static BufferedReader br;
     private static java.util.Scanner scanner;
     private static ArrayList<Character> singles;
     private static Token token;
@@ -31,7 +29,8 @@ public class Scanner {
         isSingle = 1;
         isError = false;
         singles = new ArrayList<Character>(Arrays.asList(',', ';', '*', '<', '(', ')', '[', ']', '{', '}', '=', '&', '/', '+', '-'));
-        symbolTable = new HashMap<>();
+        symbolTable = new ArrayList<>();
+        symbolTable.add(new HashMap<Index, Target>());
         scopeStack = new Stack<>();
         scopeStack.push(0);
 
@@ -53,10 +52,21 @@ public class Scanner {
     public static void incScope() {
         maxScope++;
         scopeStack.push(maxScope);
+        symbolTable.add(new HashMap<Index, Target>());
     }
 
     public static void decScope() {
         scopeStack.pop();
+        symbolTable.remove(symbolTable.size() - 1);
+    }
+
+    public static Target lookup(Index index) {
+
+        for (int i = symbolTable.size() - 1; i >= 0; i++) {
+            if (symbolTable.get(i).containsKey(index))
+                return symbolTable.get(i).get(index);
+        }
+        return null;
     }
 
 
@@ -70,18 +80,18 @@ public class Scanner {
     }
 
     public static Token getToken() {
+        HashMap<Index, Target> partial;
         token = new Token();
         match(0, "");
         if (token.type != null && token.type.equals("ID")) {
-            Index index1 = new Index(token.name, scopeStack.peek());
-            Index index2 = new Index(token.name, 0);
+            Index index = new Index(token.name);
             Target target = new Target("", 0, 0, maxScope);
-            if (!symbolTable.containsKey(index1)) {
+            partial = symbolTable.get(symbolTable.size() - 1);
+            if (!partial.containsKey(index)) {
                 if (inDeclaration) {
-                    symbolTable.put(index1, target);
-                    symbolTable.put(index1, target);
-                } else if (maxScope == 0 || !symbolTable.containsKey(index2))
-                    symbolTable.put(index1, target);
+                    partial.put(index, target);
+                } else if (symbolTable.size() == 1 || !symbolTable.get(0).containsKey(index))
+                    partial.put(index, target);
             }
             inDeclaration = false;
         }
