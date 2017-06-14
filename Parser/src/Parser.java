@@ -87,6 +87,8 @@ public class Parser {
                     cg.generateCode("ArgList", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("Call"))
                     cg.generateCode("jmpToFunc", codeGenTokens);
+                if (grammarLHS.get(idx - 1).equals("Param"))
+                    cg.generateCode("parameter", codeGenTokens);
 
                 System.out.println(grammarLHS.get(idx - 1) + " " + gotoIdx);
                 parsStack.push(Integer.toString(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1))));

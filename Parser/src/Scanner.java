@@ -2,7 +2,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Stack;
 
 /**
  * Created by parishad behnam on 6/5/2017.
@@ -10,20 +9,17 @@ import java.util.Stack;
 public class Scanner {
 
     public static ArrayList<HashMap<Index, Target>> symbolTable;
-    public static Stack<Integer> scopeStack;
 
     private static boolean inDeclaration;
     private static int isSingle;
     private static boolean isError;
     private static int pointer;
     private static String input;
-    private static int maxScope;
     private static java.util.Scanner scanner;
     private static ArrayList<Character> singles;
     private static Token token;
 
     public Scanner() {
-        maxScope = 0;
         pointer = -1;
         inDeclaration = false;
         isSingle = 1;
@@ -31,8 +27,6 @@ public class Scanner {
         singles = new ArrayList<Character>(Arrays.asList(',', ';', '*', '<', '(', ')', '[', ']', '{', '}', '=', '&', '/', '+', '-'));
         symbolTable = new ArrayList<>();
         symbolTable.add(new HashMap<Index, Target>());
-        scopeStack = new Stack<>();
-        scopeStack.push(0);
 
         try {
 //            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/[قختثزف/compiler-limitedC/Parser/src/file.txt"));
@@ -50,19 +44,16 @@ public class Scanner {
     }
 
     public static void incScope() {
-        maxScope++;
-        scopeStack.push(maxScope);
         symbolTable.add(new HashMap<Index, Target>());
     }
 
     public static void decScope() {
-        scopeStack.pop();
         symbolTable.remove(symbolTable.size() - 1);
     }
 
     public static Target lookup(Index index) {
 
-        for (int i = symbolTable.size() - 1; i >= 0; i++) {
+        for (int i = symbolTable.size() - 1; i >= 0; i--) {
             if (symbolTable.get(i).containsKey(index))
                 return symbolTable.get(i).get(index);
         }
@@ -85,7 +76,7 @@ public class Scanner {
         match(0, "");
         if (token.type != null && token.type.equals("ID")) {
             Index index = new Index(token.name);
-            Target target = new Target("", 0, 0, maxScope);
+            Target target = new Target("", 0, 0, symbolTable.size());
             partial = symbolTable.get(symbolTable.size() - 1);
             if (!partial.containsKey(index)) {
                 if (inDeclaration) {
@@ -151,7 +142,7 @@ public class Scanner {
                 isSingle ++;
                 match(6, tokenstr + ch);
             } else if (singles.contains(ch)) {
-                isSingle ++;
+                isSingle += 2;
                 token = new Token(tokenstr + ch, "");
                 return;
             }
@@ -174,6 +165,7 @@ public class Scanner {
                 isError = true;
             }
         } else if (state == 2) {
+            System.out.println(isSingle);
             if (ch == '-' || ch == '+' || singles.contains(ch) || Character.isLetter(ch)) {
                 pointer--;
                 token = new Token(tokenstr, "");
