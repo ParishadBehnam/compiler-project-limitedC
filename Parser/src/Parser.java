@@ -3,6 +3,8 @@
  */
 
 
+import com.sun.deploy.util.StringUtils;
+
 import java.util.*;
 
 public class Parser {
@@ -27,7 +29,11 @@ public class Parser {
                     "X7", "X8", "X9", "X10", "X11",
                     "X12", "X13", "X14", "X15", "X16",
                     "X17", "X18", "X19", "X20", "X21",
-                    "X22", "X23", "X24", "R3", "R2"));
+                    "X22", "X23", "X24", "R3", "R2", "Statement", "X25"));
+
+    HashMap<String, ArrayList<String>> follows = new HashMap<>();
+
+
     Stack<String> parsStack = new Stack();
     ParseTable parseTable = new ParseTable();
     Token[] codeGenTokens = new Token[4];
@@ -39,17 +45,117 @@ public class Parser {
         }
         grammarLength.add(2);
         grammarLength.add(7);
+        grammarLength.add(6);
+        grammarLength.add(0);
         parsStack.push("$");
         parsStack.push("0");
+
+        follows.put("Program", new ArrayList<>(Arrays.asList("$")));
+        follows.put("X19", new ArrayList<>(Arrays.asList("$")));
+        follows.put("DeclarationList", new ArrayList<>(Arrays.asList("int", "void", "EOF")));
+        follows.put("Declaration", new ArrayList<>(Arrays.asList("int", "void", "EOF")));
+        follows.put("FunDeclaration", new ArrayList<>(Arrays.asList("int", "void", "EOF")));
+        follows.put("R2", new ArrayList<>(Arrays.asList("int", "void", "EOF")));
+        follows.put("X23", new ArrayList<>(Arrays.asList("int", "void", "EOF")));
+        follows.put("VarDeclaration", new ArrayList<>(Arrays.asList("int", "void", "EOF", ";", "ID", "{", "if", "while", "return", "int", "}")));
+        follows.put("R1", new ArrayList<>(Arrays.asList("int", "void", "EOF", ";", "ID", "{", "if", "while", "return", "int", "}")));
+        follows.put("R3", new ArrayList<>(Arrays.asList("int", "void", "EOF", ";", "ID", "{", "if", "while", "return", "int", "}")));
+        follows.put("LocalDeclarations", new ArrayList<>(Arrays.asList(";", "ID", "{", "if", "while", "return", "int", "}")));
+        follows.put("Params", new ArrayList<>(Arrays.asList(")")));
+        follows.put("Args", new ArrayList<>(Arrays.asList(")")));
+        follows.put("ParamList", new ArrayList<>(Arrays.asList(")", ",")));
+        follows.put("X16", new ArrayList<>(Arrays.asList(")", ",")));
+        follows.put("ArgList", new ArrayList<>(Arrays.asList(")", ",")));
+        follows.put("Param", new ArrayList<>(Arrays.asList(")", ",")));
+        follows.put("CompoundStmt", new ArrayList<>(Arrays.asList("int", "void", "EOF", "output", "else", ";", "ID", "{", "if", "while", "return", "}")));
+        follows.put("Statement", new ArrayList<>(Arrays.asList("else", ";", "ID", "{", "if", "output", "while", "return", "}")));
+        follows.put("X25", new ArrayList<>(Arrays.asList("else", ";", "ID", "{", "if", "output", "while", "return", "}")));
+        follows.put("ExpressionStmt", new ArrayList<>(Arrays.asList("else", ";", "output", "ID", "{", "if", "while", "return", "}")));
+        follows.put("SelectionStmt", new ArrayList<>(Arrays.asList("else", ";", "ID", "output", "{", "if", "while", "return", "}")));
+        follows.put("X8", new ArrayList<>(Arrays.asList("else", ";", "ID", "output", "{", "if", "while", "return", "}")));
+        follows.put("X10", new ArrayList<>(Arrays.asList("else", ";", "ID", "output", "{", "if", "while", "return", "}")));
+        follows.put("IterationStmt", new ArrayList<>(Arrays.asList("else", ";", "ID", "output", "{", "if", "while", "return", "}")));
+        follows.put("X15", new ArrayList<>(Arrays.asList("else", ";", "ID", "output", "{", "if", "while", "return", "}")));
+        follows.put("ReturnStmt", new ArrayList<>(Arrays.asList("else", ";", "ID", "{", "output", "if", "while", "return", "}")));
+        follows.put("X17", new ArrayList<>(Arrays.asList("else", ";", "ID", "{", "output", "if", "while", "return", "}")));
+        follows.put("X7", new ArrayList<>(Arrays.asList("int", "void", ";", "ID", "{", "output", "if", "while", "return")));
+        follows.put("StatementList", new ArrayList<>(Arrays.asList(";", "ID", "{", "if", "output", "while", "return", "}")));
+        follows.put("Expression", new ArrayList<>(Arrays.asList(")", "<", "==", "+", "-", ",", "&&", ";", "]")));
+        follows.put("Term", new ArrayList<>(Arrays.asList("*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]")));
+        follows.put("X4", new ArrayList<>(Arrays.asList("*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]")));
+        follows.put("Factor", new ArrayList<>(Arrays.asList("*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]")));
+        follows.put("X5", new ArrayList<>(Arrays.asList("*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]")));
+        follows.put("X2", new ArrayList<>(Arrays.asList("=" + "[" + "*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]")));
+        follows.put("X3", new ArrayList<>(Arrays.asList("=" + "*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]")));
+        follows.put("Call", new ArrayList<>(Arrays.asList("*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]")));
+        follows.put("Var", new ArrayList<>(Arrays.asList("*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]", "=")));
+        follows.put("RelExpression", new ArrayList<>(Arrays.asList("&&", ";", ")")));
+        follows.put("X13", new ArrayList<>(Arrays.asList("&&", ";", ")")));
+        follows.put("RelTerm", new ArrayList<>(Arrays.asList("&&", ";", ")")));
+        follows.put("X11", new ArrayList<>(Arrays.asList("&&", ";", ")")));
+        follows.put("X12", new ArrayList<>(Arrays.asList("&&", ";", ")")));
+        follows.put("GenExpression", new ArrayList<>(Arrays.asList(";", ")")));
+        follows.put("AddOp", new ArrayList<>(Arrays.asList("NUM", "ID", "(")));
+        follows.put("MulOp", new ArrayList<>(Arrays.asList("NUM", "ID", "(")));
+        follows.put("X1", new ArrayList<>(Arrays.asList(";")));
+        follows.put("X6", new ArrayList<>(Arrays.asList("NUM")));
+        follows.put("X9", new ArrayList<>(Arrays.asList("else")));
+        follows.put("X14", new ArrayList<>(Arrays.asList("(")));
+        follows.put("X24", new ArrayList<>(Arrays.asList("(")));
+        follows.put("X22", new ArrayList<>(Arrays.asList("(")));
+        follows.put("X20", new ArrayList<>(Arrays.asList(";")));
+        follows.put("X21", new ArrayList<>(Arrays.asList("NUM")));
+
+
     }
 
     public void start() {
         Token t = Scanner.getToken();
         codeGenTokens[0] = t;
         while (true) {
-            printStack();
             System.out.println("token" + t.type);
             String res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
+            if (res == null) {
+                System.out.println("PANIC MODE - PARSER");
+                String state = "";
+                L1:
+                while (parsStack.size() > 0) {
+                    state = parsStack.peek();
+                    if (!state.matches("\\d+")) {
+                        parsStack.pop();
+                        continue;
+                    }
+
+                    int stateNum = Integer.parseInt(state);
+                    if (parseTable.gotoTable.get(stateNum).size() > 0) {
+                        HashMap<String, Integer> target = parseTable.gotoTable.get(stateNum);
+                        Set<String> NT = target.keySet();
+                        String lastToken = "";
+                        while (!(t.type.equals("$") && lastToken.equals("$"))) {
+                            lastToken = t.type;
+                            t = Scanner.getToken();
+                            for (String s : NT) {
+                                if (follows.get(s).contains(t.type)) {
+                                    parsStack.push(s);
+                                    parsStack.push(Integer.toString(target.get(s)));
+                                    break L1;
+                                }
+
+
+                            }
+                        }
+                        break L1;
+                    } else parsStack.pop();
+                }
+
+                res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
+                if (res == null) {
+                    System.out.println("FINISHED!");
+                    return;
+                }
+
+            }
+            printStack();
             if (res.equals("accept")) {
                 CodeGenerator.print();
                 return;
@@ -89,6 +195,8 @@ public class Parser {
                     cg.generateCode("jmpToFunc", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("Param"))
                     cg.generateCode("parameter", codeGenTokens);
+                if (grammarLHS.get(idx - 1).equals("X25"))
+                    cg.generateCode("output", codeGenTokens);
 
                 System.out.println(grammarLHS.get(idx - 1) + " " + gotoIdx);
                 parsStack.push(Integer.toString(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1))));
@@ -260,6 +368,12 @@ class ParseTable {
         HashMap<String, String> row141a = new HashMap<>();
         HashMap<String, String> row142a = new HashMap<>();
         HashMap<String, String> row143a = new HashMap<>();
+        HashMap<String, String> row144a = new HashMap<>();
+        HashMap<String, String> row145a = new HashMap<>();
+        HashMap<String, String> row146a = new HashMap<>();
+        HashMap<String, String> row147a = new HashMap<>();
+        HashMap<String, String> row148a = new HashMap<>();
+        HashMap<String, String> row149a = new HashMap<>();
 
 
         HashMap<String, Integer> row0g = new HashMap<>();
@@ -406,11 +520,18 @@ class ParseTable {
         HashMap<String, Integer> row141g = new HashMap<>();
         HashMap<String, Integer> row142g = new HashMap<>();
         HashMap<String, Integer> row143g = new HashMap<>();
+        HashMap<String, Integer> row144g = new HashMap<>();
+        HashMap<String, Integer> row145g = new HashMap<>();
+        HashMap<String, Integer> row146g = new HashMap<>();
+        HashMap<String, Integer> row147g = new HashMap<>();
+        HashMap<String, Integer> row148g = new HashMap<>();
+        HashMap<String, Integer> row149g = new HashMap<>();
 
 
         row0a.put("int", "r66");
         row0a.put("if", "r66");
         row0a.put("void", "r66");
+        row0a.put("output", "r66");
         row0a.put(";", "r66");
         row0a.put("ID", "r66");
         row0a.put("{", "r66");
@@ -421,7 +542,6 @@ class ParseTable {
         row0g.put("X7", 2);
 
         row1a.put("$", "accept");
-
 
 
         row2g.put("DeclarationList", 3);
@@ -565,6 +685,7 @@ class ParseTable {
         row38a.put("int", "s14");
         row38a.put(";", "r22");
         row38a.put("ID", "r22");
+        row38a.put("output", "r22");
         row38a.put("{", "r22");
         row38a.put("}", "r22");
         row38a.put("if", "r22");
@@ -582,6 +703,7 @@ class ParseTable {
         row40a.put("}", "s42");
         row40a.put("while", "s54");
         row40a.put("return", "s53");
+        row40a.put("output", "s144");
 
         row40g.put("Statement", 46);
         row40g.put("ExpressionStmt", 43);
@@ -609,6 +731,7 @@ class ParseTable {
 
         row42a.put(";", "r18");
         row42a.put("ID", "r18");
+        row42a.put("output", "r18");
         row42a.put("{", "r18");
         row42a.put("if", "r18");
         row42a.put("else", "r18");
@@ -620,6 +743,7 @@ class ParseTable {
         row42a.put("}", "r18");
 
         row43a.put(";", "r23");
+        row43a.put("output", "r23");
         row43a.put("ID", "r23");
         row43a.put("{", "r23");
         row43a.put("if", "r23");
@@ -629,6 +753,7 @@ class ParseTable {
         row43a.put("}", "r23");
 
         row44a.put(";", "r25");
+        row44a.put("output", "r25");
         row44a.put("ID", "r25");
         row44a.put("{", "r25");
         row44a.put("if", "r25");
@@ -638,6 +763,7 @@ class ParseTable {
         row44a.put("}", "r25");
 
         row45a.put(";", "r27");
+        row45a.put("output", "r27");
         row45a.put("ID", "r27");
         row45a.put("{", "r27");
         row45a.put("if", "r27");
@@ -646,6 +772,7 @@ class ParseTable {
         row45a.put("}", "r27");
 
         row46a.put(";", "r21");
+        row46a.put("output", "r21");
         row46a.put("ID", "r21");
         row46a.put("{", "r21");
         row46a.put("if", "r21");
@@ -654,6 +781,7 @@ class ParseTable {
         row46a.put("}", "r21");
 
         row47a.put(";", "r24");
+        row47a.put("output", "r24");
         row47a.put("ID", "r24");
         row47a.put("{", "r24");
         row47a.put("if", "r24");
@@ -663,6 +791,7 @@ class ParseTable {
         row47a.put("}", "r24");
 
         row48a.put(";", "r26");
+        row48a.put("output", "r26");
         row48a.put("ID", "r26");
         row48a.put("{", "r26");
         row48a.put("if", "r26");
@@ -672,6 +801,7 @@ class ParseTable {
         row48a.put("}", "r26");
 
         row49a.put(";", "r29");
+        row49a.put("output", "r29");
         row49a.put("ID", "r29");
         row49a.put("{", "r29");
         row49a.put("if", "r29");
@@ -740,6 +870,7 @@ class ParseTable {
 
         row58g.put("X17", 72);
         row58a.put("while", "r76");
+        row58a.put("output", "r76");
         row58a.put("ID", "r76");
         row58a.put(";", "r76");
         row58a.put("{", "r76");
@@ -760,6 +891,7 @@ class ParseTable {
         row61a.put("==", "s80");
         row61a.put("<", "s81");
         row61a.put(";", "r38");
+        row61a.put(")", "r38");
 
         row62a.put("&&", "r40");
         row62a.put(";", "r40");
@@ -874,6 +1006,7 @@ class ParseTable {
         row72a.put("ID", "r33");
         row72a.put("{", "r33");
         row72a.put("if", "r33");
+        row72a.put("output", "r33");
         row72a.put("while", "r33");
         row72a.put("return", "r33");
         row72a.put("else", "r33");
@@ -881,6 +1014,7 @@ class ParseTable {
 
         row73g.put("X17", 74);
         row73a.put(";", "r76");
+        row73a.put("output", "r76");
         row73a.put("ID", "r76");
         row73a.put("{", "r76");
         row73a.put("if", "r76");
@@ -890,6 +1024,7 @@ class ParseTable {
         row73a.put("}", "r76");
 
         row74a.put(";", "r34");
+        row74a.put("output", "r34");
         row74a.put("ID", "r34");
         row74a.put("{", "r34");
         row74a.put("if", "r34");
@@ -1191,9 +1326,11 @@ class ParseTable {
         row109a.put(";", "s49");
         row109a.put("{", "s37");
         row109a.put("ID", "s68");
+        row109a.put("output", "s144");
 
         row110a.put(";", "r67");
         row110a.put("ID", "r67");
+        row110a.put("output", "r67");
         row110a.put("{", "r67");
         row110a.put("}", "r67");
         row110a.put("if", "r67");
@@ -1208,6 +1345,7 @@ class ParseTable {
         row111a.put("{", "r30");
         row111a.put("if", "r30");
         row111a.put("while", "r30");
+        row111a.put("output", "r30");
         row111a.put("return", "r30");
         row111a.put("else", "r30");
         row111a.put("}", "r30");
@@ -1218,6 +1356,7 @@ class ParseTable {
 
         row114a.put(";", "r28");
         row114a.put("ID", "r28");
+        row114a.put("output", "r28");
         row114a.put("{", "r28");
         row114a.put("if", "r28");
         row114a.put("while", "r28");
@@ -1238,9 +1377,11 @@ class ParseTable {
         row115a.put(";", "s49");
         row115a.put("{", "s37");
         row115a.put("ID", "s68");
+        row115a.put("output", "s144");
 
         row116g.put("X10", 117);
         row116a.put(";", "r69");
+        row116a.put("output", "r69");
         row116a.put("ID", "r69");
         row116a.put("{", "r69");
         row116a.put("if", "r69");
@@ -1250,6 +1391,7 @@ class ParseTable {
         row116a.put("}", "r69");
 
         row117a.put(";", "r31");
+        row117a.put("ouput", "r31");
         row117a.put("ID", "r31");
         row117a.put("{", "r31");
         row117a.put("}", "r31");
@@ -1319,6 +1461,7 @@ class ParseTable {
         row127a.put("while", "r66");
         row127a.put("return", "r66");
         row127a.put("ID", "r66");
+        row127a.put("output", "r66");
         row127a.put("{", "r66");
 
         row128g.put("ExpressionStmt", 43);
@@ -1337,6 +1480,7 @@ class ParseTable {
 
         row129g.put("X15", 130);
         row129a.put(";", "r74");
+        row129a.put("output", "r74");
         row129a.put("ID", "r74");
         row129a.put("{", "r74");
         row129a.put("if", "r74");
@@ -1346,6 +1490,7 @@ class ParseTable {
         row129a.put("}", "r74");
 
         row130a.put(";", "r32");
+        row130a.put("output", "r32");
         row130a.put("ID", "r32");
         row130a.put("{", "r32");
         row130a.put("if", "r32");
@@ -1426,6 +1571,45 @@ class ParseTable {
         row143a.put("int", "r9");
         row143a.put("void", "r9");
         row143a.put("EOF", "r9");
+
+        row144a.put("(", "s145");
+
+        row145a.put("(", "s75");
+        row145a.put("ID", "s68");
+        row145g.put("GenExpression", 146);
+        row145g.put("Term", 63);
+        row145g.put("Factor", 64);
+        row145g.put("Var", 65);
+        row145g.put("Call", 66);
+        row145g.put("X6", 67);
+        row145g.put("Expression", 61);
+        row145g.put("RelExpression", 60);
+        row145g.put("RelTerm", 62);
+
+        row146a.put(")", "s149");
+
+        row147a.put("else", "r87");
+        row147a.put("output", "r87");
+        row147a.put(";", "r87");
+        row147a.put("ID", "r87");
+        row147a.put("{", "r87");
+        row147a.put("if", "r87");
+        row147a.put("while", "r87");
+        row147a.put("return", "r87");
+        row147a.put("}", "r87");
+        row147g.put("X25", 148);
+
+        row148a.put("else", "r86");
+        row148a.put("output", "r86");
+        row148a.put(";", "r86");
+        row148a.put("ID", "r86");
+        row148a.put("{", "r86");
+        row148a.put("if", "r86");
+        row148a.put("while", "r86");
+        row148a.put("return", "r86");
+        row148a.put("}", "r86");
+
+        row149a.put(";", "s147");
 
 
         actionTable.add(row0a);
@@ -1572,6 +1756,12 @@ class ParseTable {
         actionTable.add(row141a);
         actionTable.add(row142a);
         actionTable.add(row143a);
+        actionTable.add(row144a);
+        actionTable.add(row145a);
+        actionTable.add(row146a);
+        actionTable.add(row147a);
+        actionTable.add(row148a);
+        actionTable.add(row149a);
 
 
         gotoTable.add(row0g);
@@ -1718,6 +1908,12 @@ class ParseTable {
         gotoTable.add(row141g);
         gotoTable.add(row142g);
         gotoTable.add(row143g);
+        gotoTable.add(row144g);
+        gotoTable.add(row145g);
+        gotoTable.add(row146g);
+        gotoTable.add(row147g);
+        gotoTable.add(row148g);
+        gotoTable.add(row149g);
 
 
     }

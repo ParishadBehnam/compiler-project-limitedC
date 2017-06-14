@@ -6,6 +6,7 @@ return j;
 int d;
 int main(void) {
 d = 56;
-c = f(c, d);
+output(d);
+c = f(c, , * d);
 }
 EOF

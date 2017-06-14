@@ -115,7 +115,7 @@ public class CodeGenerator {
             case "X24":
                 caller(tokens);
                 break;
-            case "X25": //output
+            case "output": //output
                 output(tokens);
                 break;
             case "ArgList":
