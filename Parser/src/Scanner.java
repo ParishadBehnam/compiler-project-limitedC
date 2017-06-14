@@ -76,7 +76,7 @@ public class Scanner {
         match(0, "");
         if (token.type != null && token.type.equals("ID")) {
             Index index = new Index(token.name);
-            Target target = new Target("", 0, 0, symbolTable.size());
+            Target target = new Target("", null, 0, symbolTable.size());
             partial = symbolTable.get(symbolTable.size() - 1);
             if (!partial.containsKey(index)) {
                 if (inDeclaration) {
@@ -142,7 +142,8 @@ public class Scanner {
                 isSingle ++;
                 match(6, tokenstr + ch);
             } else if (singles.contains(ch)) {
-                isSingle += 2;
+                if (ch == '*' || ch == ';' || ch == '<' || ch == ',')
+                    isSingle ++;
                 token = new Token(tokenstr + ch, "");
                 return;
             }
@@ -165,11 +166,16 @@ public class Scanner {
                 isError = true;
             }
         } else if (state == 2) {
-            System.out.println(isSingle);
+            System.out.println(isSingle + ":" + ch);
             if (ch == '-' || ch == '+' || singles.contains(ch) || Character.isLetter(ch)) {
-                pointer--;
-                token = new Token(tokenstr, "");
-                return;
+                if (isSingle >= 2) {
+                    token = new Token(tokenstr + ch, "");
+                    return;
+                } else {
+                    pointer--;
+                    token = new Token(tokenstr, "");
+                    return;
+                }
             } else if (Character.isDigit(ch) && isSingle >= 2) {
                 match(3, tokenstr + ch);
             } else if (Character.isDigit(ch) && isSingle == 1) {

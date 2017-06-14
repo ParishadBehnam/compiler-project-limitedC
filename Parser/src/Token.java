@@ -56,13 +56,13 @@ class Index {
 class Target{
 
     public String type;
-    public long address;
+    public Long address;
     public int dimension;
     public int scope;
     public int paramsNum;
     public boolean isVoid;
 
-    public Target(String type, long address, int dimension, int scope) {
+    public Target(String type, Long address, int dimension, int scope) {
         this.type = type;
         this.address = address;
         this.dimension = dimension;

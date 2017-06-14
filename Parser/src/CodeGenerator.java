@@ -18,6 +18,10 @@ public class CodeGenerator {
     long oldLastMainMemory = 0;
     long lastTmpMemory = 500;
     int paramsNum = 0;
+    int argsNum = 0;
+    Token funcToken;
+    Token calleeToken;
+    boolean returnSeen = false;
 
     public CodeGenerator() {
         display[0] = 100;
@@ -29,6 +33,15 @@ public class CodeGenerator {
         for (int i = 0; i < PB.size(); i++) {
             System.out.println(i + ": " + PB.get(i));
         }
+    }
+
+    public void printStack() {
+        Stack<String> copiedStack = (Stack<String>) SS.clone();
+        for (int i = 0; i < SS.size(); i++) {
+            System.out.print(copiedStack.pop() + " ");
+        }
+        System.out.println("");
+        System.out.println("%%%%%");
     }
 
     public void generateCode(String type, Token[] tokens) {
@@ -79,7 +92,7 @@ public class CodeGenerator {
                 loop(tokens);
                 break;
             case "X16":
-                paramAssign(tokens);
+//                paramAssign(tokens);
                 break;
             case "X17":
                 callee(tokens);
@@ -125,11 +138,21 @@ public class CodeGenerator {
 
     private void parameter(Token[] tokens) {
         paramsNum ++;
+        System.out.println(paramsNum + "paramssssssss");
 
         PB.add("(SUB, " + display[1] + ", #" + (1 + paramsNum) * 4 + ", " + lastTmpMemory + ")");
         PB.add("(ADD, " + display[1] + ", #" + (paramsNum - 1) * 4 + ", " + (lastTmpMemory + 4) + ")");
         PB.add("(ASSIGN, @" + lastTmpMemory + ", @" + (lastTmpMemory + 4) + ")");
         lastTmpMemory += 8;
+        Target t;
+        if (tokens[1].type.equals("]")) {
+            t = getTarget(tokens[3]);
+            t.address = lastMainMemory;
+        } else {
+            t = getTarget(tokens[1]);
+            t.address = lastMainMemory;
+        }
+        lastMainMemory += 4;
 
     }
 
@@ -139,23 +162,36 @@ public class CodeGenerator {
     }
 
     private void jpFunc(Token[] tokens) {
-        SS.pop();
-        int s = PB.size() + 3;
-        PB.add("(ASSIGN, " + s + ", " + currentRecord.returnLineAddress + ")");
-        PB.add("(ASSIGN, #" + lastTmpMemory + ", " + currentRecord.returnValuePointer + ")");
-        PB.add("(JP, " + currentRecord.firstLine + ")");
-        currentRecord.returnValueAddress = lastTmpMemory;
-        SS.push(Long.toString(currentRecord.returnValueAddress));
+        int s = PB.size() + 7;
+        PB.add("(ADD, " + display[1] + ", #" + (lastMainMemory) + ", " + lastTmpMemory +")");
+        PB.add("(ASSIGN, #" + s + ", @" + lastTmpMemory + ")");
         lastTmpMemory += 4;
-//        SS.push(Long.toString(currentRecord.returnValueAddress));
+        Target t = getTarget(calleeToken);
+        PB.add("(ADD, " + display[1] + ", #" + (8 + 4 * t.paramsNum) + ", " + lastTmpMemory +")");
+        PB.add("(ASSIGN, " + display[1] + ", @" + lastTmpMemory + ")");
+        lastTmpMemory += 4;
+        PB.add("(ADD, " + display[1] + ", #" + (12 + 4 * t.paramsNum) + ", " + lastTmpMemory + ")");
+        PB.add("(ASSIGN, " + lastTmpMemory + ", " + display[1] + ")");
+        lastTmpMemory += 4;
+
+        PB.add("(JP, " + t.address + ")");
+        PB.add("(ADD, " + display[1] + ", #" + (lastMainMemory + 4) + ", " + lastTmpMemory + ")");
+        PB.add("(ASSIGN, @" + lastTmpMemory + ", " + (lastTmpMemory + 4) + ")");
+        lastTmpMemory += 8;
+        SS.push(Long.toString(lastTmpMemory-4));
+
+        printStack();
+
+
     }
 
     private void args(Token[] tokens) {
         String exp = SS.pop();
-        int index = Integer.parseInt(SS.pop());
-        PB.add("(ASSIGN, " + exp + ", " + currentRecord.params.get(index).address + ")");
-        SS.push(Integer.toString(index + 1));
-//        System.out.println(index + " args");
+        System.out.println(argsNum + "argsssssssssssssssssss");
+        PB.add("(ADD, " + display[1] + ", #" + (8 + (argsNum - 1) * 4) + ", " + lastTmpMemory + ")");
+        PB.add("(ASSIGN, " + exp + ", @" + lastTmpMemory + ")");
+        lastTmpMemory += 4;
+        argsNum --;
     }
 
     private void op(Token[] tokens) {
@@ -163,11 +199,21 @@ public class CodeGenerator {
     }
 
     private void funcEnd(Token[] tokens) {
-        PB.add("(JP, @" + lastRecord.returnLineAddress + ")");
-        Scanner.decScope();
-        lastMainMemory = oldLastMainMemory;
-//        System.out.println("sizeeee: " + Scanner.symbolTable.size());
-//        System.out.println(Scanner.scopeStack.peek() + "scooope");
+        Target target = getTarget(funcToken);
+        if (!returnSeen) {
+            Scanner.decScope();
+            lastMainMemory = oldLastMainMemory;
+            PB.add("(SUB, " + display[1] + ", #" + 4 + ", " + lastTmpMemory + ")");
+            PB.add("(ASSIGN, @" + lastTmpMemory + ", " + display[1] + ")");
+            lastTmpMemory += 4;
+            PB.add("(SUB, " + display[1] + ", #" + (12 + 4 * paramsNum) + ", " + lastTmpMemory + ")");
+            PB.add("(JP, @" + lastTmpMemory + ")");
+            lastTmpMemory += 4;
+            target.paramsNum = paramsNum;
+            System.out.println("targeeeeet" + target.paramsNum);
+            paramsNum = 0;
+        }
+        returnSeen = false;
     }
 
     private void funcSetup(Token[] tokens) {
@@ -175,26 +221,18 @@ public class CodeGenerator {
         PB.set(i, "(JP, " + PB.size() + ")"); //main
 
         Target target = getTarget(tokens[1]);
-        target.address = PB.size();
+        target.address = (long)PB.size();
         target.type = "function";
         target.scope = Scanner.symbolTable.size();
         target.paramsNum = paramsNum;
         target.isVoid = tokens[2].name.equals("void");
-        paramsNum = 0;
 
         if (tokens[1].name.equals("main"))
             PB.add("(ASSIGN, #" + (display[1]+4) + ", " + display[1] + ")");
 
-        lastRecord = new ActivationRecord();
-        lastRecord.firstLine = PB.size();
-        lastRecord.returnLineAddress = lastTmpMemory;
-        lastTmpMemory += 4;
-        lastRecord.returnValuePointer = lastTmpMemory;
-        lastTmpMemory += 4;
-
-        records.put(tokens[1].name, lastRecord);
         oldLastMainMemory = lastMainMemory;
         lastMainMemory = 0;
+        funcToken = tokens[1];
         Scanner.incScope();
     }
 
@@ -238,10 +276,23 @@ public class CodeGenerator {
     }
 
     private void callee(Token[] tokens) {
-        if (!tokens[2].type.equals("return")) {
-            String returnVal = SS.pop();
-            PB.add("(ASSIGN, " + returnVal + ", @" + lastRecord.returnValuePointer + ")");
+        returnSeen = true;
+        Scanner.decScope();
+        lastMainMemory = oldLastMainMemory;
+        if (!tokens[2].name.equals("return")) {
+            PB.add("(SUB, " + display[1] + ", #" + (8 + 4 * paramsNum) + ", " + lastTmpMemory + ")");
+            PB.add("(ASSIGN, " + SS.pop() + ", @" + lastTmpMemory + ")");
+            lastTmpMemory += 4;
         }
+        PB.add("(SUB, " + display[1] + ", #" + 4 + ", " + lastTmpMemory + ")");
+        PB.add("(ASSIGN, @" + lastTmpMemory + ", " + display[1] + ")");
+        lastTmpMemory += 4;
+        PB.add("(SUB, " + display[1] + ", #" + (12 + 4 * paramsNum) + ", " + lastTmpMemory + ")");
+        PB.add("(JP, @" + lastTmpMemory + ")");
+        lastTmpMemory += 4;
+        Target target = getTarget(funcToken);
+        target.paramsNum = paramsNum;
+        paramsNum = 0;
     }
 
     private void paramAssign(Token[] tokens) {
@@ -344,9 +395,11 @@ public class CodeGenerator {
     }
 
     private void caller(Token[] tokens) {
+        Target target = getTarget(tokens[1]);
+        calleeToken= tokens[1];
+        argsNum = target.paramsNum;
+        System.out.println("argsssssss caller" + target.paramsNum);
 
-        currentRecord = records.get(tokens[1].name);
-        SS.push("0");
     }
 
     private void operation(Token[] tokens) {
