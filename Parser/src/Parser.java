@@ -112,49 +112,51 @@ public class Parser {
         codeGenTokens[0] = t;
         while (true) {
             System.out.println("token" + t.type);
-            String res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
-            if (res == null) {
-                System.out.println("PANIC MODE - PARSER");
-                String state = "";
-                L1:
-                while (parsStack.size() > 0) {
-                    state = parsStack.peek();
-                    if (!state.matches("\\d+")) {
-                        parsStack.pop();
-                        continue;
-                    }
 
-                    int stateNum = Integer.parseInt(state);
-                    if (parseTable.gotoTable.get(stateNum).size() > 0) {
-                        HashMap<String, Integer> target = parseTable.gotoTable.get(stateNum);
-                        Set<String> NT = target.keySet();
-                        String lastToken = "";
-                        while (!(t.type.equals("$") && lastToken.equals("$"))) {
-                            lastToken = t.type;
-                            t = Scanner.getToken();
-                            System.out.println(t.type + "!!!!!!!!");
-                            for (String s : NT) {
-                                if (follows.get(s).contains(t.type)) {
-                                    parsStack.push(s);
-                                    parsStack.push(Integer.toString(target.get(s)));
-                                    break L1;
-                                }
-
-
-                            }
-                        }
-                        break L1;
-                    } else parsStack.pop();
-                }
-
-                res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
-                if (res == null) {
-                    System.out.println("FINISHED!");
-                    return;
-                }
-
-            }
             printStack();
+            String res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
+//            if (res == null) {
+//                System.out.println("PANIC MODE - PARSER");
+//                String state = "";
+//                L1:
+//                while (parsStack.size() > 0) {
+//                    state = parsStack.peek();
+//                    if (!state.matches("\\d+")) {
+//                        parsStack.pop();
+//                        continue;
+//                    }
+//
+//                    int stateNum = Integer.parseInt(state);
+//                    if (parseTable.gotoTable.get(stateNum).size() > 0) {
+//                        HashMap<String, Integer> target = parseTable.gotoTable.get(stateNum);
+//                        Set<String> NT = target.keySet();
+//                        String lastToken = "";
+//                        while (!(t.type.equals("$") && lastToken.equals("$"))) {
+//                            lastToken = t.type;
+//                            t = Scanner.getToken();
+//                            System.out.println(t.type + "!!!!!!!!");
+//                            for (String s : NT) {
+//                                if (follows.get(s).contains(t.type)) {
+//                                    parsStack.push(s);
+//                                    parsStack.push(Integer.toString(target.get(s)));
+//                                    break L1;
+//                                }
+//
+//
+//                            }
+//                        }
+//                        break L1;
+//                    } else parsStack.pop();
+//                }
+//
+//                res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
+//                if (res == null) {
+//                    System.out.println("FINISHED!");
+//                    return;
+//                }
+//
+//            }
+
             if (res.equals("accept")) {
                 CodeGenerator.print();
                 return;
@@ -679,6 +681,7 @@ class ParseTable {
         row37a.put("while", "r20");
         row37a.put("ID", "r20");
         row37a.put("return", "r20");
+        row37a.put("output", "r20");
         row37g.put("LocalDeclarations", 38);
 
         row38g.put("StatementList", 40);
@@ -1247,8 +1250,8 @@ class ParseTable {
         row99a.put(";", "r63");
         row99a.put("==", "r63");
         row99a.put("]", "r63");
-        row99a.put("*", "s84");
-        row99a.put("/", "s85");
+        row99a.put("*", "r63");
+        row99a.put("/", "r63");
 
         row100a.put(",", "r47");
         row100a.put(")", "r47");
@@ -1259,8 +1262,8 @@ class ParseTable {
         row100a.put(";", "r47");
         row100a.put("==", "r47");
         row100a.put("]", "r47");
-        row100a.put("*", "s47");
-        row100a.put("/", "s47");
+        row100a.put("*", "r47");
+        row100a.put("/", "r47");
 
         row101a.put(")", "s102");
 
@@ -1273,8 +1276,8 @@ class ParseTable {
         row102a.put(";", "r55");
         row102a.put("==", "r55");
         row102a.put("]", "r55");
-        row102a.put("*", "s55");
-        row102a.put("/", "s55");
+        row102a.put("*", "r55");
+        row102a.put("/", "r55");
 
         row103a.put(",", "s118");
         row103a.put(")", "r56");
@@ -1309,6 +1312,7 @@ class ParseTable {
         row108a.put("void", "r66");
         row108a.put(";", "r66");
         row108a.put("while", "r66");
+        row108a.put("output", "r66");
         row108a.put("return", "r66");
         row108a.put("ID", "r66");
         row108a.put("{", "r66");
@@ -1399,6 +1403,7 @@ class ParseTable {
         row117a.put("if", "r31");
         row117a.put("while", "r31");
         row117a.put("return", "r31");
+        row117a.put("output", "r31");
         row117a.put("else", "r31");
 
         row118g.put("Term", 63);
@@ -1586,6 +1591,7 @@ class ParseTable {
         row145g.put("Expression", 61);
         row145g.put("RelExpression", 60);
         row145g.put("RelTerm", 62);
+        row145a.put("NUM", "r65");
 
         row146a.put(")", "s149");
 

@@ -165,6 +165,8 @@ public class CodeGenerator {
     }
 
     private void output(Token[] tokens) {
+        System.out.println("output");
+        printStack();
         String exp = SS.pop();
         PB.add("(PRINT, " + exp + ")");
     }
@@ -410,6 +412,7 @@ public class CodeGenerator {
         PB.add("(EQ, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
         SS.push(Long.toString(lastTmpMemory));
         lastTmpMemory += 4;
+        System.out.println(lastTmpMemory - 4 + "hehe");
 //        System.out.println(PB.get(PB.size() - 1) + "____");
     }
 
@@ -429,6 +432,7 @@ public class CodeGenerator {
     }
 
     private void jpf(Token[] tokens) {
+        printStack();
         int i = Integer.parseInt(SS.pop());
         String exp = SS.pop();
         PB.set(i, "(JPF, " + exp + ", " + PB.size() + ")");
@@ -490,6 +494,12 @@ public class CodeGenerator {
     private void arrayPid(Token[] tokens) {
         String exp = SS.pop();
         String arr = SS.pop();
+        Target top = IDsStack.peek();
+
+
+        PB.add("(LT, " + exp + ", #" + top.length + " ," + lastTmpMemory + ")");
+        PB.add("(JPF, " + lastTmpMemory + ", 1)");
+        lastTmpMemory += 4;
 
         PB.add("(MULT, #4, " + exp + ", " + lastTmpMemory + ")");
         PB.add("(ADD, " + lastTmpMemory + ", " + arr + ", " + (lastTmpMemory + 4) + ")");
@@ -497,7 +507,6 @@ public class CodeGenerator {
         SS.push("@" + Long.toString(lastTmpMemory));
         lastTmpMemory += 4;
 
-        Target top = IDsStack.peek();
         if (!top.type.equals("pointer")) {
             System.out.println("SEMANTIC ERROR: type mismatched");
             System.exit(0);
