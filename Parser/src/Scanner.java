@@ -64,7 +64,7 @@ public class Scanner {
     public static void main(String[] args) {
 
         Scanner myScanner = new Scanner();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 15; i++) {
             Scanner.getToken();
             System.out.println("type: " + token.type + " name: " + token.name);
         }
@@ -104,7 +104,7 @@ public class Scanner {
 
         if ((state == 7 || state == 8) && pointer >= input.length()) {
             input = getInput(scanner);
-            isSingle = 1;
+            isSingle = 0;
             pointer = 0;
             ch = input.charAt(pointer);
         } else if (pointer == input.length() - 1) {
@@ -113,14 +113,13 @@ public class Scanner {
         } else if (pointer >= input.length()) {
             finished = true;
             input = getInput(scanner);
-            isSingle = 1;
+            isSingle = 0;
             ch = input.charAt(0);
             pointer = 0;
         } else
             ch = input.charAt(pointer);
 
 //        System.out.println("state " + state + " : " + isSingle + " " + ch);
-
         if (state == 0) {
             if (ch == ' ') {
                 match(state, tokenstr);
@@ -156,9 +155,11 @@ public class Scanner {
                 match(state, tokenstr + ch);
             } else if (ch == '+' | ch == '-' || singles.contains(ch)) {
                 pointer--;
+                isSingle = 0;
                 token = new Token(findType(tokenstr), tokenstr);
                 return;
             } else if (finished) {
+                isSingle = 0;
                 if (ch == ' ') {
                     token = new Token(findType(tokenstr), tokenstr);
                     return;
@@ -170,8 +171,12 @@ public class Scanner {
                 isError = true;
             }
         } else if (state == 2) {
-            System.out.println(isSingle + ":" + ch);
-            if (ch == '-' || ch == '+' || singles.contains(ch) || Character.isLetter(ch)) {
+            if (ch == '-' || ch == '+') {
+                pointer--;
+                isSingle = 1;
+                token = new Token(tokenstr, "");
+                return;
+            } else if (singles.contains(ch) || Character.isLetter(ch)) {
                 if (isSingle >= 2) {
                     isSingle = 1;
                     token = new Token(tokenstr + ch, "");
