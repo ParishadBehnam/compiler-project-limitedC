@@ -29,8 +29,8 @@ public class Scanner {
         symbolTable.add(new HashMap<Index, Target>());
 
         try {
-            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/[قختثزف/compiler-limitedC/Parser/src/file.txt"));
-//            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
+//            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/[قختثزف/compiler-limitedC/Parser/src/file.txt"));
+            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -64,7 +64,7 @@ public class Scanner {
     public static void main(String[] args) {
 
         Scanner myScanner = new Scanner();
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 30; i++) {
             Scanner.getToken();
             System.out.println("type: " + token.type + " name: " + token.name);
         }

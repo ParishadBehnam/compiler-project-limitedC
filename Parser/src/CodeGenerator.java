@@ -141,7 +141,6 @@ public class CodeGenerator {
 
     private void parameter(Token[] tokens) {
         paramsNum ++;
-        System.out.println(paramsNum + "paramssssssss");
         ArrayList<String> list = paramTypes.get(funcToken.name);
 
         PB.add("(SUB, " + display[1] + ", #" + (1 + paramsNum) * 4 + ", " + lastTmpMemory + ")");
@@ -226,6 +225,14 @@ public class CodeGenerator {
     private void funcEnd(Token[] tokens) {
         Target target = getTarget(funcToken);
         if (!returnSeen) {
+            if (funcToken.name.equals("main") && !getTarget(funcToken).isVoid) {
+                System.out.println("SEMANTIC ERROR: return type of function main should be void");
+                System.exit(0);
+            }
+            if (funcToken.name.equals("main") && paramsNum != 0) {
+                System.out.println("SEMANTIC ERROR: argument of function main should be void");
+                System.exit(0);
+            }
             if (!getTarget(funcToken).isVoid) {
                 System.out.println("SEMANTIC ERROR: return type of function " + funcToken.name + " mismatched");
                 System.exit(0);
@@ -275,10 +282,10 @@ public class CodeGenerator {
         Index idx = new Index(tokens[2].name);
         Target target = Scanner.lookup(idx);
         System.out.println(target.type);
-        if (!target.type.equals("")) {
-            System.out.println("SEMANTIC ERROR: duplicate declaration of " + tokens[2].name);
-            System.exit(0);
-        }
+//        if (!target.type.equals("")) {
+//            System.out.println("SEMANTIC ERROR: duplicate declaration of " + tokens[2].name);
+//            System.exit(0);
+//        }
         target.length = Integer.parseInt(tokens[0].name);
         target.address = lastMainMemory;
         target.scope = Scanner.symbolTable.size();
@@ -299,10 +306,10 @@ public class CodeGenerator {
         Index idx = new Index(tokens[1].name);
         Target target = Scanner.lookup(idx);
         System.out.println(target.type);
-        if (!target.type.equals("")) {
-            System.out.println("SEMANTIC ERROR: duplicate declaration of " + tokens[1].name);
-            System.exit(0);
-        }
+//        if (!target.type.equals("")) {
+//            System.out.println("SEMANTIC ERROR: duplicate declaration of " + tokens[1].name);
+//            System.exit(0);
+//        }
         target.address = lastMainMemory;
         target.scope = Scanner.symbolTable.size();
         target.dimension = 0;
@@ -324,8 +331,15 @@ public class CodeGenerator {
         returnSeen = true;
         Scanner.decScope();
         lastMainMemory = oldLastMainMemory;
+        if (funcToken.name.equals("main") && paramsNum != 0) {
+            System.out.println("SEMANTIC ERROR: argument of function main should be void");
+            System.exit(0);
+        }
         if (!tokens[2].name.equals("return")) {
-
+            if (funcToken.name.equals("main") && !getTarget(funcToken).isVoid) {
+                System.out.println("SEMANTIC ERROR: return type of function main should be void");
+                System.exit(0);
+            }
             if (getTarget(funcToken).isVoid) {
                 System.out.println("SEMANTIC ERROR: return type of function " + funcToken.name + " mismatched");
                 System.exit(0);
