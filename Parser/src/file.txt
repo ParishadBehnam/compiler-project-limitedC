@@ -1,12 +1,14 @@
-int c;
-int f(int x, int j) {
-j = x + 1;
-return j;
+void f (int x[], int y) {
+return ;
 }
-int d;
-int main(void) {
-d = 56;
-output(d);
-c = f(c, , * d);
+void g (int x[], int y[]) {
+return ;
+}
+int a;
+int c;
+void main(void) {
+int a[5];
+int b;
+b = a[2] * 24654.234234;
 }
 EOF

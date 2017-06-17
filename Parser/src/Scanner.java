@@ -3,6 +3,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+
+// a[+3], type
+
 /**
  * Created by parishad behnam on 6/5/2017.
  */
@@ -29,8 +32,8 @@ public class Scanner {
         symbolTable.add(new HashMap<Index, Target>());
 
         try {
-            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/[قختثزف/compiler-limitedC/Parser/src/file.txt"));
-//            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
+//            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/[قختثزف/compiler-limitedC/Parser/src/file.txt"));
+            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -64,9 +67,9 @@ public class Scanner {
     public static void main(String[] args) {
 
         Scanner myScanner = new Scanner();
-        for (int i = 0; i < 40; i++) {
+        for (int i = 0; i < 10; i++) {
             Scanner.getToken();
-            System.out.println("type: "+token.type+" name: "+token.name);
+            System.out.println("type: " + token.type + " name: " + token.name);
         }
     }
 
@@ -119,6 +122,8 @@ public class Scanner {
         } else
             ch = input.charAt(pointer);
 
+        System.out.println("state " + state + " : " + isSingle + " " + ch);
+
         if (state == 0) {
             if (ch == ' ') {
                 match(state, tokenstr);
@@ -130,20 +135,22 @@ public class Scanner {
                 match(3, tokenstr + ch);
                 isSingle = 0;
             } else if (ch == '+' || ch == '-') {
-                isSingle ++;
+                isSingle++;
                 match(2, tokenstr + ch);
             } else if (ch == '=') {
-                isSingle ++;
+                isSingle++;
                 match(4, tokenstr + ch);
             } else if (ch == '&') {
-                isSingle ++;
+                isSingle++;
                 match(5, tokenstr + ch);
             } else if (ch == '/') {
-                isSingle ++;
+                isSingle++;
                 match(6, tokenstr + ch);
             } else if (singles.contains(ch)) {
-                if (ch == '*' || ch == ';' || ch == '<' || ch == ',')
-                    isSingle ++;
+                if (ch == '*' || ch == ';' || ch == '<' || ch == ',' || ch == '[' || ch == '(' || ch == '{')
+                    isSingle++;
+                else
+                    isSingle = 0;
                 token = new Token(tokenstr + ch, "");
                 return;
             }
@@ -155,42 +162,46 @@ public class Scanner {
                 token = new Token(findType(tokenstr), tokenstr);
                 return;
             } else if (finished) {
-                if (ch == ' '){
+                if (ch == ' ') {
                     token = new Token(findType(tokenstr), tokenstr);
                     return;
                 }
-                token = new Token(findType(tokenstr+ch), tokenstr + ch);
+                token = new Token(findType(tokenstr + ch), tokenstr + ch);
                 return;
             } else {
-                errorMessage = "your ID ("+tokenstr+ch+") includes invalid characters.";
+                errorMessage = "your ID (" + tokenstr + ch + ") includes invalid characters.";
                 isError = true;
             }
         } else if (state == 2) {
             System.out.println(isSingle + ":" + ch);
             if (ch == '-' || ch == '+' || singles.contains(ch) || Character.isLetter(ch)) {
                 if (isSingle >= 2) {
+                    isSingle = 1;
                     token = new Token(tokenstr + ch, "");
                     return;
                 } else {
                     pointer--;
+                    isSingle = 1;
                     token = new Token(tokenstr, "");
                     return;
                 }
             } else if (Character.isDigit(ch) && isSingle >= 2) {
                 match(3, tokenstr + ch);
             } else if (Character.isDigit(ch) && isSingle == 1) {
-                pointer --;
+                pointer--;
+                isSingle = 1;
                 token = new Token(tokenstr, "");
                 return;
             } else if (finished) {
                 if (ch == ' ') {
+                    isSingle = 1;
                     token = new Token(tokenstr, "");
                     return;
                 }
                 token = new Token("NUM", tokenstr + ch);
                 return;
             } else {
-                errorMessage = "invalid character ("+ch+") is found";
+                errorMessage = "invalid character (" + ch + ") is found";
                 isError = true;
             }
         } else if (state == 3) {
@@ -200,6 +211,8 @@ public class Scanner {
                 pointer--;
                 token = new Token("NUM", tokenstr);
                 return;
+            } else if (ch == '.') {
+                match(3, tokenstr + ch);
             } else if (finished) {
                 if (ch == ' ') {
                     token = new Token("NUM", tokenstr);
@@ -208,7 +221,7 @@ public class Scanner {
                 token = new Token("NUM", tokenstr + ch);
                 return;
             } else {
-                errorMessage = "invalid number ("+tokenstr+ch+") is found";
+                errorMessage = "invalid number (" + tokenstr + ch + ") is found";
                 isError = true;
             }
         } else if (state == 4) {
@@ -254,7 +267,7 @@ public class Scanner {
         }
         if (isError) {
             isError = false;
-            System.out.println("ERROR: "+errorMessage);
+            System.out.println("ERROR: " + errorMessage);
             match(0, "");
         }
     }

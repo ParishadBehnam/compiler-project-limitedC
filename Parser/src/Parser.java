@@ -3,8 +3,6 @@
  */
 
 
-import com.sun.deploy.util.StringUtils;
-
 import java.util.*;
 
 public class Parser {
@@ -134,6 +132,7 @@ public class Parser {
                         while (!(t.type.equals("$") && lastToken.equals("$"))) {
                             lastToken = t.type;
                             t = Scanner.getToken();
+                            System.out.println(t.type + "!!!!!!!!");
                             for (String s : NT) {
                                 if (follows.get(s).contains(t.type)) {
                                     parsStack.push(s);
@@ -193,6 +192,8 @@ public class Parser {
                     cg.generateCode("ArgList", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("Call"))
                     cg.generateCode("jmpToFunc", codeGenTokens);
+                if (grammarLHS.get(idx - 1).equals("Var"))
+                    cg.generateCode("Var", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("Param"))
                     cg.generateCode("parameter", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("X25"))

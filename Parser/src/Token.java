@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 /**
  * Created by parishad behnam on 6/5/2017.
  */
@@ -61,6 +59,7 @@ class Target{
     public int scope;
     public int paramsNum;
     public boolean isVoid;
+    public int length;
 
     public Target(String type, Long address, int dimension, int scope) {
         this.type = type;
@@ -70,14 +69,3 @@ class Target{
     }
 }
 
-class ActivationRecord {
-    ArrayList<Target> params;
-    int firstLine;
-    long returnLineAddress;
-    long returnValuePointer;
-    long returnValueAddress;
-
-    public ActivationRecord() {
-        params = new ArrayList<>();
-    }
-}
