@@ -3,9 +3,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-
-// a[+3], type
-
 /**
  * Created by parishad behnam on 6/5/2017.
  */
@@ -122,7 +119,7 @@ public class Scanner {
         } else
             ch = input.charAt(pointer);
 
-        System.out.println("state " + state + " : " + isSingle + " " + ch);
+//        System.out.println("state " + state + " : " + isSingle + " " + ch);
 
         if (state == 0) {
             if (ch == ' ') {
@@ -209,12 +206,14 @@ public class Scanner {
                 match(state, tokenstr + ch);
             } else if (ch == '+' | ch == '-' || singles.contains(ch)) {
                 pointer--;
+                isSingle = 0;
                 token = new Token("NUM", tokenstr);
                 return;
             } else if (ch == '.') {
                 match(3, tokenstr + ch);
             } else if (finished) {
                 if (ch == ' ') {
+                    isSingle = 0;
                     token = new Token("NUM", tokenstr);
                     return;
                 }

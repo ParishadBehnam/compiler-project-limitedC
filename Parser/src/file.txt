@@ -1,14 +1,1 @@
-void f (int x[], int y) {
-return ;
-}
-void g (int x[], int y[]) {
-return ;
-}
-int a;
-int c;
-void main(void) {
-int a[5];
-int b;
-b = a[2] * 24654.234234;
-}
-EOF
+a[+3.234+8.23] -+ 58
