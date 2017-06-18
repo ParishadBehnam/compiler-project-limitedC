@@ -134,7 +134,6 @@ public class Parser {
 
                     int stateNum = Integer.parseInt(state);
                     if (parseTable.gotoTable.get(stateNum).size() > 0) {
-                        System.out.println(stateNum + "!!!!!!!!");
 
                         HashMap<String, Integer> target = parseTable.gotoTable.get(stateNum);
                         Set<String> NT = target.keySet();
@@ -144,6 +143,9 @@ public class Parser {
                             t = getTokenFromScanner(t);
                             for (String s : NT) {
                                 if (follows.get(s).contains(t.type)) {
+                                    System.out.println(t.type + " " + s + "!!!!!!!!");
+                                    dummyReduce(s);
+
                                     parsStack.push(s);
                                     parsStack.push(Integer.toString(target.get(s)));
                                     break L1;
@@ -155,6 +157,7 @@ public class Parser {
                         break L1;
                     } else parsStack.pop();
                 }
+                System.out.println(t.type);
 
                 res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
                 if (res == null) {
@@ -221,7 +224,7 @@ public class Parser {
         System.out.println("=====");
     }
 
-    public  Token getTokenFromScanner(Token t){
+    public Token getTokenFromScanner(Token t) {
         Token toRet;
         if (codeGenTokens[2] != null)
             codeGenTokens[3] = new Token(codeGenTokens[2]);
@@ -231,6 +234,27 @@ public class Parser {
         toRet = Scanner.getToken();
         codeGenTokens[0] = new Token(toRet);
         return toRet;
+    }
+
+    public void dummyReduce(String lhs) {
+        System.out.println(lhs);
+        if (lhs.charAt(0) == 'X') {
+            int idx = Integer.parseInt(lhs.substring(1));
+            cg.generateCode(lhs, codeGenTokens);
+        }
+        if (lhs.equals("AddOp") || lhs.equals("MulOp"))
+            cg.generateCode("Op", codeGenTokens);
+        if (lhs.equals("ArgList"))
+            cg.generateCode("ArgList", codeGenTokens);
+        if (lhs.equals("Call"))
+            cg.generateCode("jmpToFunc", codeGenTokens);
+        if (lhs.equals("Var"))
+            cg.generateCode("Var", codeGenTokens);
+        if (lhs.equals("Param"))
+            cg.generateCode("parameter", codeGenTokens);
+        if (lhs.equals("X25"))
+            cg.generateCode("output", codeGenTokens);
+
     }
 
 }

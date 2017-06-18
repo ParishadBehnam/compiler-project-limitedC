@@ -1,7 +1,14 @@
-int b;
-void main( void ){
+int f(int a[], int b){
 
-	if(2&& b<2)
-	output(b);
+a[2]= b+3;
+return 2;
 }
-EOF
+int d;
+void main(void){
+int a;
+/*a = a , , 3;*/
+a = 3 + 4;
+if(a<d)) {
+output(2);
+}
+}EOF

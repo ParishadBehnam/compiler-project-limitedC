@@ -18,7 +18,7 @@ public class CodeGenerator {
     long oldLastMainMemory = 0;
     long lastTmpMemory = 500;
     int paramsNum = 0;
-//    int argsNum = 0;
+    //    int argsNum = 0;
     Token funcToken;
     Token calleeToken;
     boolean returnSeen = false;
@@ -142,7 +142,7 @@ public class CodeGenerator {
     }
 
     private void parameter(Token[] tokens) {
-        paramsNum ++;
+        paramsNum++;
         ArrayList<String> list = paramTypes.get(funcToken.name);
 
         PB.add("(SUB, " + display[1] + ", #" + (1 + paramsNum) * 4 + ", " + lastTmpMemory + ")");
@@ -182,11 +182,11 @@ public class CodeGenerator {
         }
         argsStack.pop();
         int s = PB.size() + 7;
-        PB.add("(ADD, " + display[1] + ", #" + (lastMainMemory) + ", " + lastTmpMemory +")");
+        PB.add("(ADD, " + display[1] + ", #" + (lastMainMemory) + ", " + lastTmpMemory + ")");
         PB.add("(ASSIGN, #" + s + ", @" + lastTmpMemory + ")");
         lastTmpMemory += 4;
         Target t = getTarget(calleeToken);
-        PB.add("(ADD, " + display[1] + ", #" + (8 + 4 * t.paramsNum) + ", " + lastTmpMemory +")");
+        PB.add("(ADD, " + display[1] + ", #" + (8 + 4 * t.paramsNum) + ", " + lastTmpMemory + ")");
         PB.add("(ASSIGN, " + display[1] + ", @" + lastTmpMemory + ")");
         lastTmpMemory += 4;
         PB.add("(ADD, " + display[1] + ", #" + (12 + 4 * t.paramsNum) + ", " + lastTmpMemory + ")");
@@ -197,7 +197,7 @@ public class CodeGenerator {
         PB.add("(ADD, " + display[1] + ", #" + (lastMainMemory + 4) + ", " + lastTmpMemory + ")");
         PB.add("(ASSIGN, @" + lastTmpMemory + ", " + (lastTmpMemory + 4) + ")");
         lastTmpMemory += 8;
-        SS.push(Long.toString(lastTmpMemory-4));
+        SS.push(Long.toString(lastTmpMemory - 4));
 
         printStack();
 
@@ -216,7 +216,7 @@ public class CodeGenerator {
             System.out.println("SEMANTIC ERROR: passed parameters to function " + calleeToken.name + " mismatched");
             System.exit(0);
         }
-        argsNum --;
+        argsNum--;
         argsStack.push(argsNum);
     }
 
@@ -265,14 +265,14 @@ public class CodeGenerator {
             System.out.println("SEMANTIC ERROR: duplicate declaration of " + tokens[1].name);
             System.exit(0);
         }
-        target.address = (long)PB.size();
+        target.address = (long) PB.size();
         target.type = "function";
         target.scope = Scanner.symbolTable.size();
         target.paramsNum = paramsNum;
         target.isVoid = tokens[2].name.equals("void");
 
         if (tokens[1].name.equals("main"))
-            PB.add("(ASSIGN, #" + (display[1]+4) + ", " + display[1] + ")");
+            PB.add("(ASSIGN, #" + (display[1] + 4) + ", " + display[1] + ")");
 
         oldLastMainMemory = lastMainMemory;
         lastMainMemory = 0;
@@ -325,8 +325,9 @@ public class CodeGenerator {
         SS.pop();
         PB.set(1, "(JP, " + PB.size() + ")");
     }
+
     public void emptyStack() {
-        while(SS.size() > 1)
+        while (SS.size() > 1)
             SS.pop();
     }
 
@@ -356,8 +357,8 @@ public class CodeGenerator {
             PB.add("(ASSIGN, " + SS.pop() + ", @" + lastTmpMemory + ")");
             lastTmpMemory += 4;
         } else if (!getTarget(funcToken).isVoid) {
-                System.out.println("SEMANTIC ERROR: return type of function " + funcToken.name + " mismatched");
-                System.exit(0);
+            System.out.println("SEMANTIC ERROR: return type of function " + funcToken.name + " mismatched");
+            System.exit(0);
         }
         PB.add("(SUB, " + display[1] + ", #" + 4 + ", " + lastTmpMemory + ")");
         PB.add("(ASSIGN, @" + lastTmpMemory + ", " + display[1] + ")");
@@ -503,8 +504,11 @@ public class CodeGenerator {
             case "*":
                 PB.add("(MULT, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
                 break;
-            default:
+            case "/":
                 PB.add("(DIV, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+                break;
+            default:
+                PB.add("(ADD, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
                 break;
         }
 
