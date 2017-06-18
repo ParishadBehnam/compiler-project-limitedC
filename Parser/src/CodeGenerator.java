@@ -33,7 +33,7 @@ public class CodeGenerator {
 
     public static void print() {
         for (int i = 0; i < PB.size(); i++) {
-            System.out.println(i + ": " + PB.get(i));
+            System.out.println(Color.ANSI_PURPLE + i + ": " + PB.get(i)+ Color.ANSI_RESET);
         }
     }
 
@@ -151,194 +151,243 @@ public class CodeGenerator {
     }
 
     private void parameter(Token[] tokens) {
-        paramsNum++;
-        ArrayList<String> list = paramTypes.get(funcToken.name);
+        try {
+            paramsNum++;
+            ArrayList<String> list = paramTypes.get(funcToken.name);
 
-        PB.add("(SUB, " + display[1] + ", #" + (1 + paramsNum) * 4 + ", " + lastTmpMemory + ")");
-        PB.add("(ADD, " + display[1] + ", #" + (paramsNum - 1) * 4 + ", " + (lastTmpMemory + 4) + ")");
-        PB.add("(ASSIGN, @" + lastTmpMemory + ", @" + (lastTmpMemory + 4) + ")");
-        lastTmpMemory += 8;
-        Target t;
-        if (tokens[1].type.equals("]")) {
-            t = getTarget(tokens[3]);
-            t.address = lastMainMemory;
-            t.type = "pointer";
-            list.add("pointer");
-        } else {
-            t = getTarget(tokens[1]);
-            t.address = lastMainMemory;
-            t.type = "int";
-            list.add("int");
+            PB.add("(SUB, " + display[1] + ", #" + (1 + paramsNum) * 4 + ", " + lastTmpMemory + ")");
+            PB.add("(ADD, " + display[1] + ", #" + (paramsNum - 1) * 4 + ", " + (lastTmpMemory + 4) + ")");
+            PB.add("(ASSIGN, @" + lastTmpMemory + ", @" + (lastTmpMemory + 4) + ")");
+            lastTmpMemory += 8;
+            Target t;
+            if (tokens[1].type.equals("]")) {
+                t = getTarget(tokens[3]);
+                t.address = lastMainMemory;
+                t.type = "pointer";
+                list.add("pointer");
+            } else {
+                t = getTarget(tokens[1]);
+                t.address = lastMainMemory;
+                t.type = "int";
+                list.add("int");
+            }
+            lastMainMemory += 4;
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
         }
-        lastMainMemory += 4;
 
     }
 
     private void output(Token[] tokens) {
-        System.out.println("output");
-        printStack();
-        String exp = SS.pop();
-        PB.add("(PRINT, " + exp + ")");
+        try {
+
+//            System.out.println("output");
+//            printStack();
+            String exp = SS.pop();
+            PB.add("(PRINT, " + exp + ")");
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void jpFunc(Token[] tokens) {
+        try {
+            int argsNum = argsStack.peek();
+            if (argsNum != 0) {
+                System.out.println(argsNum);
+                System.out.println("SEMANTIC ERROR: arguments' number of function " + calleeToken.name + " don't match!");
+                System.exit(0);
+            }
+            argsStack.pop();
+            int s = PB.size() + 7;
+            PB.add("(ADD, " + display[1] + ", #" + (lastMainMemory) + ", " + lastTmpMemory + ")");
+            PB.add("(ASSIGN, #" + s + ", @" + lastTmpMemory + ")");
+            lastTmpMemory += 4;
+            Target t = getTarget(calleeToken);
+            PB.add("(ADD, " + display[1] + ", #" + (8 + 4 * t.paramsNum) + ", " + lastTmpMemory + ")");
+            PB.add("(ASSIGN, " + display[1] + ", @" + lastTmpMemory + ")");
+            lastTmpMemory += 4;
+            PB.add("(ADD, " + display[1] + ", #" + (12 + 4 * t.paramsNum) + ", " + lastTmpMemory + ")");
+            PB.add("(ASSIGN, " + lastTmpMemory + ", " + display[1] + ")");
+            lastTmpMemory += 4;
 
-        int argsNum = argsStack.peek();
-        if (argsNum != 0) {
-            System.out.println(argsNum);
-            System.out.println("SEMANTIC ERROR: arguments' number of function " + calleeToken.name + " don't match!");
-            System.exit(0);
+            PB.add("(JP, " + t.address + ")");
+            PB.add("(ADD, " + display[1] + ", #" + (lastMainMemory + 4) + ", " + lastTmpMemory + ")");
+            PB.add("(ASSIGN, @" + lastTmpMemory + ", " + (lastTmpMemory + 4) + ")");
+            lastTmpMemory += 8;
+            SS.push(Long.toString(lastTmpMemory - 4));
+
+//            printStack();
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
         }
-        argsStack.pop();
-        int s = PB.size() + 7;
-        PB.add("(ADD, " + display[1] + ", #" + (lastMainMemory) + ", " + lastTmpMemory + ")");
-        PB.add("(ASSIGN, #" + s + ", @" + lastTmpMemory + ")");
-        lastTmpMemory += 4;
-        Target t = getTarget(calleeToken);
-        PB.add("(ADD, " + display[1] + ", #" + (8 + 4 * t.paramsNum) + ", " + lastTmpMemory + ")");
-        PB.add("(ASSIGN, " + display[1] + ", @" + lastTmpMemory + ")");
-        lastTmpMemory += 4;
-        PB.add("(ADD, " + display[1] + ", #" + (12 + 4 * t.paramsNum) + ", " + lastTmpMemory + ")");
-        PB.add("(ASSIGN, " + lastTmpMemory + ", " + display[1] + ")");
-        lastTmpMemory += 4;
-
-        PB.add("(JP, " + t.address + ")");
-        PB.add("(ADD, " + display[1] + ", #" + (lastMainMemory + 4) + ", " + lastTmpMemory + ")");
-        PB.add("(ASSIGN, @" + lastTmpMemory + ", " + (lastTmpMemory + 4) + ")");
-        lastTmpMemory += 8;
-        SS.push(Long.toString(lastTmpMemory - 4));
-
-        printStack();
 
 
     }
 
     private void args(Token[] tokens) {
-        int argsNum = argsStack.pop();
-        String exp = SS.pop();
-        System.out.println(argsNum + "argsssssssssssssssssss");
-        PB.add("(ADD, " + display[1] + ", #" + (8 + (argsNum - 1) * 4) + ", " + lastTmpMemory + ")");
-        PB.add("(ASSIGN, " + exp + ", @" + lastTmpMemory + ")");
-        lastTmpMemory += 4;
-        ArrayList<String> list = paramTypes.get(calleeToken.name);
-        if ((!tokens[1].type.equals("ID") || !getTarget(tokens[1]).type.equals("pointer")) && list.get(list.size() - argsNum).equals("pointer")) {
-            System.out.println("SEMANTIC ERROR: passed parameters to function " + calleeToken.name + " mismatched");
-            System.exit(0);
+        try {
+            int argsNum = argsStack.pop();
+            String exp = SS.pop();
+            System.out.println(argsNum + "argsssssssssssssssssss");
+            PB.add("(ADD, " + display[1] + ", #" + (8 + (argsNum - 1) * 4) + ", " + lastTmpMemory + ")");
+            PB.add("(ASSIGN, " + exp + ", @" + lastTmpMemory + ")");
+            lastTmpMemory += 4;
+            ArrayList<String> list = paramTypes.get(calleeToken.name);
+            if ((!tokens[1].type.equals("ID") || !getTarget(tokens[1]).type.equals("pointer")) && list.get(list.size() - argsNum).equals("pointer")) {
+                System.out.println("SEMANTIC ERROR: passed parameters to function " + calleeToken.name + " mismatched");
+                System.exit(0);
+            }
+            argsNum--;
+            argsStack.push(argsNum);
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
         }
-        argsNum--;
-        argsStack.push(argsNum);
     }
 
     private void op(Token[] tokens) {
-        SS.push(tokens[1].type);
+        try {
+            SS.push(tokens[1].type);
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void funcEnd(Token[] tokens) {
-        Target target = getTarget(funcToken);
-        if (!returnSeen) {
-            if (funcToken.name.equals("main") && !getTarget(funcToken).isVoid) {
-                System.out.println("SEMANTIC ERROR: return type of function main should be void");
-                System.exit(0);
+        try {
+            Target target = getTarget(funcToken);
+            if (!returnSeen) {
+                if (funcToken.name.equals("main") && !getTarget(funcToken).isVoid) {
+                    System.out.println("SEMANTIC ERROR: return type of function main should be void");
+                    System.exit(0);
+                }
+                if (funcToken.name.equals("main") && paramsNum != 0) {
+                    System.out.println("SEMANTIC ERROR: argument of function main should be void");
+                    System.exit(0);
+                }
+                if (!getTarget(funcToken).isVoid) {
+                    System.out.println("SEMANTIC ERROR: return type of function " + funcToken.name + " mismatched");
+                    System.exit(0);
+                }
+                Scanner.decScope();
+                lastMainMemory = oldLastMainMemory;
+                PB.add("(SUB, " + display[1] + ", #" + 4 + ", " + lastTmpMemory + ")");
+                PB.add("(ASSIGN, @" + lastTmpMemory + ", " + display[1] + ")");
+                lastTmpMemory += 4;
+                PB.add("(SUB, " + display[1] + ", #" + (12 + 4 * paramsNum) + ", " + lastTmpMemory + ")");
+                PB.add("(JP, @" + lastTmpMemory + ")");
+                lastTmpMemory += 4;
+                target.paramsNum = paramsNum;
+//                System.out.println("targeeeeet" + target.paramsNum);
+                paramsNum = 0;
             }
-            if (funcToken.name.equals("main") && paramsNum != 0) {
-                System.out.println("SEMANTIC ERROR: argument of function main should be void");
-                System.exit(0);
-            }
-            if (!getTarget(funcToken).isVoid) {
-                System.out.println("SEMANTIC ERROR: return type of function " + funcToken.name + " mismatched");
-                System.exit(0);
-            }
-            Scanner.decScope();
-            lastMainMemory = oldLastMainMemory;
-            PB.add("(SUB, " + display[1] + ", #" + 4 + ", " + lastTmpMemory + ")");
-            PB.add("(ASSIGN, @" + lastTmpMemory + ", " + display[1] + ")");
-            lastTmpMemory += 4;
-            PB.add("(SUB, " + display[1] + ", #" + (12 + 4 * paramsNum) + ", " + lastTmpMemory + ")");
-            PB.add("(JP, @" + lastTmpMemory + ")");
-            lastTmpMemory += 4;
-            target.paramsNum = paramsNum;
-            System.out.println("targeeeeet" + target.paramsNum);
-            paramsNum = 0;
+            returnSeen = false;
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
         }
-        returnSeen = false;
     }
 
     private void funcSetup(Token[] tokens) {
-        int i = Integer.parseInt(SS.peek());
-        PB.set(i, "(JP, " + PB.size() + ")"); //main
+        try {
+            int i = Integer.parseInt(SS.peek());
+            PB.set(i, "(JP, " + PB.size() + ")"); //main
 
-        paramTypes.put(tokens[1].name, new ArrayList<String>());
+            paramTypes.put(tokens[1].name, new ArrayList<String>());
 
-        Target target = getTarget(tokens[1]);
-        if (!target.type.equals("")) {
-            System.out.println("SEMANTIC ERROR: duplicate declaration of " + tokens[1].name);
-            System.exit(0);
+            Target target = getTarget(tokens[1]);
+            if (!target.type.equals("")) {
+                System.out.println("SEMANTIC ERROR: duplicate declaration of " + tokens[1].name);
+                System.exit(0);
+            }
+            target.address = (long) PB.size();
+            target.type = "function";
+            target.scope = Scanner.symbolTable.size();
+            target.paramsNum = paramsNum;
+            target.isVoid = tokens[2].name.equals("void");
+
+            if (tokens[1].name.equals("main"))
+                PB.add("(ASSIGN, #" + (display[1] + 4) + ", " + display[1] + ")");
+
+            oldLastMainMemory = lastMainMemory;
+            lastMainMemory = 0;
+            funcToken = tokens[1];
+            Scanner.incScope();
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
         }
-        target.address = (long) PB.size();
-        target.type = "function";
-        target.scope = Scanner.symbolTable.size();
-        target.paramsNum = paramsNum;
-        target.isVoid = tokens[2].name.equals("void");
-
-        if (tokens[1].name.equals("main"))
-            PB.add("(ASSIGN, #" + (display[1] + 4) + ", " + display[1] + ")");
-
-        oldLastMainMemory = lastMainMemory;
-        lastMainMemory = 0;
-        funcToken = tokens[1];
-        Scanner.incScope();
     }
 
     private void arrayMemory(Token[] tokens) {
-        Index idx = new Index(tokens[2].name);
-        Target target = Scanner.lookup(idx);
-        System.out.println(target.type);
+        try {
+            Index idx = new Index(tokens[2].name);
+            Target target = Scanner.lookup(idx);
+            System.out.println(target.type);
 //        if (!target.type.equals("")) {
 //            System.out.println("SEMANTIC ERROR: duplicate declaration of " + tokens[2].name);
 //            System.exit(0);
 //        }
-        target.length = Integer.parseInt(tokens[0].name);
-        target.address = lastMainMemory;
-        target.scope = Scanner.symbolTable.size();
-        target.dimension = 1;
-        target.type = "pointer";
-        PB.add("(ADD, " + display[target.scope - 1] + ", #" + target.address + ", " + lastTmpMemory + ")");
-        PB.add("(ADD, #" + 4 + ", " + lastTmpMemory + ", " + (lastTmpMemory + 4) + ")");
-        PB.add("(ASSIGN, " + (lastTmpMemory + 4) + ", @" + lastTmpMemory + ")");
-        lastMainMemory += (Integer.parseInt(tokens[0].name) + 1) * 4;
-        lastTmpMemory += 8;
+            target.length = Integer.parseInt(tokens[0].name);
+            target.address = lastMainMemory;
+            target.scope = Scanner.symbolTable.size();
+            target.dimension = 1;
+            target.type = "pointer";
+            PB.add("(ADD, " + display[target.scope - 1] + ", #" + target.address + ", " + lastTmpMemory + ")");
+            PB.add("(ADD, #" + 4 + ", " + lastTmpMemory + ", " + (lastTmpMemory + 4) + ")");
+            PB.add("(ASSIGN, " + (lastTmpMemory + 4) + ", @" + lastTmpMemory + ")");
+            lastMainMemory += (Integer.parseInt(tokens[0].name) + 1) * 4;
+            lastTmpMemory += 8;
 
 //        System.out.println(tokens[2].name + " " + target.address + " " + lastMainMemory + "***&*&*");
 
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void varMemory(Token[] tokens) {
-//        int currentScope = Scanner.scopeStack.peek();
-        Index idx = new Index(tokens[1].name);
-        Target target = Scanner.lookup(idx);
-        System.out.println(target.type);
-//        if (!target.type.equals("")) {
-//            System.out.println("SEMANTIC ERROR: duplicate declaration of " + tokens[1].name);
-//            System.exit(0);
-//        }
-        target.address = lastMainMemory;
-        target.scope = Scanner.symbolTable.size();
-        target.dimension = 0;
-        target.type = "int";
-        lastMainMemory += 4;
-//        System.out.println("sizeeee: " + Scanner.symbolTable.size());
-//        System.out.println(tokens[1].name + " " + target.address + " " + target.scope + "&*&*");
+        try {
+            Index idx = new Index(tokens[1].name);
+            Target target = Scanner.lookup(idx);
+            System.out.println(target.type);
+
+            target.address = lastMainMemory;
+            target.scope = Scanner.symbolTable.size();
+            target.dimension = 0;
+            target.type = "int";
+            lastMainMemory += 4;
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
+
     }
 
     public void gc(Token[] tokens) {
-        if(SS.size() > 1) emptyStack(); //TODO
-        SS.pop();
-        PB.set(1, "(JP, " + PB.size() + ")");
+        try {
+            SS.pop();
+            PB.set(1, "(JP, " + PB.size() + ")");
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     public void emptyStack() {
-        while (SS.size() > 1)
-            SS.pop();
+        try {
+            while (SS.size() > 1)
+                SS.pop();
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void jpMain(Token[] tokens) {
@@ -346,251 +395,344 @@ public class CodeGenerator {
     }
 
     private void callee(Token[] tokens) {
-        returnSeen = true;
-        Scanner.decScope();
-        lastMainMemory = oldLastMainMemory;
-        if (funcToken.name.equals("main") && paramsNum != 0) {
-            System.out.println("SEMANTIC ERROR: argument of function main should be void");
-            System.exit(0);
-        }
-        if (!tokens[2].name.equals("return")) {
-            if (funcToken.name.equals("main") && !getTarget(funcToken).isVoid) {
-                System.out.println("SEMANTIC ERROR: return type of function main should be void");
+        try {
+            returnSeen = true;
+            Scanner.decScope();
+            lastMainMemory = oldLastMainMemory;
+            if (funcToken.name.equals("main") && paramsNum != 0) {
+                System.out.println("SEMANTIC ERROR: argument of function main should be void");
                 System.exit(0);
             }
-            if (getTarget(funcToken).isVoid) {
+            if (!tokens[2].name.equals("return")) {
+                if (funcToken.name.equals("main") && !getTarget(funcToken).isVoid) {
+                    System.out.println("SEMANTIC ERROR: return type of function main should be void");
+                    System.exit(0);
+                }
+                if (getTarget(funcToken).isVoid) {
+                    System.out.println("SEMANTIC ERROR: return type of function " + funcToken.name + " mismatched");
+                    System.exit(0);
+                }
+
+                PB.add("(SUB, " + display[1] + ", #" + (8 + 4 * paramsNum) + ", " + lastTmpMemory + ")");
+                PB.add("(ASSIGN, " + SS.pop() + ", @" + lastTmpMemory + ")");
+                lastTmpMemory += 4;
+            } else if (!getTarget(funcToken).isVoid) {
                 System.out.println("SEMANTIC ERROR: return type of function " + funcToken.name + " mismatched");
                 System.exit(0);
             }
-
-            PB.add("(SUB, " + display[1] + ", #" + (8 + 4 * paramsNum) + ", " + lastTmpMemory + ")");
-            PB.add("(ASSIGN, " + SS.pop() + ", @" + lastTmpMemory + ")");
+            PB.add("(SUB, " + display[1] + ", #" + 4 + ", " + lastTmpMemory + ")");
+            PB.add("(ASSIGN, @" + lastTmpMemory + ", " + display[1] + ")");
             lastTmpMemory += 4;
-        } else if (!getTarget(funcToken).isVoid) {
-            System.out.println("SEMANTIC ERROR: return type of function " + funcToken.name + " mismatched");
-            System.exit(0);
+            PB.add("(SUB, " + display[1] + ", #" + (12 + 4 * paramsNum) + ", " + lastTmpMemory + ")");
+            PB.add("(JP, @" + lastTmpMemory + ")");
+            lastTmpMemory += 4;
+            Target target = getTarget(funcToken);
+            target.paramsNum = paramsNum;
+            paramsNum = 0;
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
         }
-        PB.add("(SUB, " + display[1] + ", #" + 4 + ", " + lastTmpMemory + ")");
-        PB.add("(ASSIGN, @" + lastTmpMemory + ", " + display[1] + ")");
-        lastTmpMemory += 4;
-        PB.add("(SUB, " + display[1] + ", #" + (12 + 4 * paramsNum) + ", " + lastTmpMemory + ")");
-        PB.add("(JP, @" + lastTmpMemory + ")");
-        lastTmpMemory += 4;
-        Target target = getTarget(funcToken);
-        target.paramsNum = paramsNum;
-        paramsNum = 0;
     }
 
     private void paramAssign(Token[] tokens) {
-        if (tokens[1].type.equals("]")) {
+        try {
+            if (tokens[1].type.equals("]")) {
 //            int currentScope = Scanner.scopeStack.peek();
-            Index idx = new Index(tokens[3].name);
-            Target target = Scanner.lookup(idx);
-            target.address = lastMainMemory;
-            target.scope = Scanner.symbolTable.size();
-            target.dimension = 1;
-            target.type = "pointer";
+                Index idx = new Index(tokens[3].name);
+                Target target = Scanner.lookup(idx);
+                target.address = lastMainMemory;
+                target.scope = Scanner.symbolTable.size();
+                target.dimension = 1;
+                target.type = "pointer";
 
-            lastMainMemory += 4;
-        } else {
+                lastMainMemory += 4;
+            } else {
 //            int currentScope = Scanner.scopeStack.peek();
-            Index idx = new Index(tokens[1].name);
-            Target target = Scanner.lookup(idx);
-            target.address = lastMainMemory;
-            target.scope = Scanner.symbolTable.size();
-            target.dimension = 0;
-            target.type = "int";
+                Index idx = new Index(tokens[1].name);
+                Target target = Scanner.lookup(idx);
+                target.address = lastMainMemory;
+                target.scope = Scanner.symbolTable.size();
+                target.dimension = 0;
+                target.type = "int";
 
-            lastMainMemory += 4;
+                lastMainMemory += 4;
+            }
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
         }
     }
 
     private void loop(Token[] tokens) {
-        int i = Integer.parseInt(SS.pop());
-        String exp = SS.pop();
-        int label = Integer.parseInt(SS.pop());
-        PB.add("(JP, " + label + ")");
-        PB.set(i, "(JPF, " + exp + ", " + PB.size() + ")");
+        try {
+
+            int i = Integer.parseInt(SS.pop());
+            String exp = SS.pop();
+            int label = Integer.parseInt(SS.pop());
+            PB.add("(JP, " + label + ")");
+            PB.set(i, "(JPF, " + exp + ", " + PB.size() + ")");
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void label(Token[] tokens) {
-        SS.push(Integer.toString(PB.size()));
+        try {
+            SS.push(Integer.toString(PB.size()));
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void and(Token[] tokens) {
-        String var2 = SS.pop();
-        String var1 = SS.pop();
+        try {
+            String var2 = SS.pop();
+            String var1 = SS.pop();
 
-        PB.add("(AND, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
-        SS.push(Long.toString(lastTmpMemory));
-        lastTmpMemory += 4;
+            PB.add("(AND, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+            SS.push(Long.toString(lastTmpMemory));
+            lastTmpMemory += 4;
 //        System.out.println(PB.get(PB.size() - 1) + "____");
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void lt(Token[] tokens) {
-        String var2 = SS.pop();
-        String var1 = SS.pop();
+        try {
+            String var2 = SS.pop();
+            String var1 = SS.pop();
 
-        PB.add("(LT, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
-        SS.push(Long.toString(lastTmpMemory));
-        lastTmpMemory += 4;
+            PB.add("(LT, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+            SS.push(Long.toString(lastTmpMemory));
+            lastTmpMemory += 4;
 //        System.out.println(PB.get(PB.size() - 1) + "____");
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void eq(Token[] tokens) {
-        String var2 = SS.pop();
-        String var1 = SS.pop();
+        try {
+            String var2 = SS.pop();
+            String var1 = SS.pop();
 
-        PB.add("(EQ, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
-        SS.push(Long.toString(lastTmpMemory));
-        lastTmpMemory += 4;
-        System.out.println(lastTmpMemory - 4 + "hehe");
+            PB.add("(EQ, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+            SS.push(Long.toString(lastTmpMemory));
+            lastTmpMemory += 4;
+            System.out.println(lastTmpMemory - 4 + "hehe");
 //        System.out.println(PB.get(PB.size() - 1) + "____");
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void jp(Token[] tokens) {
-        int i = Integer.parseInt(SS.pop());
-        PB.set(i, "(JP, " + PB.size() + ")");
+        try {
+            int i = Integer.parseInt(SS.pop());
+            PB.set(i, "(JP, " + PB.size() + ")");
 //        System.out.println(PB.get(i) + "^^^^");
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void jpfSave(Token[] tokens) {
-        int i = Integer.parseInt(SS.pop());
-        String exp = SS.pop();
-        PB.add("");
-        PB.set(i, "(JPF, " + exp + ", " + PB.size() + ")");
-        SS.push(Integer.toString(PB.size() - 1));
+        try {
+            int i = Integer.parseInt(SS.pop());
+            String exp = SS.pop();
+            PB.add("");
+            PB.set(i, "(JPF, " + exp + ", " + PB.size() + ")");
+            SS.push(Integer.toString(PB.size() - 1));
 //        System.out.println(PB.get(i) + "^^^^");
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void jpf(Token[] tokens) {
-        printStack();
-        int i = Integer.parseInt(SS.pop());
-        String exp = SS.pop();
-        PB.set(i, "(JPF, " + exp + ", " + PB.size() + ")");
+        try {
+//            printStack();
+            int i = Integer.parseInt(SS.pop());
+            String exp = SS.pop();
+            PB.set(i, "(JPF, " + exp + ", " + PB.size() + ")");
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void save(Token[] tokens) {
-        PB.add("");
-        SS.push(Integer.toString(PB.size() - 1));
+        try {
+            PB.add("");
+            SS.push(Integer.toString(PB.size() - 1));
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void pidNum(Token[] tokens) {
-        if (tokens[0].name.matches("\\d+\\.\\d+")) {
-            System.out.println("SEMANTIC ERROR: type mismatched. int expected");
-            Double d = Double.parseDouble(tokens[0].name);
-            tokens[0].name = d.intValue() + "";
+        try {
+            if (tokens[0].name.matches("\\d+\\.\\d+")) {
+                System.out.println("SEMANTIC ERROR: type mismatched. int expected");
+                Double d = Double.parseDouble(tokens[0].name);
+                tokens[0].name = d.intValue() + "";
+            }
+//            System.out.println("pid" + tokens[0].name);
+            SS.push("#" + tokens[0].name);
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
         }
-        System.out.println("pid" + tokens[0].name);
-        SS.push("#" + tokens[0].name);
     }
 
     private void caller(Token[] tokens) {
-        Target target = getTarget(tokens[1]);
-        calleeToken = tokens[1];
-        argsStack.push(target.paramsNum);
-        System.out.println("argsssssss caller" + target.type);
-        if (target.type.equals("")) {
-            System.out.println("SEMANTIC ERROR: function " + tokens[1].name + " hasn't been declared");
-            System.exit(0);
+        try {
+            Target target = getTarget(tokens[1]);
+            calleeToken = tokens[1];
+            argsStack.push(target.paramsNum);
+            System.out.println("argsssssss caller" + target.type);
+            if (target.type.equals("")) {
+                System.out.println("SEMANTIC ERROR: function " + tokens[1].name + " hasn't been declared");
+                System.exit(0);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
         }
-
     }
+
     private void add(Token[] tokens) {
-        String var2 = SS.pop();
-        String var1 = SS.pop();
+        try {
+            String var2 = SS.pop();
+            String var1 = SS.pop();
 
-        PB.add("(ADD, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+            PB.add("(ADD, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
 
-        SS.push(Long.toString(lastTmpMemory));
-        lastTmpMemory += 4;
+            SS.push(Long.toString(lastTmpMemory));
+            lastTmpMemory += 4;
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void sub(Token[] tokens) {
-        String var2 = SS.pop();
-        String var1 = SS.pop();
+        try {
+            String var2 = SS.pop();
+            String var1 = SS.pop();
 
-        PB.add("(SUB, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+            PB.add("(SUB, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
 
-        SS.push(Long.toString(lastTmpMemory));
-        lastTmpMemory += 4;
+            SS.push(Long.toString(lastTmpMemory));
+            lastTmpMemory += 4;
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void mul(Token[] tokens) {
-        String var2 = SS.pop();
-        String var1 = SS.pop();
+        try {
+            String var2 = SS.pop();
+            String var1 = SS.pop();
 
-        PB.add("(MULT, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+            PB.add("(MULT, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
 
-        SS.push(Long.toString(lastTmpMemory));
-        lastTmpMemory += 4;
+            SS.push(Long.toString(lastTmpMemory));
+            lastTmpMemory += 4;
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void div(Token[] tokens) {
-        String var2 = SS.pop();
-        String var1 = SS.pop();
+        try {
+            String var2 = SS.pop();
+            String var1 = SS.pop();
 
-        PB.add("(DIV, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+            PB.add("(DIV, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
 
-        SS.push(Long.toString(lastTmpMemory));
-        lastTmpMemory += 4;
-    }
-
-    private void operation(Token[] tokens) {
-        String var2 = SS.pop();
-        String op = SS.pop();
-        String var1 = SS.pop();
-
-        System.out.println(var1 + " heeh " + var2);
-
-        switch (op) {
-            case "+":
-                PB.add("(ADD, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
-                break;
-            case "-":
-                PB.add("(SUB, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
-                break;
-            case "*":
-                PB.add("(MULT, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
-                break;
-            case "/":
-                PB.add("(DIV, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
-                break;
-            default:
-                PB.add("(ADD, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
-                break;
+            SS.push(Long.toString(lastTmpMemory));
+            lastTmpMemory += 4;
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
         }
-
-//        System.out.println(op + PB.get(PB.size() - 1) + "____");
-
-        SS.push(Long.toString(lastTmpMemory));
-        lastTmpMemory += 4;
-
     }
+
+//    private void operation(Token[] tokens) {
+//        String var2 = SS.pop();
+//        String op = SS.pop();
+//        String var1 = SS.pop();
+//
+//        System.out.println(var1 + " heeh " + var2);
+//
+//        switch (op) {
+//            case "+":
+//                PB.add("(ADD, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+//                break;
+//            case "-":
+//                PB.add("(SUB, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+//                break;
+//            case "*":
+//                PB.add("(MULT, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+//                break;
+//            case "/":
+//                PB.add("(DIV, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+//                break;
+//            default:
+//                PB.add("(ADD, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+//                break;
+//        }
+//
+////        System.out.println(op + PB.get(PB.size() - 1) + "____");
+//
+//        SS.push(Long.toString(lastTmpMemory));
+//        lastTmpMemory += 4;
+//
+//    }
 
     private void arrayPid(Token[] tokens) {
-        String exp = SS.pop();
-        String arr = SS.pop();
-        Target top = IDsStack.peek();
+        try {
+            String exp = SS.pop();
+            String arr = SS.pop();
+            Target top = IDsStack.peek();
 
 
-        PB.add("(LT, " + exp + ", #" + top.length + " ," + lastTmpMemory + ")");
-        PB.add("(JPF, " + lastTmpMemory + ", 1)");
-        lastTmpMemory += 4;
+            PB.add("(LT, " + exp + ", #" + top.length + " ," + lastTmpMemory + ")");
+            PB.add("(JPF, " + lastTmpMemory + ", 1)");
+            lastTmpMemory += 4;
 
-        PB.add("(MULT, #4, " + exp + ", " + lastTmpMemory + ")");
-        PB.add("(ADD, " + lastTmpMemory + ", " + arr + ", " + (lastTmpMemory + 4) + ")");
-        lastTmpMemory += 4;
-        SS.push("@" + Long.toString(lastTmpMemory));
-        lastTmpMemory += 4;
+            PB.add("(MULT, #4, " + exp + ", " + lastTmpMemory + ")");
+            PB.add("(ADD, " + lastTmpMemory + ", " + arr + ", " + (lastTmpMemory + 4) + ")");
+            lastTmpMemory += 4;
+            SS.push("@" + Long.toString(lastTmpMemory));
+            lastTmpMemory += 4;
 
-        if (!top.type.equals("pointer")) {
-            System.out.println("SEMANTIC ERROR: type mismatched");
-            System.exit(0);
+            if (!top.type.equals("pointer")) {
+                System.out.println("SEMANTIC ERROR: type mismatched");
+                System.exit(0);
+            }
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
         }
     }
 
     private void pid(Token[] tokens) {
+        try {
         Target t = getTarget(tokens[1]);
         if (t.type.equals("")) {
             System.out.println("SEMANTIC ERROR: ID " + tokens[1].name + " hasn't been declared");
@@ -601,23 +743,42 @@ public class CodeGenerator {
         IDsStack.push(t);
         lastTmpMemory += 4;
 
-    }
+    }catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        } }
 
     private void pidPop(Token[] tokens) {
-        IDsStack.pop();
+        try {
+            IDsStack.pop();
+        }catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private void assign(Token[] tokens) {
-        String exp = SS.pop();
-        String var = SS.pop();
+        try {
+            String exp = SS.pop();
+            String var = SS.pop();
 //        System.out.println("(ASSIGN, " + exp + ", " + var + "____");
 //        System.out.println("size " + PB.size());
-        PB.add("(ASSIGN, " + exp + ", " + var + ")");
+            PB.add("(ASSIGN, " + exp + ", " + var + ")");
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+        }
     }
 
     private Target getTarget(Token t) {
-        Index idx = new Index(t.name);
-        return Scanner.lookup(idx);
+        try {
+            Index idx = new Index(t.name);
+            return Scanner.lookup(idx);
+        } catch (Exception e) {
+            System.out.println("Panic mode failed, genarated code till now:");
+            print();
+            return null;
+        }
     }
 
 //    private Target getTargetByAddress(Long addr) {

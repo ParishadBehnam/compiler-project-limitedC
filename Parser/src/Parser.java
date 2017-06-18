@@ -121,15 +121,16 @@ public class Parser {
         Token t = Scanner.getToken();
         codeGenTokens[0] = t;
         while (true) {
-            System.out.println("token" + t.type);
+//            System.out.println("token" + t.type);
 
-            printStack();
-            cg.printStack();
+//            printStack();
+//            cg.printStack();
             String res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
             if (res == null) {
 //                parsStack.pop();
 //                cg.emptyStack();
-                System.out.println("PANIC MODE - PARSER");
+                System.out.println(Color.ANSI_RED + "PANIC MODE - PARSER" + Color.ANSI_RESET);
+                printParsError(t);
 
                 String state = "";
                 int firstState = Integer.parseInt(parsStack.peek());
@@ -152,7 +153,7 @@ public class Parser {
                             t = getTokenFromScanner(t);
                             for (String s : NT) {
                                 if (follows.get(s).contains(t.type)) {
-                                    System.out.println(t.type + " " + state + "!!!!!!!!");
+//                                    System.out.println(t.type + " " + state + "!!!!!!!!");
                                     dummyReduce(s, firstState, t);
 
                                     parsStack.push(s);
@@ -166,13 +167,12 @@ public class Parser {
                         break L1;
                     } else parsStack.pop();
                 }
-                System.out.println(t.type);
 
                 res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
                 if (res == null) {
                     cg.gc(codeGenTokens);
+                    System.out.println("Panic mode failed, genarated code till now:");
                     CodeGenerator.print();
-                    System.out.println("FINISHED!");
                     return;
                 }
 
@@ -182,7 +182,7 @@ public class Parser {
                 CodeGenerator.print();
                 return;
             }
-            System.out.println("res" + res);
+//            System.out.println("res" + res);
             if (res.charAt(0) == 's') {
                 parsStack.push(t.type);
                 int state = Integer.parseInt(res.substring(1));
@@ -222,7 +222,7 @@ public class Parser {
                     cg.generateCode("X28", codeGenTokens);
 
 
-                System.out.println(grammarLHS.get(idx - 1) + " " + gotoIdx);
+//                System.out.println(grammarLHS.get(idx - 1) + " " + gotoIdx);
                 parsStack.push(Integer.toString(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1))));
 
             }
@@ -250,11 +250,10 @@ public class Parser {
         return toRet;
     }
 
-    public void dummyReduce(String lhs, int state, Token t) {
+     private void dummyReduce(String lhs, int state, Token t) {
         String tmp = parseTable.actionTable.get(state).get(t.type);
         if (tmp != null && tmp.charAt(0) == 'r') {
-            System.out.println(t.type);
-            System.out.println("hereeex");
+//            System.out.println(t.type);
             if (lhs.charAt(0) == 'X') {
                 int idx = Integer.parseInt(lhs.substring(1));
                 cg.generateCode(lhs, codeGenTokens);
@@ -271,6 +270,17 @@ public class Parser {
                 cg.generateCode("output", codeGenTokens);
 
         }
+    }
+    private void printParsError(Token t) {
+        System.out.println(Color.ANSI_BLUE + "Unexpected token. Allowed Tokens are: " + Color.ANSI_RESET);
+        int state = Integer.parseInt(parsStack.peek());
+        ArrayList permitted = new ArrayList(parseTable.actionTable.get(state).keySet());
+        for (int i = 0; i < permitted.size(); i++) {
+            if(i != 0)
+                System.out.print(Color.ANSI_BLUE + ", " + permitted.get(i)+ Color.ANSI_RESET);
+            else System.out.print(Color.ANSI_BLUE + permitted.get(i)+ Color.ANSI_RESET);
+        }
+        System.out.println("");
     }
 
 }
