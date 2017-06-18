@@ -1,12 +1,7 @@
-int f(int a[], int b){
+int b;
+void main( void ){
 
-a[2]= b+3;
-return 2;
+	if(2&& b<2)
+	output(b);
 }
-void main(void){
-int a[5];
-a[1]=1;
-output(3+2);
-a[0]=f(a,2);
-return;
-}EOF
+EOF

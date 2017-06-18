@@ -26,6 +26,8 @@ public class CodeGenerator {
     public CodeGenerator() {
         display[0] = 100;
         display[1] = 104;
+        PB.add("(JP, " + (PB.size() + 2) + ")");
+        PB.add("");
         PB.add("(ASSIGN, #400, " + display[0] + ")");
     }
 
@@ -319,8 +321,13 @@ public class CodeGenerator {
 //        System.out.println(tokens[1].name + " " + target.address + " " + target.scope + "&*&*");
     }
 
-    private void gc(Token[] tokens) {
+    public void gc(Token[] tokens) {
         SS.pop();
+        PB.set(1, "(JP, " + PB.size() + ")");
+    }
+    public void emptyStack() {
+        while(SS.size() > 1)
+            SS.pop();
     }
 
     private void jpMain(Token[] tokens) {
@@ -463,6 +470,7 @@ public class CodeGenerator {
             Double d = Double.parseDouble(tokens[0].name);
             tokens[0].name = d.intValue() + "";
         }
+        System.out.println("pid" + tokens[0].name);
         SS.push("#" + tokens[0].name);
     }
 
@@ -482,6 +490,8 @@ public class CodeGenerator {
         String var2 = SS.pop();
         String op = SS.pop();
         String var1 = SS.pop();
+
+        System.out.println(var1 + " heeh " + var2);
 
         switch (op) {
             case "+":

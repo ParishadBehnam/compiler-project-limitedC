@@ -3,6 +3,8 @@
  */
 
 
+import com.sun.org.apache.bcel.internal.classfile.Code;
+
 import java.util.*;
 
 public class Parser {
@@ -114,9 +116,13 @@ public class Parser {
             System.out.println("token" + t.type);
 
             printStack();
+            cg.printStack();
             String res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
             if (res == null) {
+//                parsStack.pop();
+//                cg.emptyStack();
                 System.out.println("PANIC MODE - PARSER");
+
                 String state = "";
                 L1:
                 while (parsStack.size() > 0) {
@@ -128,13 +134,14 @@ public class Parser {
 
                     int stateNum = Integer.parseInt(state);
                     if (parseTable.gotoTable.get(stateNum).size() > 0) {
+                        System.out.println(stateNum + "!!!!!!!!");
+
                         HashMap<String, Integer> target = parseTable.gotoTable.get(stateNum);
                         Set<String> NT = target.keySet();
                         String lastToken = "";
                         while (!(t.type.equals("$") && lastToken.equals("$"))) {
                             lastToken = t.type;
-                            t = Scanner.getToken();
-                            System.out.println(t.type + "!!!!!!!!");
+                            t = getTokenFromScanner(t);
                             for (String s : NT) {
                                 if (follows.get(s).contains(t.type)) {
                                     parsStack.push(s);
@@ -151,6 +158,8 @@ public class Parser {
 
                 res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
                 if (res == null) {
+                    cg.gc(codeGenTokens);
+                    CodeGenerator.print();
                     System.out.println("FINISHED!");
                     return;
                 }
@@ -168,13 +177,7 @@ public class Parser {
                 parsStack.push(Integer.toString(state));
                 Token tmp = new Token(t.type, t.name);
 
-                if (codeGenTokens[2] != null)
-                    codeGenTokens[3] = new Token(codeGenTokens[2]);
-                if (codeGenTokens[1] != null)
-                    codeGenTokens[2] = new Token(codeGenTokens[1]);
-                codeGenTokens[1] = new Token(t);
-                t = Scanner.getToken();
-                codeGenTokens[0] = new Token(t);
+                t = getTokenFromScanner(t);
 
                 if (t.type.equals("$") && tmp.type.equals("$")) return;
             } else if (res.charAt(0) == 'r') {
@@ -186,6 +189,7 @@ public class Parser {
 
                 int gotoIdx = Integer.parseInt(parsStack.peek());
                 parsStack.push(grammarLHS.get(idx - 1));
+
 
                 if (idx >= 60 && idx < 84) cg.generateCode(grammarLHS.get(idx - 1), codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("AddOp") || grammarLHS.get(idx - 1).equals("MulOp"))
@@ -203,6 +207,7 @@ public class Parser {
 
                 System.out.println(grammarLHS.get(idx - 1) + " " + gotoIdx);
                 parsStack.push(Integer.toString(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1))));
+
             }
         }
     }
@@ -214,6 +219,18 @@ public class Parser {
         }
         System.out.println("");
         System.out.println("=====");
+    }
+
+    public  Token getTokenFromScanner(Token t){
+        Token toRet;
+        if (codeGenTokens[2] != null)
+            codeGenTokens[3] = new Token(codeGenTokens[2]);
+        if (codeGenTokens[1] != null)
+            codeGenTokens[2] = new Token(codeGenTokens[1]);
+        codeGenTokens[1] = new Token(t);
+        toRet = Scanner.getToken();
+        codeGenTokens[0] = new Token(toRet);
+        return toRet;
     }
 
 }
