@@ -29,7 +29,7 @@ public class Parser {
                     "X7", "X8", "X9", "X10", "X11",
                     "X12", "X13", "X14", "X15", "X16",
                     "X17", "X18", "X19", "X20", "X21",
-                    "X22", "X23", "X24", "R3", "R2", "Statement", "X25"));
+                    "X22", "X23", "X24", "R3", "R2", "Statement", "X25", "X26", "X27", "X28", "Expression", "Term"));
 
     HashMap<String, ArrayList<String>> follows = new HashMap<>();
 
@@ -47,6 +47,11 @@ public class Parser {
         grammarLength.add(7);
         grammarLength.add(6);
         grammarLength.add(0);
+        grammarLength.add(0);
+        grammarLength.add(0);
+        grammarLength.add(0);
+        grammarLength.add(4);
+        grammarLength.add(4);
         parsStack.push("$");
         parsStack.push("0");
 
@@ -81,7 +86,10 @@ public class Parser {
         follows.put("X7", new ArrayList<>(Arrays.asList("int", "void", ";", "ID", "{", "output", "if", "while", "return")));
         follows.put("StatementList", new ArrayList<>(Arrays.asList(";", "ID", "{", "if", "output", "while", "return", "}")));
         follows.put("Expression", new ArrayList<>(Arrays.asList(")", "<", "==", "+", "-", ",", "&&", ";", "]")));
+        follows.put("X26", new ArrayList<>(Arrays.asList(")", "<", "==", "+", "-", ",", "&&", ";", "]")));
         follows.put("Term", new ArrayList<>(Arrays.asList("*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]")));
+        follows.put("X27", new ArrayList<>(Arrays.asList("*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]")));
+        follows.put("X28", new ArrayList<>(Arrays.asList("*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]")));
         follows.put("X4", new ArrayList<>(Arrays.asList("*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]")));
         follows.put("Factor", new ArrayList<>(Arrays.asList("*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]")));
         follows.put("X5", new ArrayList<>(Arrays.asList("*", "/", ")", "<", "==", "+", "-", ",", "&&", ";", "]")));
@@ -143,8 +151,8 @@ public class Parser {
                             t = getTokenFromScanner(t);
                             for (String s : NT) {
                                 if (follows.get(s).contains(t.type)) {
-                                    System.out.println(t.type + " " + s + "!!!!!!!!");
-                                    dummyReduce(s);
+                                    System.out.println(t.type + " " + state + "!!!!!!!!");
+//                                    dummyReduce(s);
 
                                     parsStack.push(s);
                                     parsStack.push(Integer.toString(target.get(s)));
@@ -195,8 +203,6 @@ public class Parser {
 
 
                 if (idx >= 60 && idx < 84) cg.generateCode(grammarLHS.get(idx - 1), codeGenTokens);
-                if (grammarLHS.get(idx - 1).equals("AddOp") || grammarLHS.get(idx - 1).equals("MulOp"))
-                    cg.generateCode("Op", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("ArgList"))
                     cg.generateCode("ArgList", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("Call"))
@@ -207,6 +213,13 @@ public class Parser {
                     cg.generateCode("parameter", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("X25"))
                     cg.generateCode("output", codeGenTokens);
+                if (grammarLHS.get(idx - 1).equals("X26"))
+                    cg.generateCode("X26", codeGenTokens);
+                if (grammarLHS.get(idx - 1).equals("X27"))
+                    cg.generateCode("X27", codeGenTokens);
+                if (grammarLHS.get(idx - 1).equals("X28"))
+                    cg.generateCode("X28", codeGenTokens);
+
 
                 System.out.println(grammarLHS.get(idx - 1) + " " + gotoIdx);
                 parsStack.push(Integer.toString(parseTable.gotoTable.get(gotoIdx).get(grammarLHS.get(idx - 1))));
@@ -242,8 +255,6 @@ public class Parser {
             int idx = Integer.parseInt(lhs.substring(1));
             cg.generateCode(lhs, codeGenTokens);
         }
-        if (lhs.equals("AddOp") || lhs.equals("MulOp"))
-            cg.generateCode("Op", codeGenTokens);
         if (lhs.equals("ArgList"))
             cg.generateCode("ArgList", codeGenTokens);
         if (lhs.equals("Call"))
@@ -418,6 +429,12 @@ class ParseTable {
         HashMap<String, String> row147a = new HashMap<>();
         HashMap<String, String> row148a = new HashMap<>();
         HashMap<String, String> row149a = new HashMap<>();
+        HashMap<String, String> row150a = new HashMap<>();
+        HashMap<String, String> row151a = new HashMap<>();
+        HashMap<String, String> row152a = new HashMap<>();
+        HashMap<String, String> row153a = new HashMap<>();
+        HashMap<String, String> row154a = new HashMap<>();
+        HashMap<String, String> row155a = new HashMap<>();
 
 
         HashMap<String, Integer> row0g = new HashMap<>();
@@ -570,6 +587,12 @@ class ParseTable {
         HashMap<String, Integer> row147g = new HashMap<>();
         HashMap<String, Integer> row148g = new HashMap<>();
         HashMap<String, Integer> row149g = new HashMap<>();
+        HashMap<String, Integer> row150g = new HashMap<>();
+        HashMap<String, Integer> row151g = new HashMap<>();
+        HashMap<String, Integer> row152g = new HashMap<>();
+        HashMap<String, Integer> row153g = new HashMap<>();
+        HashMap<String, Integer> row154g = new HashMap<>();
+        HashMap<String, Integer> row155g = new HashMap<>();
 
 
         row0a.put("int", "r66");
@@ -919,9 +942,8 @@ class ParseTable {
         row60a.put(";", "r37");
         row60a.put(")", "r37");
 
-        row61g.put("AddOp", 79);
-        row61a.put("+", "s77");
-        row61a.put("-", "s78");
+        row61a.put("+", "s79");
+        row61a.put("-", "s150");
         row61a.put("==", "s80");
         row61a.put("<", "s81");
         row61a.put(";", "r38");
@@ -931,7 +953,6 @@ class ParseTable {
         row62a.put(";", "r40");
         row62a.put(")", "r40");
 
-        row63g.put("MulOp", 83);
         row63a.put(",", "r44");
         row63a.put(")", "r44");
         row63a.put("+", "r44");
@@ -941,8 +962,8 @@ class ParseTable {
         row63a.put(";", "r44");
         row63a.put("==", "r44");
         row63a.put("]", "r44");
-        row63a.put("*", "s84");
-        row63a.put("/", "s85");
+        row63a.put("*", "s83");
+        row63a.put("/", "s151");
 
         row64a.put(",", "r48");
         row64a.put(")", "r48");
@@ -1025,9 +1046,8 @@ class ParseTable {
         row70a.put("]", "r54");
 
         row71g.put("X1", 113);
-        row71g.put("AddOp", 79);
-        row71a.put("+", "s77");
-        row71a.put("-", "s78");
+        row71a.put("+", "s79");
+        row71a.put("-", "s150");
         row71a.put(";", "r60");
 
         row72a.put(";", "r33");
@@ -1101,6 +1121,15 @@ class ParseTable {
         row79a.put("ID", "s68");
         row79a.put("NUM", "r65");
 
+        row150g.put("Term", 152);
+        row150g.put("Factor", 64);
+        row150a.put("(", "s75");
+        row150g.put("Var", 65);
+        row150g.put("Call", 66);
+        row150g.put("X6", 67);
+        row150a.put("ID", "s68");
+        row150a.put("NUM", "r65");
+
         row80g.put("Term", 63);
         row80g.put("Expression", 94);
         row80g.put("Factor", 64);
@@ -1140,6 +1169,14 @@ class ParseTable {
         row83a.put("ID", "s68");
         row83a.put("NUM", "r65");
 
+        row151g.put("Factor", 154);
+        row151g.put("Var", 65);
+        row151g.put("Call", 66);
+        row151g.put("X6", 67);
+        row151a.put("(", "s75");
+        row151a.put("ID", "s68");
+        row151a.put("NUM", "r65");
+
         row84a.put("ID", "r49");
         row84a.put("NUM", "r49");
         row84a.put("(", "r49");
@@ -1161,9 +1198,8 @@ class ParseTable {
         row86a.put("NUM", "r65");
         row86a.put(")", "r57");
 
-        row87g.put("AddOp", 79);
-        row87a.put("+", "s77");
-        row87a.put("-", "s78");
+        row87a.put("+", "s79");
+        row87a.put("-", "s150");
         row87a.put("]", "s88");
 
         row88a.put(",", "r62");
@@ -1193,9 +1229,8 @@ class ParseTable {
         row89a.put("==", "r36");
         row89a.put("]", "r36");
 
-        row90g.put("AddOp", 79);
-        row90a.put("+", "s77");
-        row90a.put("-", "s78");
+        row90a.put("+", "s79");
+        row90a.put("-", "s150");
         row90a.put(")", "s91");
 
         row91a.put(",", "r51");
@@ -1212,18 +1247,16 @@ class ParseTable {
 
         row92a.put(")", "s108");
 
-        row93g.put("AddOp", 79);
         row93g.put("X12", 105);
-        row93a.put("+", "s77");
-        row93a.put("-", "s78");
+        row93a.put("+", "s79");
+        row93a.put("-", "s150");
         row93a.put("&&", "r71");
         row93a.put(";", "r71");
         row93a.put(")", "r71");
 
-        row94g.put("AddOp", 79);
         row94g.put("X11", 106);
-        row94a.put("+", "s77");
-        row94a.put("-", "s78");
+        row94a.put("+", "s79");
+        row94a.put("-", "s150");
         row94a.put("&&", "r70");
         row94a.put(";", "r70");
         row94a.put(")", "r70");
@@ -1237,10 +1270,22 @@ class ParseTable {
         row95a.put(";", "r63");
         row95a.put("==", "r63");
         row95a.put("]", "r63");
-        row95a.put("*", "s84");
-        row95a.put("/", "s85");
+        row95a.put("*", "s83");
+        row95a.put("/", "s151");
         row95g.put("X4", 107);
-        row95g.put("MulOp", 83);
+
+        row152a.put(",", "r88");
+        row152a.put(")", "r88");
+        row152a.put("+", "r88");
+        row152a.put("-", "r88");
+        row152a.put("<", "r88");
+        row152a.put("&&", "r88");
+        row152a.put(";", "r88");
+        row152a.put("==", "r88");
+        row152a.put("]", "r88");
+        row152a.put("*", "s83");
+        row152a.put("/", "s151");
+        row152g.put("X26", 153);
 
         row96g.put("X13", 97);
         row96a.put("&&", "r72");
@@ -1251,24 +1296,36 @@ class ParseTable {
         row97a.put(";", "r39");
         row97a.put(")", "r39");
 
-        row98g.put("AddOp", 79);
-        row98a.put("+", "s77");
-        row98a.put("-", "s78");
+        row98a.put("+", "s79");
+        row98a.put("-", "s150");
         row98a.put("==", "s80");
         row98a.put("<", "s81");
 
-        row99g.put("X4", 100);
-        row99a.put(",", "r63");
-        row99a.put(")", "r63");
-        row99a.put("+", "r63");
-        row99a.put("-", "r63");
-        row99a.put("<", "r63");
-        row99a.put("&&", "r63");
-        row99a.put(";", "r63");
-        row99a.put("==", "r63");
-        row99a.put("]", "r63");
-        row99a.put("*", "r63");
-        row99a.put("/", "r63");
+        row99g.put("X27", 100);
+        row99a.put(",", "r89");
+        row99a.put(")", "r89");
+        row99a.put("+", "r89");
+        row99a.put("-", "r89");
+        row99a.put("<", "r89");
+        row99a.put("&&", "r89");
+        row99a.put(";", "r89");
+        row99a.put("==", "r89");
+        row99a.put("]", "r89");
+        row99a.put("*", "r89");
+        row99a.put("/", "r89");
+
+        row154g.put("X28", 155);
+        row154a.put(",", "r90");
+        row154a.put(")", "r90");
+        row154a.put("+", "r90");
+        row154a.put("-", "r90");
+        row154a.put("<", "r90");
+        row154a.put("&&", "r90");
+        row154a.put(";", "r90");
+        row154a.put("==", "r90");
+        row154a.put("]", "r90");
+        row154a.put("*", "r90");
+        row154a.put("/", "r90");
 
         row100a.put(",", "r47");
         row100a.put(")", "r47");
@@ -1281,6 +1338,18 @@ class ParseTable {
         row100a.put("]", "r47");
         row100a.put("*", "r47");
         row100a.put("/", "r47");
+
+        row155a.put(",", "r92");
+        row155a.put(")", "r92");
+        row155a.put("+", "r92");
+        row155a.put("-", "r92");
+        row155a.put("<", "r92");
+        row155a.put("&&", "r92");
+        row155a.put(";", "r92");
+        row155a.put("==", "r92");
+        row155a.put("]", "r92");
+        row155a.put("*", "r92");
+        row155a.put("/", "r92");
 
         row101a.put(")", "s102");
 
@@ -1299,9 +1368,8 @@ class ParseTable {
         row103a.put(",", "s118");
         row103a.put(")", "r56");
 
-        row104g.put("AddOp", 79);
-        row104a.put("+", "s77");
-        row104a.put("-", "s78");
+        row104a.put("+", "s79");
+        row104a.put("-", "s150");
         row104a.put(",", "r59");
         row104a.put(")", "r59");
 
@@ -1322,6 +1390,16 @@ class ParseTable {
         row107a.put(";", "r43");
         row107a.put("==", "r43");
         row107a.put("]", "r43");
+
+        row153a.put(",", "r91");
+        row153a.put(")", "r91");
+        row153a.put("+", "r91");
+        row153a.put("-", "r91");
+        row153a.put("<", "r91");
+        row153a.put("&&", "r91");
+        row153a.put(";", "r91");
+        row153a.put("==", "r91");
+        row153a.put("]", "r91");
 
 
         row108a.put("int", "r66");
@@ -1432,9 +1510,8 @@ class ParseTable {
         row118a.put("ID", "s68");
         row118a.put("NUM", "r65");
 
-        row119g.put("AddOp", 79);
-        row119a.put("+", "s77");
-        row119a.put("-", "s78");
+        row119a.put("+", "s79");
+        row119a.put("-", "s150");
         row119a.put(",", "r58");
         row119a.put(")", "r58");
 
@@ -1790,6 +1867,12 @@ class ParseTable {
         actionTable.add(row147a);
         actionTable.add(row148a);
         actionTable.add(row149a);
+        actionTable.add(row150a);
+        actionTable.add(row151a);
+        actionTable.add(row152a);
+        actionTable.add(row153a);
+        actionTable.add(row154a);
+        actionTable.add(row155a);
 
 
         gotoTable.add(row0g);
@@ -1942,6 +2025,12 @@ class ParseTable {
         gotoTable.add(row147g);
         gotoTable.add(row148g);
         gotoTable.add(row149g);
+        gotoTable.add(row150g);
+        gotoTable.add(row151g);
+        gotoTable.add(row152g);
+        gotoTable.add(row153g);
+        gotoTable.add(row154g);
+        gotoTable.add(row155g);
 
 
     }

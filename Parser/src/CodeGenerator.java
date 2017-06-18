@@ -58,7 +58,16 @@ public class CodeGenerator {
                 arrayPid(tokens);
                 break;
             case "X4":
-                operation(tokens);
+                add(tokens);
+                break;
+            case "X26":
+                sub(tokens);
+                break;
+            case "X27":
+                mul(tokens);
+                break;
+            case "X28":
+                div(tokens);
                 break;
             case "X5":
 //                caller(tokens);
@@ -322,6 +331,7 @@ public class CodeGenerator {
     }
 
     public void gc(Token[] tokens) {
+        if(SS.size() > 1) emptyStack(); //TODO
         SS.pop();
         PB.set(1, "(JP, " + PB.size() + ")");
     }
@@ -485,6 +495,45 @@ public class CodeGenerator {
             System.exit(0);
         }
 
+    }
+    private void add(Token[] tokens) {
+        String var2 = SS.pop();
+        String var1 = SS.pop();
+
+        PB.add("(ADD, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+
+        SS.push(Long.toString(lastTmpMemory));
+        lastTmpMemory += 4;
+    }
+
+    private void sub(Token[] tokens) {
+        String var2 = SS.pop();
+        String var1 = SS.pop();
+
+        PB.add("(SUB, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+
+        SS.push(Long.toString(lastTmpMemory));
+        lastTmpMemory += 4;
+    }
+
+    private void mul(Token[] tokens) {
+        String var2 = SS.pop();
+        String var1 = SS.pop();
+
+        PB.add("(MULT, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+
+        SS.push(Long.toString(lastTmpMemory));
+        lastTmpMemory += 4;
+    }
+
+    private void div(Token[] tokens) {
+        String var2 = SS.pop();
+        String var1 = SS.pop();
+
+        PB.add("(DIV, " + var1 + ", " + var2 + ", " + Long.toString(lastTmpMemory) + ")");
+
+        SS.push(Long.toString(lastTmpMemory));
+        lastTmpMemory += 4;
     }
 
     private void operation(Token[] tokens) {

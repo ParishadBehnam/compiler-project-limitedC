@@ -8,7 +8,7 @@ void main(void){
 int a;
 /*a = a , , 3;*/
 a = 3 + 4;
-if(a<d)) {
+if(a<d/2+-3++3)),,,(,,,(( {
 output(2);
 }
 }EOF
