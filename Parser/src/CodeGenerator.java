@@ -33,7 +33,7 @@ public class CodeGenerator {
 
     public static void print() {
         for (int i = 0; i < PB.size(); i++) {
-            System.out.println(Color.ANSI_PURPLE + i + ": " + PB.get(i)+ Color.ANSI_RESET);
+            System.out.println(i + ": " + PB.get(i));
         }
     }
 

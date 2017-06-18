@@ -3,8 +3,6 @@
  */
 
 
-import com.sun.org.apache.bcel.internal.classfile.Code;
-
 import java.util.*;
 
 public class Parser {
@@ -272,7 +270,8 @@ public class Parser {
         }
     }
     private void printParsError(Token t) {
-        System.out.println(Color.ANSI_BLUE + "Unexpected token. Allowed Tokens are: " + Color.ANSI_RESET);
+        System.out.println(Color.ANSI_BLUE + "Line " + Scanner.line + " Character " + (Scanner.pointer + 1)
+                + " : Unexpected token. Allowed Tokens are: " + Color.ANSI_RESET);
         int state = Integer.parseInt(parsStack.peek());
         ArrayList permitted = new ArrayList(parseTable.actionTable.get(state).keySet());
         for (int i = 0; i < permitted.size(); i++) {

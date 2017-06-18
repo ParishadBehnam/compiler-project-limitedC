@@ -1,4 +1,4 @@
-int f(int a[], int b){
+int f(int 35aa[], int b){
 
 a[2]= b+3;
 return 2;
@@ -8,7 +8,7 @@ void main(void){
 int a;
 a = a , , 3;
 a = 3 + = 4;
-if(2&&d<2)) {
+if(2&&4dd<2)) {
 output(2);
 }
 }

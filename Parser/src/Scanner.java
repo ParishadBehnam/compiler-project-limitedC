@@ -13,24 +13,27 @@ public class Scanner {
     private static boolean inDeclaration;
     private static int isSingle;
     private static boolean isError;
-    private static int pointer;
     private static String input;
     private static java.util.Scanner scanner;
     private static ArrayList<Character> singles;
+    private static ArrayList<Character> delimiters;
     private static Token token;
+    public static int pointer;
+    public static int line = 0;
 
     public Scanner() {
         pointer = -1;
         inDeclaration = false;
         isSingle = 1;
         isError = false;
+        delimiters = new ArrayList<Character>(Arrays.asList(' ', '\t'));
         singles = new ArrayList<Character>(Arrays.asList(',', ';', '*', '<', '(', ')', '[', ']', '{', '}', '=', '&', '/', '+', '-'));
         symbolTable = new ArrayList<>();
         symbolTable.add(new HashMap<Index, Target>());
 
         try {
-            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/[قختثزف/compiler-limitedC/Parser/src/file.txt"));
-//            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
+//            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/[قختثزف/compiler-limitedC/Parser/src/file.txt"));
+            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -39,7 +42,8 @@ public class Scanner {
     }
 
     private static String getInput(java.util.Scanner scanner) {
-        String s = scanner.next() + " ";
+        line ++;
+        String s = scanner.nextLine() + " ";
         return s;
     }
 
@@ -95,7 +99,7 @@ public class Scanner {
         char ch = ' ';
         pointer++;
 
-        if (pointer >= input.length() && !scanner.hasNext()) {
+        if (pointer >= input.length() && !scanner.hasNextLine()) {
             token = new Token("$", "");
             input = "";
             pointer = 0;
@@ -120,9 +124,8 @@ public class Scanner {
 
 //        System.out.println("state " + state + " : " + isSingle + " " + ch);
         if (state == 0) {
-            if (ch == ' ') {
+            if (delimiters.contains(ch)) {
                 match(state, tokenstr);
-                isSingle = 0;
             } else if (Character.isLetter(ch)) {
                 match(1, tokenstr + ch);
                 isSingle = 0;
@@ -157,16 +160,20 @@ public class Scanner {
                 isSingle = 0;
                 token = new Token(findType(tokenstr), tokenstr);
                 return;
+            } else if (delimiters.contains(ch)) {
+                isSingle = 0;
+                token = new Token(findType(tokenstr), tokenstr);
+                return;
             } else if (finished) {
                 isSingle = 0;
-                if (ch == ' ') {
+                if (delimiters.contains(ch)) {
                     token = new Token(findType(tokenstr), tokenstr);
                     return;
                 }
                 token = new Token(findType(tokenstr + ch), tokenstr + ch);
                 return;
             } else {
-                errorMessage = "your ID (" + tokenstr + ch + ") includes invalid characters.";
+                errorMessage = "Line " + line + " Character " + (pointer + 1) + " : your ID (" + tokenstr + ch + ") includes invalid characters.";
                 isError = true;
             }
         } else if (state == 2) {
@@ -193,6 +200,10 @@ public class Scanner {
                 isSingle = 1;
                 token = new Token(tokenstr, "");
                 return;
+            } else if (delimiters.contains(ch)) {
+                isSingle++;
+                token = new Token(tokenstr, "");
+                return;
             } else if (finished) {
                 if (ch == ' ') {
                     token = new Token(tokenstr, "");
@@ -201,7 +212,7 @@ public class Scanner {
                 token = new Token("NUM", tokenstr + ch);
                 return;
             } else {
-                errorMessage = "invalid character (" + ch + ") is found";
+                errorMessage = "Line " + line + " Character " + (pointer + 1) + " :invalid character (" + ch + ") is found";
                 isError = true;
             }
         } else if (state == 3) {
@@ -215,14 +226,18 @@ public class Scanner {
             } else if (ch == '.') {
                 match(3, tokenstr + ch);
             } else if (finished) {
-                if (ch == ' ') {
+                if (delimiters.contains(ch)) {
                     token = new Token("NUM", tokenstr);
                     return;
                 }
                 token = new Token("NUM", tokenstr + ch);
                 return;
+            } else if (delimiters.contains(ch)) {
+                isSingle = 0;
+                token = new Token("NUM", tokenstr);
+                return;
             } else {
-                errorMessage = "invalid number (" + tokenstr + ch + ") is found";
+                errorMessage = "Line " + line + " Character " + (pointer + 1) + " : invalid number (" + tokenstr + ch + ") is found";
                 isError = true;
             }
         } else if (state == 4) {
@@ -233,12 +248,17 @@ public class Scanner {
                 pointer--;
                 token = new Token("=", "");
                 return;
+            } else if (delimiters.contains(ch)) {
+                isSingle++;
+                token = new Token("=", "");
+                return;
             } else if (finished) {
                 token = new Token("=", "");
                 return;
             }
         } else if (state == 5) {
             if (ch == '&') {
+                isSingle++;
                 token = new Token("&&", "");
                 return;
             }
@@ -247,6 +267,10 @@ public class Scanner {
                 match(7, "");
             } else if (Character.isLetterOrDigit(ch) || singles.contains(ch)) {
                 pointer--;
+                token = new Token("/", "");
+                return;
+            } else if (delimiters.contains(ch)) {
+                isSingle++;
                 token = new Token("/", "");
                 return;
             } else if (finished) {
@@ -268,7 +292,8 @@ public class Scanner {
         }
         if (isError) {
             isError = false;
-            System.out.println("ERROR: " + errorMessage);
+            System.out.println(Color.ANSI_RED + "PANIC MODE - SCANNER" + Color.ANSI_RESET);
+            System.out.println(Color.ANSI_BLUE + errorMessage + Color.ANSI_RESET);
             match(0, "");
         }
     }
