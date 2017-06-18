@@ -132,6 +132,7 @@ public class Parser {
                 System.out.println("PANIC MODE - PARSER");
 
                 String state = "";
+                int firstState = Integer.parseInt(parsStack.peek());
                 L1:
                 while (parsStack.size() > 0) {
                     state = parsStack.peek();
@@ -152,7 +153,7 @@ public class Parser {
                             for (String s : NT) {
                                 if (follows.get(s).contains(t.type)) {
                                     System.out.println(t.type + " " + state + "!!!!!!!!");
-//                                    dummyReduce(s);
+                                    dummyReduce(s, firstState, t);
 
                                     parsStack.push(s);
                                     parsStack.push(Integer.toString(target.get(s)));
@@ -249,23 +250,27 @@ public class Parser {
         return toRet;
     }
 
-    public void dummyReduce(String lhs) {
-        System.out.println(lhs);
-        if (lhs.charAt(0) == 'X') {
-            int idx = Integer.parseInt(lhs.substring(1));
-            cg.generateCode(lhs, codeGenTokens);
-        }
-        if (lhs.equals("ArgList"))
-            cg.generateCode("ArgList", codeGenTokens);
-        if (lhs.equals("Call"))
-            cg.generateCode("jmpToFunc", codeGenTokens);
-        if (lhs.equals("Var"))
-            cg.generateCode("Var", codeGenTokens);
-        if (lhs.equals("Param"))
-            cg.generateCode("parameter", codeGenTokens);
-        if (lhs.equals("X25"))
-            cg.generateCode("output", codeGenTokens);
+    public void dummyReduce(String lhs, int state, Token t) {
+        String tmp = parseTable.actionTable.get(state).get(t.type);
+        if (tmp != null && tmp.charAt(0) == 'r') {
+            System.out.println(t.type);
+            System.out.println("hereeex");
+            if (lhs.charAt(0) == 'X') {
+                int idx = Integer.parseInt(lhs.substring(1));
+                cg.generateCode(lhs, codeGenTokens);
+            }
+            if (lhs.equals("ArgList"))
+                cg.generateCode("ArgList", codeGenTokens);
+            if (lhs.equals("Call"))
+                cg.generateCode("jmpToFunc", codeGenTokens);
+            if (lhs.equals("Var"))
+                cg.generateCode("Var", codeGenTokens);
+            if (lhs.equals("Param"))
+                cg.generateCode("parameter", codeGenTokens);
+            if (lhs.equals("X25"))
+                cg.generateCode("output", codeGenTokens);
 
+        }
     }
 
 }
