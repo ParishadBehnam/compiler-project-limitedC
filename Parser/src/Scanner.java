@@ -29,8 +29,8 @@ public class Scanner {
         symbolTable.add(new HashMap<Index, Target>());
 
         try {
-            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/[قختثزف/compiler-limitedC/Parser/src/file.txt"));
-//            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
+//            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/[قختثزف/compiler-limitedC/Parser/src/file.txt"));
+            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -113,7 +113,6 @@ public class Scanner {
         } else if (pointer >= input.length()) {
             finished = true;
             input = getInput(scanner);
-            isSingle = 1;
             ch = input.charAt(0);
             pointer = 0;
         } else
@@ -196,7 +195,6 @@ public class Scanner {
                 return;
             } else if (finished) {
                 if (ch == ' ') {
-                    isSingle = 1;
                     token = new Token(tokenstr, "");
                     return;
                 }
@@ -218,7 +216,6 @@ public class Scanner {
                 match(3, tokenstr + ch);
             } else if (finished) {
                 if (ch == ' ') {
-                    isSingle = 0;
                     token = new Token("NUM", tokenstr);
                     return;
                 }
