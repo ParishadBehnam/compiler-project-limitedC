@@ -22,6 +22,7 @@ public class CodeGenerator {
     Token funcToken;
     Token calleeToken;
     boolean returnSeen = false;
+    static boolean errorSeen = false;
 
     public CodeGenerator() {
         display[0] = 100;
@@ -32,9 +33,11 @@ public class CodeGenerator {
     }
 
     public static void print() {
+        if(!errorSeen)
         for (int i = 0; i < PB.size(); i++) {
             System.out.println(i + ": " + PB.get(i));
         }
+        errorSeen = true;
     }
 
     public void printStack() {
@@ -328,7 +331,7 @@ public class CodeGenerator {
         try {
             Index idx = new Index(tokens[2].name);
             Target target = Scanner.lookup(idx);
-            System.out.println(target.type);
+//            System.out.println(target.type);
 //        if (!target.type.equals("")) {
 //            System.out.println("SEMANTIC ERROR: duplicate declaration of " + tokens[2].name);
 //            System.exit(0);
@@ -356,7 +359,7 @@ public class CodeGenerator {
         try {
             Index idx = new Index(tokens[1].name);
             Target target = Scanner.lookup(idx);
-            System.out.println(target.type);
+//            System.out.println(target.type);
 
             target.address = lastMainMemory;
             target.scope = Scanner.symbolTable.size();
