@@ -59,6 +59,7 @@ class Target{
     public int scope;
     public int paramsNum;
     public boolean isVoid;
+    public boolean isParam;
     public int length;
 
     public Target(String type, Long address, int dimension, int scope) {
@@ -66,6 +67,7 @@ class Target{
         this.address = address;
         this.dimension = dimension;
         this.scope = scope;
+        this.isParam = false;
     }
 }
 

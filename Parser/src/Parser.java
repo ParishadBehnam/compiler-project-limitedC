@@ -169,7 +169,6 @@ public class Parser {
                 res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
                 if (res == null) {
                     cg.gc(codeGenTokens);
-                    System.out.println("Panic mode failed, genarated code till now:");
                     CodeGenerator.print();
                     return;
                 }

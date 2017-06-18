@@ -167,11 +167,13 @@ public class CodeGenerator {
                 t = getTarget(tokens[3]);
                 t.address = lastMainMemory;
                 t.type = "pointer";
+                t.isParam = true;
                 list.add("pointer");
             } else {
                 t = getTarget(tokens[1]);
                 t.address = lastMainMemory;
                 t.type = "int";
+                t.isParam = true;
                 list.add("int");
             }
             lastMainMemory += 4;
@@ -200,7 +202,8 @@ public class CodeGenerator {
             int argsNum = argsStack.peek();
             if (argsNum != 0) {
                 System.out.println(argsNum);
-                System.out.println("SEMANTIC ERROR: arguments' number of function " + calleeToken.name + " don't match!");
+                System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE + "Arguments' number of function "
+                        + calleeToken.name + " don't match!" + Color.ANSI_RESET);
                 System.exit(0);
             }
             argsStack.pop();
@@ -241,7 +244,8 @@ public class CodeGenerator {
             lastTmpMemory += 4;
             ArrayList<String> list = paramTypes.get(calleeToken.name);
             if ((!tokens[1].type.equals("ID") || !getTarget(tokens[1]).type.equals("pointer")) && list.get(list.size() - argsNum).equals("pointer")) {
-                System.out.println("SEMANTIC ERROR: passed parameters to function " + calleeToken.name + " mismatched");
+                System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE + "Passed parameters to function "
+                        + calleeToken.name + " mismatched" + Color.ANSI_RESET);
                 System.exit(0);
             }
             argsNum--;
@@ -266,15 +270,15 @@ public class CodeGenerator {
             Target target = getTarget(funcToken);
             if (!returnSeen) {
                 if (funcToken.name.equals("main") && !getTarget(funcToken).isVoid) {
-                    System.out.println("SEMANTIC ERROR: return type of function main should be void");
+                    System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE + "Return type of function main should be void" + Color.ANSI_RESET);
                     System.exit(0);
                 }
                 if (funcToken.name.equals("main") && paramsNum != 0) {
-                    System.out.println("SEMANTIC ERROR: argument of function main should be void");
+                    System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE + "Argument of function main should be void" + Color.ANSI_RESET);
                     System.exit(0);
                 }
                 if (!getTarget(funcToken).isVoid) {
-                    System.out.println("SEMANTIC ERROR: return type of function " + funcToken.name + " mismatched");
+                    System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + "Return type of function " + funcToken.name + " mismatched" + Color.ANSI_RESET);
                     System.exit(0);
                 }
                 Scanner.decScope();
@@ -305,7 +309,7 @@ public class CodeGenerator {
 
             Target target = getTarget(tokens[1]);
             if (!target.type.equals("")) {
-                System.out.println("SEMANTIC ERROR: duplicate declaration of " + tokens[1].name);
+                System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE + "Duplicate declaration of " + tokens[1].name + Color.ANSI_RESET);
                 System.exit(0);
             }
             target.address = (long) PB.size();
@@ -403,16 +407,16 @@ public class CodeGenerator {
             Scanner.decScope();
             lastMainMemory = oldLastMainMemory;
             if (funcToken.name.equals("main") && paramsNum != 0) {
-                System.out.println("SEMANTIC ERROR: argument of function main should be void");
+                System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE + "Argument of function main should be void" + Color.ANSI_RESET);
                 System.exit(0);
             }
             if (!tokens[2].name.equals("return")) {
                 if (funcToken.name.equals("main") && !getTarget(funcToken).isVoid) {
-                    System.out.println("SEMANTIC ERROR: return type of function main should be void");
+                    System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE + "Return type of function main should be void" + Color.ANSI_RESET);
                     System.exit(0);
                 }
                 if (getTarget(funcToken).isVoid) {
-                    System.out.println("SEMANTIC ERROR: return type of function " + funcToken.name + " mismatched");
+                    System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE + "Return type of function " + funcToken.name + " mismatched" + Color.ANSI_RESET);
                     System.exit(0);
                 }
 
@@ -420,7 +424,7 @@ public class CodeGenerator {
                 PB.add("(ASSIGN, " + SS.pop() + ", @" + lastTmpMemory + ")");
                 lastTmpMemory += 4;
             } else if (!getTarget(funcToken).isVoid) {
-                System.out.println("SEMANTIC ERROR: return type of function " + funcToken.name + " mismatched");
+                System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE + "Return type of function " + funcToken.name + " mismatched" + Color.ANSI_RESET);
                 System.exit(0);
             }
             PB.add("(SUB, " + display[1] + ", #" + 4 + ", " + lastTmpMemory + ")");
@@ -586,7 +590,7 @@ public class CodeGenerator {
     private void pidNum(Token[] tokens) {
         try {
             if (tokens[0].name.matches("\\d+\\.\\d+")) {
-                System.out.println("SEMANTIC ERROR: type mismatched. int expected");
+                System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE + "Type mismatched. int expected" + Color.ANSI_RESET);
                 Double d = Double.parseDouble(tokens[0].name);
                 tokens[0].name = d.intValue() + "";
             }
@@ -605,7 +609,7 @@ public class CodeGenerator {
             argsStack.push(target.paramsNum);
             System.out.println("argsssssss caller" + target.type);
             if (target.type.equals("")) {
-                System.out.println("SEMANTIC ERROR: function " + tokens[1].name + " hasn't been declared");
+                System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE + "Function " + tokens[1].name + " hasn't been declared" + Color.ANSI_RESET);
                 System.exit(0);
             }
 
@@ -713,10 +717,11 @@ public class CodeGenerator {
             String arr = SS.pop();
             Target top = IDsStack.peek();
 
-
-            PB.add("(LT, " + exp + ", #" + top.length + " ," + lastTmpMemory + ")");
-            PB.add("(JPF, " + lastTmpMemory + ", 1)");
-            lastTmpMemory += 4;
+            if (!top.isParam) {
+                PB.add("(LT, " + exp + ", #" + top.length + " ," + lastTmpMemory + ")");
+                PB.add("(JPF, " + lastTmpMemory + ", 1)");
+                lastTmpMemory += 4;
+            }
 
             PB.add("(MULT, #4, " + exp + ", " + lastTmpMemory + ")");
             PB.add("(ADD, " + lastTmpMemory + ", " + arr + ", " + (lastTmpMemory + 4) + ")");
@@ -725,7 +730,7 @@ public class CodeGenerator {
             lastTmpMemory += 4;
 
             if (!top.type.equals("pointer")) {
-                System.out.println("SEMANTIC ERROR: type mismatched");
+                System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE + "Type mismatched" + Color.ANSI_RESET);
                 System.exit(0);
             }
         } catch (Exception e) {
@@ -738,7 +743,7 @@ public class CodeGenerator {
         try {
         Target t = getTarget(tokens[1]);
         if (t.type.equals("")) {
-            System.out.println("SEMANTIC ERROR: ID " + tokens[1].name + " hasn't been declared");
+            System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE + "ID " + tokens[1].name + " hasn't been declared" + Color.ANSI_RESET);
             System.exit(0);
         }
         PB.add("(ADD, " + display[t.scope - 1] + ", #" + t.address + ", " + lastTmpMemory + ")");
