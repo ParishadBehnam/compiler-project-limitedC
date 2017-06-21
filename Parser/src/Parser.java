@@ -136,7 +136,8 @@ public class Parser {
                 while (parsStack.size() > 0) {
                     state = parsStack.peek();
                     if (!state.matches("\\d+")) {
-                        parsStack.pop();
+                        String arg = parsStack.pop();
+//                        dummyReduce(arg, firstState, t);
                         continue;
                     }
 
@@ -169,14 +170,14 @@ public class Parser {
                 res = parseTable.actionTable.get(Integer.parseInt(parsStack.peek())).get(t.type);
                 if (res == null) {
                     cg.gc(codeGenTokens);
-                    CodeGenerator.print();
-                    return;
+//                    return;
                 }
 
             }
 
+            assert res != null;
             if (res.equals("accept")) {
-                CodeGenerator.print();
+//                CodeGenerator.print();
                 return;
             }
 //            System.out.println("res" + res);
@@ -2044,8 +2045,6 @@ class ParseTable {
         gotoTable.add(row153g);
         gotoTable.add(row154g);
         gotoTable.add(row155g);
-
-
     }
 
 }

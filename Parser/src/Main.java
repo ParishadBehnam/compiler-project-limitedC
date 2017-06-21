@@ -6,6 +6,12 @@ public class Main {
         Scanner myScanner = new Scanner();
 
         Parser p = new Parser();
-        p.start();
+        try {
+            p.start();
+        } catch (Exception e) {
+            System.out.println("panic failed, code generated till now:");
+        } finally {
+            CodeGenerator.print();
+        }
     }
 }
