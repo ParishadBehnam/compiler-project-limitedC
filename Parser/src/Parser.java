@@ -109,7 +109,7 @@ public class Parser {
                 if (grammarLHS.get(idx - 1).equals("ArgList"))
                     cg.generateCode("ArgList", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("Call"))
-                    cg.generateCode("jmpToFunc", codeGenTokens);
+                    cg.generateCode("Call", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("Var"))
                     cg.generateCode("Var", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("Param"))
@@ -120,6 +120,10 @@ public class Parser {
                     cg.generateCode("X26", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("X27"))
                     cg.generateCode("X27", codeGenTokens);
+                if (grammarLHS.get(idx - 1).equals("SelectionStmt"))
+                    cg.generateCode("stmt", codeGenTokens);
+                if (grammarLHS.get(idx - 1).equals("IterationStmt"))
+                    cg.generateCode("stmt", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("X28"))
                     cg.generateCode("X28", codeGenTokens);
 

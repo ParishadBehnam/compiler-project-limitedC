@@ -9,6 +9,7 @@ public class Main {
         try {
             p.start();
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("panic failed, code generated till now:");
         } finally {
             CodeGenerator.print();

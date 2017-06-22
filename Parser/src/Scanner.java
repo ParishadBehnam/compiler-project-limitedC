@@ -57,9 +57,10 @@ public class Scanner {
 
     public static Target lookup(Index index) {
 
-        for (int i = symbolTable.size() - 1; i >= 0; i--) {
-            if (symbolTable.get(i).containsKey(index))
+        for (int i = symbolTable.size() - 1; i >= 1; i--) {
+            if (symbolTable.get(i).containsKey(index)) {
                 return symbolTable.get(i).get(index);   //return the target in the outer scope :D
+            }
         }
         return null;
     }
@@ -84,11 +85,14 @@ public class Scanner {
             Target target = new Target("", null, 0, symbolTable.size());
             partial = symbolTable.get(symbolTable.size() - 1);
 
+//            System.out.println(symbolTable.size() + "index "+ index.name + " lookup " + lookup(index));
             if (!partial.containsKey(index)) {  //not in the outer scope
+//                System.out.println("index "+ index.name + " lookup " + lookup(index));
                 if (inDeclaration) {
                     partial.put(index, target);
-                } else if (symbolTable.size() == 1 || !symbolTable.get(0).containsKey(index))
+                } else if (symbolTable.size() == 2 || lookup(index) == null) {
                     partial.put(index, target);
+                }
             }
             inDeclaration = false;
         }

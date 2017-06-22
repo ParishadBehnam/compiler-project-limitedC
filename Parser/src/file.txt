@@ -1,9 +1,17 @@
 int x;
 void main (void) {
-int x;
+int y;
 if(x == 1) {
-x = 2;
+int z;
+if (x < 3) {
+    int xx;
+    z = 3;
+    xx = 5;
+    }
+    x = 2;
+z = 2;
+} else {
+y = 2;
 }
-x = 1;
 }
 EOF
