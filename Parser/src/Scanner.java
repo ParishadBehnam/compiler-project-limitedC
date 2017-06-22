@@ -8,20 +8,21 @@ import java.util.HashMap;
  */
 public class Scanner {
 
-    public static ArrayList<HashMap<Index, Target>> symbolTable;
+    static ArrayList<HashMap<Index, Target>> symbolTable;
 
     private static boolean inDeclaration;
-    private static int isSingle;
     private static boolean isError;
+    private static int isSingle;
     private static String input;
     private static java.util.Scanner scanner;
     private static ArrayList<Character> singles;
     private static ArrayList<Character> delimiters;
     private static Token token;
-    public static int pointer;
-    public static int line = 0;
+    static int pointer;
+    static int line;
 
     public Scanner() {
+        line = 0;
         pointer = -1;
         inDeclaration = false;
         isSingle = 1;
@@ -32,8 +33,8 @@ public class Scanner {
         symbolTable.add(new HashMap<Index, Target>());
 
         try {
-            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/[قختثزف/compiler-limitedC/Parser/src/file.txt"));
-//            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
+//            scanner = new java.util.Scanner(new File("/Users/afra/University/Compiler/[قختثزف/compiler-limitedC/Parser/src/file.txt"));
+            scanner = new java.util.Scanner(new File("C:\\Users\\parishad behnam\\IdeaProjects\\compiler-limitedC\\Parser\\src\\file.txt"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -43,8 +44,7 @@ public class Scanner {
 
     private static String getInput(java.util.Scanner scanner) {
         line ++;
-        String s = scanner.nextLine() + " ";
-        return s;
+        return scanner.nextLine() + " ";
     }
 
     public static void incScope() {
@@ -59,7 +59,7 @@ public class Scanner {
 
         for (int i = symbolTable.size() - 1; i >= 0; i--) {
             if (symbolTable.get(i).containsKey(index))
-                return symbolTable.get(i).get(index);
+                return symbolTable.get(i).get(index);   //return the target in the outer scope :D
         }
         return null;
     }
@@ -78,11 +78,13 @@ public class Scanner {
         HashMap<Index, Target> partial;
         token = new Token();
         match(0, "");
+
         if (token.type != null && token.type.equals("ID")) {
             Index index = new Index(token.name);
             Target target = new Target("", null, 0, symbolTable.size());
             partial = symbolTable.get(symbolTable.size() - 1);
-            if (!partial.containsKey(index)) {
+
+            if (!partial.containsKey(index)) {  //not in the outer scope
                 if (inDeclaration) {
                     partial.put(index, target);
                 } else if (symbolTable.size() == 1 || !symbolTable.get(0).containsKey(index))
@@ -99,14 +101,14 @@ public class Scanner {
         char ch = ' ';
         pointer++;
 
-        if (pointer >= input.length() && !scanner.hasNextLine()) {
+        if (pointer >= input.length() && !scanner.hasNextLine()) {  //end of file!
             token = new Token("$", "");
             input = "";
             pointer = 0;
             return;
         }
 
-        if ((state == 7 || state == 8) && pointer >= input.length()) {
+        if ((state == 7 || state == 8) && pointer >= input.length()) { //in comment scope
             input = getInput(scanner);
             isSingle = 0;
             pointer = 0;
@@ -122,7 +124,6 @@ public class Scanner {
         } else
             ch = input.charAt(pointer);
 
-//        System.out.println("state " + state + " : " + isSingle + " " + ch);
         if (state == 0) {
             if (delimiters.contains(ch)) {
                 match(state, tokenstr);
