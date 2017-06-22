@@ -236,7 +236,7 @@ public class CodeGenerator {
     private void args(Token[] tokens) {
         int argsNum = argsStack.pop();
         String exp = SS.pop();
-        PB.add("(ADD, " + display[1] + ", #" + (8 + (argsNum - 1) * 4) + ", " + lastTmpMemory + ")");   //arguments assignment
+        PB.add("(ADD, " + display[1] + ", #" + (8 + lastMainMemory + (argsNum - 1) * 4) + ", " + lastTmpMemory + ")");   //arguments assignment
         PB.add("(ASSIGN, " + exp + ", @" + lastTmpMemory + ")");
         lastTmpMemory += 4;
         ArrayList<String> list = paramTypes.get(calleeToken.name);
