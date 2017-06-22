@@ -85,9 +85,7 @@ public class Scanner {
             Target target = new Target("", null, 0, symbolTable.size());
             partial = symbolTable.get(symbolTable.size() - 1);
 
-//            System.out.println(symbolTable.size() + "index "+ index.name + " lookup " + lookup(index));
             if (!partial.containsKey(index)) {  //not in the outer scope
-//                System.out.println("index "+ index.name + " lookup " + lookup(index));
                 if (inDeclaration) {
                     partial.put(index, target);
                 } else if (symbolTable.size() == 2 || lookup(index) == null) {

@@ -16,8 +16,7 @@ public class CodeGenerator {
     private Stack<Integer> argsStack;   //functions' arguments number
     private long[] display;
     private long lastMainMemory = 0;
-//    private long oldLastMainMemory = 0;
-    private long lastTmpMemory = 1000;
+    private long lastTmpMemory = 500;
     private int paramsNum = 0;
 
     private Token funcToken;
@@ -34,17 +33,14 @@ public class CodeGenerator {
         mainMemoryStack = new Stack<>();
         IDsStack = new Stack<>();
         argsStack = new Stack<>();
-        display = new long[6];
+        display = new long[2];
 
-        for (int i = 0; i < 6; i++) {
-            display[i] = 100 - i*4;
-        }
+        display[0] = 100;
+        display[1] = 104;
 
-        PB.add("(JP, " + (PB.size() + display.length + 2) + ")");
+        PB.add("(JP, " + (PB.size() + 2) + ")");
         PB.add("");
-        for (int i = 0; i < 6; i++) {
-            PB.add("(ASSIGN, #" + (400 + i * 100) + ", " + display[i] + ")");
-        }
+        PB.add("(ASSIGN, #400, " + display[0] + ")");
     }
 
     public static void print() {
@@ -167,15 +163,12 @@ public class CodeGenerator {
     }
 
     private void incScope() {
-//        oldLastMainMemory = lastMainMemory;
         mainMemoryStack.push(lastMainMemory);
-        lastMainMemory = 0;
         Scanner.incScope();
     }
 
     private void decScope() {
         Scanner.decScope();
-//        System.out.println("here" + Scanner.line + ", " + Scanner.pointer);
         lastMainMemory = mainMemoryStack.pop();
     }
 
@@ -303,9 +296,6 @@ public class CodeGenerator {
         paramTypes.put(tokens[1].name, new ArrayList<String>());
 
         Target target = getTarget(tokens[1]);
-//        System.out.println(tokens[1].name + " *");
-//        System.out.println(Scanner.symbolTable.size());
-//        System.out.println(target);
         if (!target.type.equals("")) {
             System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                     "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
@@ -319,9 +309,8 @@ public class CodeGenerator {
         target.isVoid = tokens[2].name.equals("void");
 
         if (tokens[1].name.equals("main"))  //display assignment
-            PB.add("(ASSIGN, #500, " + display[1] + ")");
+            PB.add("(ASSIGN, #108, " + display[1] + ")");
 
-//        oldLastMainMemory = lastMainMemory;
         mainMemoryStack.push(lastMainMemory);
         lastMainMemory = 0;
         funcToken = tokens[1];
@@ -338,7 +327,7 @@ public class CodeGenerator {
         target.scope = Scanner.symbolTable.size();
         target.dimension = 1;
         target.type = "pointer";
-        PB.add("(ADD, " + display[target.scope - 2] + ", #" + target.address + ", " + lastTmpMemory + ")");
+        PB.add("(ADD, " + display[fixScope(target.scope - 2)] + ", #" + target.address + ", " + lastTmpMemory + ")");
         PB.add("(ADD, #" + 4 + ", " + lastTmpMemory + ", " + (lastTmpMemory + 4) + ")");
         PB.add("(ASSIGN, " + (lastTmpMemory + 4) + ", @" + lastTmpMemory + ")");
         lastMainMemory += (Integer.parseInt(tokens[0].name) + 1) * 4;   //array fixed length
@@ -485,7 +474,6 @@ public class CodeGenerator {
     }
 
     private void pidNum(Token[] tokens) {
-//        try {
         if (tokens[0].name.matches("\\d+\\.\\d+")) {
             System.out.println(Color.ANSI_RED + "SEMANTIC ERROR" + Color.ANSI_BLUE +
                     "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
@@ -574,16 +562,14 @@ public class CodeGenerator {
     }
 
     private void pid(Token[] tokens) {
-//        System.out.println("!\n" + Scanner.symbolTable.size() + " size");
         Target t = getTarget(tokens[1]);
-//        System.out.println(Scanner.symbolTable.size() + " size");
         if (t == null || t.type.equals("")) {
             System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                     "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                     ": ID " + tokens[1].name + " hasn't been declared" + Color.ANSI_RESET);
             System.exit(0);
         }
-        PB.add("(ADD, " + display[t.scope - 2] + ", #" + t.address + ", " + lastTmpMemory + ")");
+        PB.add("(ADD, " + display[fixScope(t.scope - 2)] + ", #" + t.address + ", " + lastTmpMemory + ")");
         SS.push("@" + Long.toString(lastTmpMemory));
         IDsStack.push(t);
         lastTmpMemory += 4;
@@ -598,6 +584,10 @@ public class CodeGenerator {
         String exp = SS.pop();
         String var = SS.pop();
         PB.add("(ASSIGN, " + exp + ", " + var + ")");
+    }
+
+    private int fixScope(int scope) {
+        return scope > 0 ? 1 : 0;
     }
 
     private Target getTarget(Token t) {
