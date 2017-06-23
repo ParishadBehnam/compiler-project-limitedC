@@ -1,31 +1,9 @@
-int x;
-void f(int a) {
-    if(a<1){
-        int y;
-        y = 3;
-    }
-    a = 0;
-    while(a == 0) {
-        int z;
-        int y;
-        y = z*y;
-    }
+int f(int x[]) {
+return 3;
 }
-void main (void) {
-    int y;
-    if(x == 1) {
-        int z;
-        if (x < 3) {
-            int xx;
-            z = 3;
-            xx = f(z);
-            }
-            x = 2;
-        z = 2;
-    } else {
-        int x;
-        x = 3;
-        y = 2;
-    }
+
+void main(void) {
+    int x[3];
+    x = f(x);
 }
 EOF

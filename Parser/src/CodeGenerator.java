@@ -231,6 +231,13 @@ public class CodeGenerator {
         PB.add("(ASSIGN, @" + lastTmpMemory + ", " + (lastTmpMemory + 4) + ")");    //return value of fynction assigned to a tmp
         lastTmpMemory += 8;
         SS.push(Long.toString(lastTmpMemory - 4));
+
+        if (t.isVoid) {
+            System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
+                    "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) + ": Return type of function "
+                    + calleeToken.name + " doesn't match!" + Color.ANSI_RESET);
+            System.exit(0);
+        }
     }
 
     private void args(Token[] tokens) {
@@ -240,6 +247,12 @@ public class CodeGenerator {
         PB.add("(ASSIGN, " + exp + ", @" + lastTmpMemory + ")");
         lastTmpMemory += 4;
         ArrayList<String> list = paramTypes.get(calleeToken.name);
+        if (list.size() == 0) { //arguments number mismatched with declared function
+            System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
+                    "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) + ": Arguments' number of function "
+                    + calleeToken.name + " don't match!" + Color.ANSI_RESET);
+            System.exit(0);
+        }
         if ((!tokens[1].type.equals("ID") || !getTarget(tokens[1]).type.equals("pointer")) && list.get(list.size() - argsNum).equals("pointer")) {
             System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE
                     + "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) + ": Passed parameters to function "
