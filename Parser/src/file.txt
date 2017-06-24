@@ -1,17 +1,20 @@
-int f(int x[]) {
-return 3;
+void f(int x[]) {
+return;
+return;
 }
 
 void g(int a[]) {
 return;
 }
-int y;
 
 void main(void) {
-    int x[3];
+    int 46,
     int y;
-    int x3;
+    int x2;
     x2 = 1;
     y = 4;
+    if(y==4){
+    x2 = 12;
+    }
 }
 EOF

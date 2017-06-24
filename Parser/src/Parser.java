@@ -30,7 +30,7 @@ public class Parser {
 
     }
 
-    void start() {
+    void start() throws Exception {
         Token t = Scanner.getToken();
         codeGenTokens[0] = t;
         while (true) {
@@ -60,8 +60,7 @@ public class Parser {
                             t = getTokenFromScanner(t);
                             for (String s : NT) {
                                 if (follows.get(s).contains(t.type)) {
-                                    dummyReduce(s, firstState, t);
-
+//                                    dummyReduce(s, firstState, t);
                                     parsStack.push(s);
                                     parsStack.push(Integer.toString(target.get(s)));
                                     break L1;
@@ -115,7 +114,7 @@ public class Parser {
                 if (grammarLHS.get(idx - 1).equals("Param"))
                     cg.generateCode("parameter", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("X25"))
-                    cg.generateCode("output", codeGenTokens);
+                    cg.generateCode("X25", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("X26"))
                     cg.generateCode("X26", codeGenTokens);
                 if (grammarLHS.get(idx - 1).equals("X27"))
@@ -155,7 +154,7 @@ public class Parser {
         return toRet;
     }
 
-    private void dummyReduce(String lhs, int state, Token t) {
+    private void dummyReduce(String lhs, int state, Token t) throws Exception {
         String tmp = parseTable.actionTable.get(state).get(t.type);
         if (tmp != null && tmp.charAt(0) == 'r') {
             if (lhs.charAt(0) == 'X') {
@@ -165,13 +164,17 @@ public class Parser {
             if (lhs.equals("ArgList"))
                 cg.generateCode("ArgList", codeGenTokens);
             if (lhs.equals("Call"))
-                cg.generateCode("jmpToFunc", codeGenTokens);
+                cg.generateCode("Call", codeGenTokens);
             if (lhs.equals("Var"))
                 cg.generateCode("Var", codeGenTokens);
             if (lhs.equals("Param"))
                 cg.generateCode("parameter", codeGenTokens);
-            if (lhs.equals("X25"))
-                cg.generateCode("output", codeGenTokens);
+            if (lhs.equals("SelectionStmt"))
+                cg.generateCode("stmt", codeGenTokens);
+            if (lhs.equals("IterationStmt"))
+                cg.generateCode("stmt", codeGenTokens);
+            if (lhs.equals("X28"))
+                cg.generateCode("X28", codeGenTokens);
 
         }
     }

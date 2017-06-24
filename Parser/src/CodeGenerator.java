@@ -12,7 +12,7 @@ public class CodeGenerator {
     private HashMap<String, ArrayList<String>> paramTypes;  //types of functions' parameters.
     private Stack<String> SS;
     private Stack<Long> mainMemoryStack;
-    private Stack<Target> IDsStack;
+    private Stack<Target> IDsStack; //semantic: array and int conflict
     private Stack<Integer> argsStack;   //functions' arguments number
     private long[] display;
     private long lastMainMemory = 0;
@@ -24,7 +24,7 @@ public class CodeGenerator {
     private boolean returnSeen = false;
     private static boolean errorSeen = false;
 
-    public CodeGenerator() {
+    CodeGenerator() {
 
         PB = new ArrayList<>();
         paramTypes = new HashMap<>();
@@ -40,10 +40,10 @@ public class CodeGenerator {
 
         PB.add("(JP, " + (PB.size() + 2) + ")");
         PB.add("");
-        PB.add("(ASSIGN, #400, " + display[0] + ")");
+        PB.add("(ASSIGN, #108, " + display[0] + ")");
     }
 
-    public static void print() {
+    static void print() {
         if (!errorSeen)
             for (int i = 0; i < PB.size(); i++) {
                 System.out.println(i + ": " + PB.get(i));
@@ -58,7 +58,7 @@ public class CodeGenerator {
         }
     }
 
-    public void generateCode(String type, Token[] tokens) {
+    public void generateCode(String type, Token[] tokens) throws Exception {
         switch (type) {
             case "X1":
                 assign(tokens);
@@ -120,9 +120,6 @@ public class CodeGenerator {
             case "X17":
                 callee(tokens);
                 break;
-            case "X18":
-                jpMain(tokens);
-                break;
             case "X19":
                 gc(tokens);
                 break;
@@ -138,7 +135,7 @@ public class CodeGenerator {
             case "X24":
                 caller(tokens);
                 break;
-            case "output": //output
+            case "X25": //output
                 output(tokens);
                 break;
             case "ArgList":
@@ -152,9 +149,6 @@ public class CodeGenerator {
                 break;
             case "Var":
                 pidPop(tokens);
-                break;
-            case "Op":
-                op(tokens);
                 break;
             case "X23":
                 funcEnd(tokens);
@@ -204,21 +198,29 @@ public class CodeGenerator {
         PB.add("(PRINT, " + exp + ")");
     }
 
-    private void jpFunc(Token[] tokens) {
+    private void jpFunc(Token[] tokens) throws Exception {
         int argsNum = argsStack.peek();
         if (argsNum != 0) { //arguments number mismatched with declared function
             System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                     "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) + ": Arguments' number of function "
                     + calleeToken.name + " don't match!" + Color.ANSI_RESET);
-            System.exit(0);
+            throw new Exception();
         }
+
+        Target t = getTarget(calleeToken);
+        if (t.isVoid) {
+            System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
+                    "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) + ": Return type of function "
+                    + calleeToken.name + " doesn't match!" + Color.ANSI_RESET);
+            throw new Exception();
+        }
+
         argsStack.pop();
 
         int s = PB.size() + 7;
         PB.add("(ADD, " + display[1] + ", #" + (lastMainMemory) + ", " + lastTmpMemory + ")");  //return line address
         PB.add("(ASSIGN, #" + s + ", @" + lastTmpMemory + ")");
         lastTmpMemory += 4;
-        Target t = getTarget(calleeToken);
         PB.add("(ADD, " + display[1] + ", #" + (8 + 4 * t.paramsNum + lastMainMemory) + ", " + lastTmpMemory + ")"); //display exchange
         PB.add("(ASSIGN, " + display[1] + ", @" + lastTmpMemory + ")");
         lastTmpMemory += 4;
@@ -228,19 +230,13 @@ public class CodeGenerator {
 
         PB.add("(JP, " + t.address + ")");
         PB.add("(ADD, " + display[1] + ", #" + (lastMainMemory + 4) + ", " + lastTmpMemory + ")");
-        PB.add("(ASSIGN, @" + lastTmpMemory + ", " + (lastTmpMemory + 4) + ")");    //return value of fynction assigned to a tmp
+        PB.add("(ASSIGN, @" + lastTmpMemory + ", " + (lastTmpMemory + 4) + ")");    //return value of function assigned to a tmp
         lastTmpMemory += 8;
         SS.push(Long.toString(lastTmpMemory - 4));
 
-        if (t.isVoid) {
-            System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
-                    "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) + ": Return type of function "
-                    + calleeToken.name + " doesn't match!" + Color.ANSI_RESET);
-            System.exit(0);
-        }
     }
 
-    private void args(Token[] tokens) {
+    private void args(Token[] tokens) throws Exception {
         int argsNum = argsStack.pop();
         String exp = SS.pop();
         PB.add("(ADD, " + display[1] + ", #" + (8 + lastMainMemory + (argsNum - 1) * 4) + ", " + lastTmpMemory + ")");   //arguments assignment
@@ -251,42 +247,39 @@ public class CodeGenerator {
             System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                     "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) + ": Arguments' number of function "
                     + calleeToken.name + " don't match!" + Color.ANSI_RESET);
-            System.exit(0);
+            throw new Exception();
         }
         if ((!tokens[1].type.equals("ID") || !getTarget(tokens[1]).type.equals("pointer")) && list.get(list.size() - argsNum).equals("pointer")) {
             System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE
                     + "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) + ": Passed parameters to function "
                     + calleeToken.name + " mismatched" + Color.ANSI_RESET);
-            System.exit(0);
+            throw new Exception();
         }
         argsNum--;  //check mark a parameter
         argsStack.push(argsNum);
     }
 
-    private void op(Token[] tokens) {
-        SS.push(tokens[1].type);
-    }
 
-    private void funcEnd(Token[] tokens) {
+    private void funcEnd(Token[] tokens) throws Exception {
         Target target = getTarget(funcToken);
         if (!returnSeen) {
             if (funcToken.name.equals("main") && !getTarget(funcToken).isVoid) {
                 System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE
                         + "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                         ": Return type of function main should be void" + Color.ANSI_RESET);
-                System.exit(0);
+                throw new Exception();
             }
             if (funcToken.name.equals("main") && paramsNum != 0) {
                 System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                         "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                         ": Argument of function main should be void" + Color.ANSI_RESET);
-                System.exit(0);
+                throw new Exception();
             }
             if (!getTarget(funcToken).isVoid) {
                 System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                         "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                         ": Return type of function " + funcToken.name + " mismatched" + Color.ANSI_RESET);
-                System.exit(0);
+                throw new Exception();
             }
             Scanner.decScope();
             lastMainMemory = mainMemoryStack.pop();
@@ -302,7 +295,7 @@ public class CodeGenerator {
         returnSeen = false;
     }
 
-    private void funcSetup(Token[] tokens) {
+    private void funcSetup(Token[] tokens) throws Exception {
         int i = Integer.parseInt(SS.peek());
         PB.set(i, "(JP, " + PB.size() + ")"); //main jump
 
@@ -313,7 +306,7 @@ public class CodeGenerator {
             System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                     "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                     ": Duplicate declaration of " + tokens[1].name + Color.ANSI_RESET);
-            System.exit(0);
+            throw new Exception();
         }
         target.address = (long) PB.size();
         target.type = "function";
@@ -322,7 +315,7 @@ public class CodeGenerator {
         target.isVoid = tokens[2].name.equals("void");
 
         if (tokens[1].name.equals("main"))  //display assignment
-            PB.add("(ASSIGN, #108, " + display[1] + ")");
+            PB.add("(ASSIGN, #200, " + display[1] + ")");
 
         mainMemoryStack.push(lastMainMemory);
         lastMainMemory = 0;
@@ -330,7 +323,7 @@ public class CodeGenerator {
         Scanner.incScope();
     }
 
-    private void arrayMemory(Token[] tokens) {
+    private void arrayMemory(Token[] tokens) throws Exception {
         Index idx = new Index(tokens[2].name);
         Target target = Scanner.lookup(idx);
 
@@ -338,7 +331,7 @@ public class CodeGenerator {
             System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                     "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                     ": Duplicate declaration of " + tokens[1].name + Color.ANSI_RESET);
-            System.exit(0);
+            throw new Exception();
         }
 
         target.length = Integer.parseInt(tokens[0].name);
@@ -353,7 +346,7 @@ public class CodeGenerator {
         lastTmpMemory += 8;
     }
 
-    private void varMemory(Token[] tokens) {
+    private void varMemory(Token[] tokens) throws Exception {
         Index idx = new Index(tokens[1].name);
         Target target = Scanner.lookup(idx);
 
@@ -361,7 +354,7 @@ public class CodeGenerator {
             System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                     "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                     ": Duplicate declaration of " + tokens[1].name + Color.ANSI_RESET);
-            System.exit(0);
+            throw new Exception();
         }
 
         target.address = lastMainMemory;
@@ -382,11 +375,8 @@ public class CodeGenerator {
             SS.pop();
     }
 
-    private void jpMain(Token[] tokens) {
 
-    }
-
-    private void callee(Token[] tokens) {
+    private void callee(Token[] tokens) throws Exception {
         if (!returnSeen) {
             returnSeen = true;
             Scanner.decScope();
@@ -395,20 +385,20 @@ public class CodeGenerator {
                 System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                         "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                         ": Argument of function main should be void" + Color.ANSI_RESET);
-                System.exit(0);
+                throw new Exception();
             }
             if (!tokens[2].name.equals("return")) {
                 if (funcToken.name.equals("main") && !getTarget(funcToken).isVoid) {
                     System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                             "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                             ": Return type of function main should be void" + Color.ANSI_RESET);
-                    System.exit(0);
+                    throw new Exception();
                 }
                 if (getTarget(funcToken).isVoid) {
                     System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                             "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                             ": Return type of function " + funcToken.name + " mismatched" + Color.ANSI_RESET);
-                    System.exit(0);
+                    throw new Exception();
                 }
 
                 PB.add("(SUB, " + display[1] + ", #" + (8 + 4 * paramsNum) + ", " + lastTmpMemory + ")");
@@ -418,7 +408,7 @@ public class CodeGenerator {
                 System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                         "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                         ": Return type of function " + funcToken.name + " mismatched" + Color.ANSI_RESET);
-                System.exit(0);
+                throw new Exception();
             }
             PB.add("(SUB, " + display[1] + ", #" + 4 + ", " + lastTmpMemory + ")");
             PB.add("(ASSIGN, @" + lastTmpMemory + ", " + display[1] + ")");
@@ -430,10 +420,11 @@ public class CodeGenerator {
             target.paramsNum = paramsNum;
             paramsNum = 0;
         } else {
-            System.out.println(Color.ANSI_RED + "SEMANTIC WARNING" + Color.ANSI_BLUE + "Line " +
+            System.out.println(Color.ANSI_YELLOW + "SEMANTIC WARNING:" + "\n" + Color.ANSI_BLUE + "Line " +
                     Scanner.line + " Character " + (Scanner.pointer + 1) +
                     ": Unreachable statement" + Color.ANSI_RESET);
-            SS.pop();
+            if (!tokens[2].name.equals("return"))
+                SS.pop();
         }
     }
 
@@ -502,7 +493,7 @@ public class CodeGenerator {
 
     private void pidNum(Token[] tokens) {
         if (tokens[0].name.matches("\\d+\\.\\d+")) {
-            System.out.println(Color.ANSI_RED + "SEMANTIC ERROR" + Color.ANSI_BLUE +
+            System.out.println(Color.ANSI_YELLOW + "SEMANTIC WARNING" + Color.ANSI_BLUE +
                     "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                     ": Type mismatched. float number cast to int" + Color.ANSI_RESET);
             Double d = Double.parseDouble(tokens[0].name);
@@ -511,7 +502,7 @@ public class CodeGenerator {
         SS.push("#" + tokens[0].name);
     }
 
-    private void caller(Token[] tokens) {
+    private void caller(Token[] tokens) throws Exception {
         Target target = getTarget(tokens[1]);
         calleeToken = tokens[1];
         argsStack.push(target.paramsNum);
@@ -519,7 +510,7 @@ public class CodeGenerator {
             System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                     "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                     ": Function " + tokens[1].name + " hasn't been declared" + Color.ANSI_RESET);
-            System.exit(0);
+            throw new Exception();
         }
     }
 
@@ -563,7 +554,7 @@ public class CodeGenerator {
         lastTmpMemory += 4;
     }
 
-    private void arrayPid(Token[] tokens) {
+    private void arrayPid(Token[] tokens) throws Exception {
         String exp = SS.pop();
         String arr = SS.pop();
         Target top = IDsStack.peek();
@@ -574,27 +565,27 @@ public class CodeGenerator {
             lastTmpMemory += 4;
         }
 
+        if (!top.type.equals("pointer")) {
+            System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
+                    "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
+                    " Type mismatched" + Color.ANSI_RESET);
+            throw new Exception();
+        }
         PB.add("(MULT, #4, " + exp + ", " + lastTmpMemory + ")");
         PB.add("(ADD, " + lastTmpMemory + ", " + arr + ", " + (lastTmpMemory + 4) + ")");
         lastTmpMemory += 4;
         SS.push("@" + Long.toString(lastTmpMemory));
         lastTmpMemory += 4;
 
-        if (!top.type.equals("pointer")) {
-            System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
-                    "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
-                    " Type mismatched" + Color.ANSI_RESET);
-            System.exit(0);
-        }
     }
 
-    private void pid(Token[] tokens) {
+    private void pid(Token[] tokens) throws Exception {
         Target t = getTarget(tokens[1]);
         if (t == null || t.type.equals("")) {
             System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
                     "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
                     ": ID " + tokens[1].name + " hasn't been declared" + Color.ANSI_RESET);
-            System.exit(0);
+            throw new Exception();
         }
         PB.add("(ADD, " + display[fixScope(t.scope - 2)] + ", #" + t.address + ", " + lastTmpMemory + ")");
         SS.push("@" + Long.toString(lastTmpMemory));
