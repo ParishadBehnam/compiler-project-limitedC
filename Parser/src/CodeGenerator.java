@@ -334,7 +334,13 @@ public class CodeGenerator {
         Index idx = new Index(tokens[2].name);
         Target target = Scanner.lookup(idx);
 
-        assert target != null;
+        if (!target.type.equals("")) {
+            System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
+                    "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
+                    ": Duplicate declaration of " + tokens[1].name + Color.ANSI_RESET);
+            System.exit(0);
+        }
+
         target.length = Integer.parseInt(tokens[0].name);
         target.address = lastMainMemory;
         target.scope = Scanner.symbolTable.size();
@@ -351,11 +357,19 @@ public class CodeGenerator {
         Index idx = new Index(tokens[1].name);
         Target target = Scanner.lookup(idx);
 
+        if (!target.type.equals("")) {
+            System.out.println(Color.ANSI_RED + "SEMANTIC ERROR:\n" + Color.ANSI_BLUE +
+                    "Line " + Scanner.line + " Character " + (Scanner.pointer + 1) +
+                    ": Duplicate declaration of " + tokens[1].name + Color.ANSI_RESET);
+            System.exit(0);
+        }
+
         target.address = lastMainMemory;
         target.scope = Scanner.symbolTable.size();
         target.dimension = 0;
         target.type = "int";
         lastMainMemory += 4;
+
     }
 
     public void gc(Token[] tokens) {

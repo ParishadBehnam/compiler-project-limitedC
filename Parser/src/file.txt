@@ -2,8 +2,16 @@ int f(int x[]) {
 return 3;
 }
 
+void g(int a[]) {
+return;
+}
+int y;
+
 void main(void) {
     int x[3];
-    x = f(x);
+    int y;
+    int x3;
+    x2 = 1;
+    y = 4;
 }
 EOF
